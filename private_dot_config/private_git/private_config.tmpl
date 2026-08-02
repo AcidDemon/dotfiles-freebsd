@@ -1,0 +1,70 @@
+{{- $id := . -}}
+[alias]
+	co = "checkout"
+
+[branch]
+	sort = "-committerdate"
+
+[commit]
+	gpgSign = true
+	gpgsign = true
+	template = "$HOME/.config/git/commit-message"
+
+[core]
+	editor = "vi"
+	pager = "less"
+
+[credential "https://gist.github.com"]
+	helper = ""
+	helper = "gh auth git-credential"
+
+[credential "https://github.com"]
+	helper = ""
+	helper = "gh auth git-credential"
+
+[filter "lfs"]
+	clean = "git-lfs clean -- %f"
+	process = "git-lfs filter-process"
+	required = true
+	smudge = "git-lfs smudge -- %f"
+
+[gpg]
+	program = "gpg2"
+
+[init]
+	defaultBranch = "main"
+
+[lfs]
+	enable = true
+
+[merge]
+	conflictstyle = "diff3"
+
+[pull]
+	rebase = false
+
+[push]
+	autoSetupRemote = true
+	default = "current"
+
+[sendemail "{{ $id.vcs.sendemailSection }}"]
+	envelopeSender = "auto"
+	from = "{{ $id.vcs.sendemailFrom }}"
+	sendmailCmd = "msmtp"
+
+[tag]
+	gpgSign = true
+	gpgsign = true
+	sort = "-v:refname"
+
+[url "git@github.com:"]
+	insteadOf = "https://github.com/"
+	insteadOf = "ssh://git@github.com/"
+
+[user]
+	email = "{{ $id.vcs.email }}"
+	name = "{{ $id.vcs.name }}"
+	signingKey = "{{ $id.vcs.key }}"
+
+[include]
+	path = "~/.git/extra-config"

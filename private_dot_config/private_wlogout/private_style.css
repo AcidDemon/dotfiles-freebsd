@@ -1,0 +1,33 @@
+window {
+  font-family: "Iosevka Nerd Font", sans-serif;
+  font-size: 16px;
+  background-image: none;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+button {
+  color: #ffffff;
+  background-color: #1e1e2e;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 8px;
+  margin: 25px;
+  min-height: 200px;
+  background-repeat: no-repeat;
+  background-position: center 30%;
+  background-size: 20%;
+}
+button label {
+  margin-top: 150px;
+}
+button:focus, button:active, button:hover {
+  background-color: #313244;
+  outline-style: none;
+}
+
+#lock      { background-image: url("/usr/local/share/wlogout/icons/lock.png"); }
+#logout    { background-image: url("/usr/local/share/wlogout/icons/logout.png"); }
+#suspend   { background-image: url("/usr/local/share/wlogout/icons/suspend.png"); }
+#hibernate { background-image: url("/usr/local/share/wlogout/icons/hibernate.png"); }
+#reboot    { background-image: url("/usr/local/share/wlogout/icons/reboot.png"); }
+#shutdown  { background-image: url("/usr/local/share/wlogout/icons/shutdown.png"); }
+

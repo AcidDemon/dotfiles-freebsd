@@ -1,0 +1,117 @@
+/* ═══════════════════════════════════════════════════════════════
+   Reset + typography + GTK chrome (menus, tooltips).
+   Nothing here knows about the bar layout — that lives in
+   styles/pills.css.
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url("palette.css");
+
+* {
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    text-shadow: none;
+    transition: none;
+
+    /* Symbols Nerd Font MUST come first. In the monospace Nerd Fonts an
+       MDI glyph is drawn ~18px wide but reports a 12px advance, so
+       adjacent icons overlap and every pill renders cramped. Symbols
+       Nerd Font reports a ~17px advance for the same 18px of ink.
+       It has no ASCII, so digits and letters still fall through to
+       JetBrainsMono — text metrics are unchanged.
+       Check the family exists with `fc-list : family | grep -i nerd`;
+       a missing one silently falls back to Noto Sans. */
+    font-family: "Symbols Nerd Font", "JetBrainsMono Nerd Font", monospace;
+}
+
+/* Size on the window, not `*`: `*` matches each module's GtkLabel directly,
+   and a direct match beats inheritance, so `#module { font-size }` would
+   never reach its own label. Tooltips and menus are separate toplevels and
+   need their own size below. */
+window#waybar {
+    /* Body text only. Icons scale per module via <span size='130%'> in
+       config.jsonc and scripts/ — the only way to scale an icon without
+       scaling the digits beside it. */
+    font-size: 16px;
+    /* JetBrainsMono is monospace: 500..700 all share Regular's advance
+       (measured 364px either way), so weight costs no width. */
+    font-weight: 500;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Tooltips
+   ─────────────────────────────────────────────────────────────── */
+
+tooltip {
+    background: alpha(@base00, 0.78);
+    border: 1px solid @base02;
+    border-radius: 12px;
+}
+
+tooltip label {
+    color: @fg;
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Tray menus
+   These are GTK menus, not Waybar widgets — they need their own
+   theming or they inherit whatever the system GTK theme is.
+   ─────────────────────────────────────────────────────────────── */
+
+menu {
+    background-color: alpha(@base00, 0.96);
+    color: @fg;
+    border: 1px solid @base02;
+    border-radius: 12px;
+    padding: 4px;
+}
+
+menuitem {
+    min-width: 0;
+    min-height: 18px;
+    margin: 1px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    color: @fg;
+    font-size: 14px;
+}
+
+menuitem:hover {
+    background-color: @base03;
+    color: @fg;
+}
+
+menuitem label,
+menuitem > label {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+/* Shrink the reserved check/radio gutter so labels aren't indented */
+menuitem check,
+menuitem radio {
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 1px;
+}
+
+window.background:not(.csd) > menu > menuitem > radio,
+window.background:not(.csd) > menu > menuitem > check {
+    padding: 1px;
+}
+
+menuitem arrow {
+    min-width: 12px;
+    min-height: 12px;
+    margin: 0;
+}
+
+separator {
+    background-color: @base02;
+}

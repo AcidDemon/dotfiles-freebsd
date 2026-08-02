@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+rofi \
+	-show window \
+	-modi window \
+    -show-icons true \
+	-scroll-method 0 \
+	-drun-match-fields all \
+	-drun-display-format "{name}" \
+    -display-window "" \
+	-no-drun-show-actions \
+	-terminal kitty \
+	-kb-cancel Escape \
+	-theme "$HOME"/.config/rofi/config/window.rasi

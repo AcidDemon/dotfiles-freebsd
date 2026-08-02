@@ -1,0 +1,343 @@
+// Input device configuration.
+input {
+    keyboard {
+        xkb {
+            layout "de"
+            options "grp:alt_shift_toggle"
+        }
+
+        repeat-delay 200
+        repeat-rate 80
+    }
+
+    // Pointing devices
+    touchpad {
+        tap                          // tap_to_click = true
+        dwt                          // disable_while_typing = true
+        drag false                   // tap_and_drag = false
+        scroll-factor 1.5            // scroll_factor = 1.5
+        scroll-method "two-finger"
+        click-method "clickfinger"   // clickfinger_behavior = true
+        accel-profile "flat"
+        accel-speed 0.6
+    }
+
+    mouse {
+        accel-profile "flat"
+        scroll-factor 1.5
+    }
+
+    trackpoint {
+        accel-profile "adaptive"
+        accel-speed 0.5
+        scroll-method "on-button-down"
+        scroll-button 273
+    }
+
+    focus-follows-mouse max-scroll-amount="0%"
+}
+
+output "AU Optronics 0x229E Unknown" {
+    mode "1920x1080@60.049"
+    scale 1
+    transform "normal"
+    position x=0 y=0
+}
+
+cursor {
+    xcursor-theme "Adwaita"
+    xcursor-size 24
+}
+
+layout {
+    gaps 8
+
+    background-color "#181825"
+
+    center-focused-column "never"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+
+    preset-window-heights {
+        proportion 0.5
+        proportion 1.0
+    }
+
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        off
+        width 4
+
+        active-color "#7fc8ff"
+
+        inactive-color "#505050"
+    }
+
+    border {
+        width 2
+        active-gradient from="#cba6f7" to="#89b4fa" angle=180
+        inactive-color "#313244"
+
+        urgent-color "#9b0000"
+    }
+
+    shadow {
+        on
+        softness 12
+        spread 3
+        offset x=3 y=3
+        color "#00000044"
+    }
+
+    struts {
+        // left 64
+        // right 64
+        // top 64
+        // bottom 64
+    }
+}
+
+
+// ---- Autostart -----
+spawn-at-startup "dbus-update-activation-environment" "WAYLAND_DISPLAY" "XDG_RUNTIME_DIR" "XDG_SESSION_TYPE" "XDG_CURRENT_DESKTOP"
+
+spawn-at-startup "waybar"
+
+spawn-at-startup "hypridle"
+
+spawn-at-startup "awww-daemon"
+spawn-at-startup "awww-random"
+
+spawn-at-startup "swaync"
+
+spawn-at-startup "sh" "-c" "wl-paste --type text --watch cliphist store"
+spawn-at-startup "sh" "-c" "wl-paste --type image --watch cliphist store"
+
+spawn-at-startup "gammastep"
+
+spawn-sh-at-startup "~/.local/share/.cargo/bin/ianny"
+
+spawn-at-startup "syncthingtray" "--wait"
+
+hotkey-overlay {
+     skip-at-startup
+}
+
+// --- Environment --------------------------------------------------------
+environment {
+    QT_QPA_PLATFORMTHEME "qt6ct"
+    QT_STYLE_OVERRIDE "kvantum"
+    QT_QPA_PLATFORM "wayland"
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+    GTK_USE_PORTAL "1"
+    DISPLAY ":0"
+    MOZ_ENABLE_WAYLAND "1"
+}
+
+// Ask the clients to omit their client-side decorations if possible.
+prefer-no-csd
+
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+// Animation settings
+animations {
+    slowdown 1.8
+}
+
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {}
+}
+
+window-rule {
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^gcr-prompter$"#
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    block-out-from "screen-capture"
+    open-on-workspace "pass"
+}
+
+window-rule {
+    match app-id=r#"^thunar$"#
+    opacity 0.9
+}
+
+// Drop-down terminal
+window-rule {
+    match app-id=r#"^quake$"#
+    open-floating true
+    open-focused true
+    default-column-width { proportion 0.6; }
+    default-window-height { proportion 0.5; }
+    default-floating-position x=0 y=0 relative-to="top"
+}
+
+window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+
+    draw-border-with-background false
+}
+
+// Persistent named workspaces
+workspace "term"
+workspace "web"
+workspace "mail"
+workspace "files"
+workspace "chat"
+workspace "pass"
+
+// ----- Keybinds ----------------------------------------------------------
+binds {
+    Mod+Shift+Slash { show-hotkey-overlay; }
+
+    // --- Session ---------------------------------------------------------
+    Mod+Shift+E hotkey-overlay-title="Exit niri" { quit; }
+    Mod+Q       hotkey-overlay-title="Close Window" { close-window; }
+    Mod+Shift+Q hotkey-overlay-title="Close Window" { close-window; }
+    Super+Alt+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
+
+    // --- Applications ----------------------------------------------------
+    Mod+Return hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
+    Mod+E      hotkey-overlay-title="File Manager: thunar" { spawn "thunar"; }
+    Mod+D      hotkey-overlay-title="Run an Application: rofi" { spawn-sh "~/.config/rofi/bin/launcher"; }
+    Mod+Y      hotkey-overlay-title="Clipboard History" { spawn-sh "~/bin/cliphist-rofi"; }
+    Mod+N      hotkey-overlay-title="Notification Panel" { spawn-sh "swaync-client -t -sw"; }
+    Mod+W      hotkey-overlay-title="Dismiss Notifications" { spawn-sh "swaync-client -d -sw"; }
+    F12        hotkey-overlay-title="Drop-down Terminal" { spawn-sh "~/.config/niri/scripts/quake.sh"; }
+    Mod+P      hotkey-overlay-title="Passwords: KeePassXC" { focus-workspace "pass"; }
+
+    // --- Navigation ------------------------------------------------------
+    Alt+Tab  hotkey-overlay-title="Window Overview" { toggle-overview; }
+    Mod+Tab  { focus-workspace-previous; }
+
+    Mod+h { focus-column-left; }
+    Mod+l { focus-column-right; }
+    Mod+j { focus-window-down; }
+    Mod+k { focus-window-up; }
+    Mod+Left  { focus-column-left; }
+    Mod+Right { focus-column-right; }
+    Mod+Down  { focus-window-down; }
+    Mod+Up    { focus-window-up; }
+
+    Mod+Shift+h { move-column-left; }
+    Mod+Shift+l { move-column-right; }
+    Mod+Shift+j { move-window-down; }
+    Mod+Shift+k { move-window-up; }
+    Mod+Shift+Left  { move-column-left; }
+    Mod+Shift+Right { move-column-right; }
+    Mod+Shift+Down  { move-window-down; }
+    Mod+Shift+Up    { move-window-up; }
+
+    // Window swaps
+    Mod+Ctrl+h { swap-window-left; }
+    Mod+Ctrl+l { swap-window-right; }
+
+    Mod+Home { focus-column-first; }
+    Mod+End  { focus-column-last; }
+
+    // --- Monitors --------------------------------------------------------
+    Mod+Alt+h { focus-monitor-left; }
+    Mod+Alt+l { focus-monitor-right; }
+    Mod+Alt+j { focus-monitor-down; }
+    Mod+Alt+k { focus-monitor-up; }
+
+    Mod+Alt+Shift+h { move-workspace-to-monitor-left; }
+    Mod+Alt+Shift+l { move-workspace-to-monitor-right; }
+    Mod+Alt+Shift+j { move-workspace-to-monitor-down; }
+    Mod+Alt+Shift+k { move-workspace-to-monitor-up; }
+
+    // --- Layout ----------------------------------------------------------
+    Mod+M       hotkey-overlay-title="Maximize Column" { maximize-column; }
+    Mod+F       hotkey-overlay-title="Fullscreen" { fullscreen-window; }
+    Mod+Shift+F hotkey-overlay-title="Windowed Fullscreen" { toggle-windowed-fullscreen; }
+    Mod+Shift+Space hotkey-overlay-title="Toggle Floating" { toggle-window-floating; }
+    Mod+Ctrl+Space { switch-focus-between-floating-and-tiling; }
+
+    Mod+S { consume-or-expel-window-right; }
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Shift+Minus { switch-preset-column-width-back; }
+    Mod+Shift+Equal { switch-preset-column-width; }
+    Mod+Ctrl+F { expand-column-to-available-width; }
+    Mod+C      { center-column; }
+
+    // --- Workspaces ------------------------------------------------------
+    Mod+1 { focus-workspace "term"; }
+    Mod+2 { focus-workspace "web"; }
+    Mod+3 { focus-workspace "mail"; }
+    Mod+4 { focus-workspace "files"; }
+    Mod+5 { focus-workspace "chat"; }
+    Mod+6 { focus-workspace "pass"; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+0 { focus-workspace 10; }
+
+    Mod+Shift+1 { move-column-to-workspace "term"; }
+    Mod+Shift+2 { move-column-to-workspace "web"; }
+    Mod+Shift+3 { move-column-to-workspace "mail"; }
+    Mod+Shift+4 { move-column-to-workspace "files"; }
+    Mod+Shift+5 { move-column-to-workspace "chat"; }
+    Mod+Shift+6 { move-column-to-workspace "pass"; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+    Mod+Shift+0 { move-column-to-workspace 10; }
+
+    Mod+Page_Down { focus-workspace-down; }
+    Mod+Page_Up   { focus-workspace-up; }
+    Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp   cooldown-ms=150 { focus-workspace-up; }
+
+    // --- Screenshots -----------------------------------------------------
+    Print       hotkey-overlay-title="Screenshot Screen" { spawn-sh "~/bin/shot screen"; }
+    Shift+Print hotkey-overlay-title="Screenshot Window" { spawn-sh "~/bin/shot window"; }
+    Mod+Print   hotkey-overlay-title="Screenshot Area" { spawn-sh "~/bin/shot area"; }
+
+    // --- Audio -----------------------------------------------------------
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "mixer vol.volume=+5%"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "mixer vol.volume=-5%"; }
+    XF86AudioMute        allow-when-locked=true { spawn-sh "mixer vol.mute=^"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn-sh "~/.config/waybar/scripts/mic.sh toggle"; }
+
+    XF86AudioPlay allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioStop allow-when-locked=true { spawn-sh "playerctl stop"; }
+    XF86AudioPrev allow-when-locked=true { spawn-sh "playerctl previous"; }
+    XF86AudioNext allow-when-locked=true { spawn-sh "playerctl next"; }
+
+    // --- Brightness ------------------------------------------------------
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "brightness" "up"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "brightness" "down"; }
+
+    // --- Overview and misc -----------------------------------------------
+    Mod+O repeat=false { toggle-overview; }
+    Mod+Shift+P { power-off-monitors; }
+
+    Mod+Shift+Ctrl+T { toggle-debug-tint; }
+
+    // --- Virtual terminals -----------------------------------------------
+    Ctrl+Alt+F1 allow-when-locked=true { spawn "doas" "/usr/local/sbin/vtswitch" "1"; }
+    Ctrl+Alt+F2 allow-when-locked=true { spawn "doas" "/usr/local/sbin/vtswitch" "2"; }
+    Ctrl+Alt+F3 allow-when-locked=true { spawn "doas" "/usr/local/sbin/vtswitch" "3"; }
+    Ctrl+Alt+F4 allow-when-locked=true { spawn "doas" "/usr/local/sbin/vtswitch" "4"; }
+    Ctrl+Alt+F5 allow-when-locked=true { spawn "doas" "/usr/local/sbin/vtswitch" "5"; }
+    Ctrl+Alt+F6 allow-when-locked=true { spawn "doas" "/usr/local/sbin/vtswitch" "6"; }
+}

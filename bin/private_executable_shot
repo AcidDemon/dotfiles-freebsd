@@ -1,0 +1,36 @@
+#!/bin/sh
+# niri screenshot UI picks, satty annotates. Enter saves and copies.
+set -eu
+
+DIR="${SHOT_DIR:-$HOME/Pictures/Screenshots}"
+
+case "${1:-area}" in
+    screen) action=screenshot-screen ;;
+    window) action=screenshot-window ;;
+    area)   action=screenshot ;;
+    *)      echo "usage: shot [area|screen|window]" >&2; exit 1 ;;
+esac
+
+newest() { ls -t "$DIR"/*.png 2>/dev/null | head -n1; }
+
+before=$(newest)
+niri msg action "$action"
+
+# no file means Esc in the area UI, so just time out
+n=0
+while [ "$(newest)" = "$before" ]; do
+    n=$((n + 1))
+    [ "$n" -gt 600 ] && exit 0
+    sleep 0.1
+done
+
+sleep 0.2   # niri still writing
+
+f=$(newest)
+satty --filename "$f" \
+      --output-filename "$f" \
+      --copy-command wl-copy \
+      --initial-tool arrow \
+      --actions-on-enter save-to-clipboard,save-to-file,exit \
+      --actions-on-escape exit \
+      --annotation-size-factor 1.5

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# neomutt sources this once per account: source "neomutt-sidebar <address>|"
+d="$HOME/.mail/$1"
+[ -d "$d" ] || exit 0
+
+l=${1%%@*}
+dashes='─────────────────────────'
+sep="$HOME/.cache/neomutt/separators/$1"
+mkdir -p "$sep"/{cur,new,tmp}
+printf 'named-mailboxes "─── %s %s" "%s"\n' "$l" "${dashes:0:$((25 - ${#l}))}" "$sep"
+
+for f in INBOX Drafts Sent Spam Trash; do
+    [ -d "$d/$f" ] && printf 'named-mailboxes "  %s" "%s/%s"\n' "$f" "$d" "$f"
+done
+
+find "$d" -maxdepth 2 -type d -name cur \
+    | sed "s|^$d/||;s|/cur$||" \
+    | sort \
+    | grep -vE '^(INBOX|Drafts|Sent|Spam|Trash)$' \
+    | while read -r f; do
+        printf 'named-mailboxes "  %s" "%s/%s"\n' "$f" "$d" "$f"
+    done

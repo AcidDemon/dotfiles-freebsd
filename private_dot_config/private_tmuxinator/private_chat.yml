@@ -1,0 +1,11 @@
+name: chat
+root: ~/
+
+windows:
+  - irc:
+      panes:
+        - weechat
+  - matrix:
+      panes:
+        - iamb
+

@@ -1,0 +1,12 @@
+name: pim
+root: ~/
+
+windows:
+  - overview:
+      layout: main-vertical
+      panes:
+        - taskwarrior-tui
+        - khal interactive
+  - contacts:
+      panes:
+        - khard

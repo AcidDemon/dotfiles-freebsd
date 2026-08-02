@@ -1,0 +1,21 @@
+{
+  "security": {
+    "auth": {
+      "selectedType": "gemini-api-key"
+    }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+	"hooks": [
+	  {
+	    "name": "activate-modes",
+	    "type": "command",
+	    "command": "node ~/.gemini/hooks/startup.js"
+	  }
+	]
+      }
+    ]
+  }
+}

@@ -1,0 +1,74 @@
+# ---------- Starred Articles {{{
+# -------------------------------------------------------------
+"query:Starred Articles:flags # \"s\""
+
+# }}}
+# ---------- Query Feeds {{{
+# -------------------------------------------------------------
+"query:All Unread Articles:unread = \"yes\""
+"query:All Articles CyberSecurity:tags # \"CyberSecurity\"" "CyberSecurity"
+"query:All Articles DDL-DataHoarder:tags # \"DDL-DataHoarder\"" "DDL-DataHoarder"
+"query:All Articles German-News:tags # \"German-News\"" "German-News"
+"query:All Articles Linux-Subreddit:tags # \"Linux-Subreddit\"" "Linux-Subreddit"
+
+# }}}
+# ---------- CyberSecurity {{{
+# -------------------------------------------------------------
+https://feeds.feedburner.com/TheHackersNews "CyberSecurity"
+https://krebsonsecurity.com/feed/ "CyberSecurity"
+https://www.bleepingcomputer.com/feed/ "CyberSecurity"
+https://www.darkreading.com/rss.xml "CyberSecurity"
+https://www.schneier.com/feed/atom/ "CyberSecurity"
+https://www.reddit.com/r/netsec/.rss "CyberSecurity"
+https://www.reddit.com/r/cybersecurity/.rss "CyberSecurity"
+https://threatpost.com/feed/ "CyberSecurity"
+https://blog.talosintelligence.com/feeds/posts/default "CyberSecurity"
+https://securelist.com/feed/ "CyberSecurity"
+https://feeds.feedburner.com/eset/blog "CyberSecurity"
+https://www.cert-bund.de/rss/advisories/short "CyberSecurity"
+https://portswigger.net/research/rss "CyberSecurity"
+https://googleprojectzero.blogspot.com/feeds/posts/default "CyberSecurity"
+
+# }}}
+# ---------- DDL-DataHoarder {{{
+# -------------------------------------------------------------
+https://www.reddit.com/r/DHExchange/.rss "DDL-DataHoarder"
+https://www.reddit.com/r/opendirectories/.rss "DDL-DataHoarder"
+
+# }}}
+# ---------- German-News {{{
+# -------------------------------------------------------------
+https://rss.sueddeutsche.de/rss/Topthemen "German-News"
+https://www.spiegel.de/schlagzeilen/index.rss "German-News"
+https://www.tagesschau.de/index~rss2.xml "German-News"
+https://www.zeit.de/index "German-News"
+https://www.heise.de/rss/heise-top-atom.xml "German-News"
+https://www.golem.de/rss.php?feed=ATOM1.0 "German-News"
+https://netzpolitik.org/feed/ "German-News"
+https://www.faz.net/rss/aktuell/ "German-News"
+
+# }}}
+# ---------- Linux-Subreddit {{{
+# -------------------------------------------------------------
+https://www.reddit.com/r/bash/.rss "Linux-Subreddit"
+https://www.reddit.com/r/clistuff/.rss "Linux-Subreddit"
+https://www.reddit.com/r/commandline/.rss "Linux-Subreddit"
+https://www.reddit.com/r/coolgithubprojects/.rss "Linux-Subreddit"
+https://www.reddit.com/r/debian/.rss "Linux-Subreddit"
+https://www.reddit.com/r/neovim/.rss "Linux-Subreddit"
+https://www.reddit.com/r/pkgoftheday/.rss "Linux-Subreddit"
+https://www.reddit.com/r/ScriptSwap/.rss "Linux-Subreddit"
+https://www.reddit.com/r/selfhosted/.rss "Linux-Subreddit"
+https://www.reddit.com/r/termux/.rss "Linux-Subreddit"
+https://www.reddit.com/r/tmux/.rss "Linux-Subreddit"
+https://www.reddit.com/r/UnixProTips/.rss "Linux-Subreddit"
+https://www.reddit.com/r/unixporn/.rss "Linux-Subreddit"
+https://www.reddit.com/r/UsabilityPorn/.rss "Linux-Subreddit"
+https://www.reddit.com/r/usefulscripts/.rss "Linux-Subreddit"
+https://www.reddit.com/r/vim/.rss "Linux-Subreddit"
+https://www.reddit.com/r/vim_magic/.rss "Linux-Subreddit"
+https://www.reddit.com/r/vimplugins/.rss "Linux-Subreddit"
+https://www.reddit.com/r/w3m/.rss "Linux-Subreddit"
+https://www.reddit.com/r/zsh/.rss "Linux-Subreddit"
+
+# }}}

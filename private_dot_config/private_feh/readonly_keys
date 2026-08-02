@@ -1,0 +1,17 @@
+delete D
+next_img j l Right
+prev_img k h Left
+remove d Delete
+render m
+save_filelist F
+scroll_down j Down
+scroll_left h Left
+scroll_right l Right
+scroll_up k Up
+toggle_filenames I
+toggle_fullscreen f
+toggle_info i
+zoom_default 0
+zoom_fit C-0
+zoom_in plus
+zoom_out minus

@@ -1,0 +1,15 @@
+# Sessions started by sddm don't go through login(1), so the lang= capability
+# in /etc/login.conf never gets applied and LANG arrives as C. Fix it here:
+# .zshenv runs for every zsh, including the `zsh --login` that sddm's
+# wayland-session script execs before starting niri.
+case "$LANG" in
+    *.UTF-8|*.utf8) ;;                  # keep a locale forwarded in over ssh
+    *) export LANG=en_US.UTF-8 ;;
+esac
+
+# gpg-agent acts as our ssh-agent (YubiKey OpenPGP auth subkey -> ssh).
+# The socket path is stable because gnupg's socketdir is the homedir here.
+# Don't clobber an agent that was forwarded INTO this box over ssh -A.
+if [ -z "$SSH_AUTH_SOCK" ] || [ "$SSH_AUTH_SOCK" = "$HOME/.ssh/agent.sock" ]; then
+    export SSH_AUTH_SOCK="$HOME/.gnupg/S.gpg-agent.ssh"
+fi

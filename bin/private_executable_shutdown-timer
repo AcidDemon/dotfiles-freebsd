@@ -1,0 +1,131 @@
+#!/bin/sh
+# Power off some time after the screen locks, unless the session is resumed.
+#
+# No systemd user timers here, so "arming" is a backgrounded sleep whose pid is recorded; disarm
+# kills it. Killing that shell leaves its `sleep` child orphaned but harmless --
+# the shell that would have run the shutdown is gone.
+#
+# Usage:  shutdown-timer arm | disarm | status | run
+#         (`run` is the shutdown sequence itself; arm schedules it)
+#
+# Config: ${XDG_CONFIG_HOME:-~/.config}/shutdown-timer.conf (plain sh, sourced)
+#   DELAY     seconds after arming before shutdown     (default 3600)
+#   SERVICES  space-separated rc.d services to stop first (default: none)
+#   GRACE     seconds to wait for each service to stop (default 120)
+#   RETRIES   stop attempts per service                (default 3)
+#
+# NOTE: stopping services and powering off both need root. doas must be able to
+# run them WITHOUT a password or this silently fails while you are away from the
+# machine -- see the comment at the bottom of this file.
+
+set -u
+
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}/shutdown-timer.conf"
+# shellcheck source=/dev/null
+[ -r "$CONF" ] && . "$CONF"
+
+DELAY="${DELAY:-3600}"
+SERVICES="${SERVICES:-}"
+GRACE="${GRACE:-120}"
+RETRIES="${RETRIES:-3}"
+PIDFILE="/tmp/shutdown-timer.$(id -u).pid"
+
+log() { logger -t shutdown-timer "$@"; }
+
+svc_running() { doas service "$1" status >/dev/null 2>&1; }
+
+disarm() {
+    [ -f "$PIDFILE" ] || { log "disarm: nothing armed"; return 0; }
+    pid=$(cat "$PIDFILE" 2>/dev/null || echo "")
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        # Kill the whole process group, not just the subshell: killing only the
+        # shell orphans its `sleep` child, leaking one process per lock/unlock.
+        # The group must die as a unit, and the shell must die first -- reaping
+        # the sleep alone would make the shell fall through to `run` and power
+        # the machine off, which is precisely the opposite of disarming.
+        kill -- -"$pid" 2>/dev/null || kill "$pid" 2>/dev/null || true
+        log "disarmed (was pgid $pid)"
+    fi
+    rm -f "$PIDFILE"
+}
+
+arm() {
+    disarm
+    # `set -m` puts the background job in its own process group so disarm can
+    # signal the group. Without it the job shares ours and `kill -- -$pid`
+    # would take down this shell too.
+    set -m
+    ( sleep "$DELAY"; "$0" run ) &
+    pid=$!
+    set +m
+    echo "$pid" > "$PIDFILE"
+    log "armed: shutdown in ${DELAY}s"
+}
+
+status() {
+    if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+        echo "armed (pid $(cat "$PIDFILE"), delay ${DELAY}s)"
+    else
+        echo "not armed"
+    fi
+}
+
+run() {
+    log "shutdown sequence started"
+
+    for svc in $SERVICES; do
+        if ! svc_running "$svc"; then
+            log "$svc not running, skipping"
+            continue
+        fi
+
+        attempt=0
+        while [ "$attempt" -lt "$RETRIES" ]; do
+            attempt=$((attempt + 1))
+            log "stopping $svc (attempt $attempt/$RETRIES)"
+            doas service "$svc" stop >/dev/null 2>&1 || true
+
+            elapsed=0
+            while [ "$elapsed" -lt "$GRACE" ]; do
+                if ! svc_running "$svc"; then
+                    log "$svc stopped successfully"
+                    break 2
+                fi
+                sleep 5
+                elapsed=$((elapsed + 5))
+            done
+        done
+
+        if svc_running "$svc"; then
+            log "$svc still running after $RETRIES attempts, proceeding anyway"
+        fi
+    done
+
+    rm -f "$PIDFILE"
+    log "all services handled, powering off"
+    doas shutdown -p now
+}
+
+case "${1:-}" in
+    arm)    arm ;;
+    disarm) disarm ;;
+    status) status ;;
+    run)    run ;;
+    *)      echo "usage: ${0##*/} arm|disarm|status|run" >&2; exit 2 ;;
+esac
+
+# Powering off unattended does NOT need a doas rule: /sbin/shutdown is setuid
+# root with group operator (-r-sr-xr--), so joining that group is enough and is
+# narrower than loosening doas:
+#
+#   doas pw groupmod operator -m acid
+#
+# Then drop the `doas` prefix from the shutdown call below if you prefer.
+#
+# Stopping services in SERVICES does still need doas, one exact rule per
+# service and action, e.g.
+#
+#   permit nopass acid as root cmd /usr/sbin/service args borgmatic stop
+#   permit nopass acid as root cmd /usr/sbin/service args borgmatic status
+#
+# SERVICES is empty by default, so no rules are needed until you populate it.

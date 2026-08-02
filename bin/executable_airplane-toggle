@@ -1,0 +1,28 @@
+#!/bin/sh
+# Toggle Wi-Fi, for the airplane key (f11) on the EliteBook 845 G8.
+#
+# That key produces no evdev event at all -- confirmed with wev, which sees
+# nothing when it is pressed, unlike f1/f12 which emit plain F1/F12. It is an
+# HP-specific ACPI hotkey, so it can only be driven from a devd rule (if
+# acpi_hp surfaces the notify) or from an ordinary niri keybind.
+#
+# Requires passwordless doas for exactly these two commands:
+#   permit nopass acid as root cmd /sbin/ifconfig args wlan0 up
+#   permit nopass acid as root cmd /sbin/ifconfig args wlan0 down
+set -eu
+
+IFACE="${IFACE:-wlan0}"
+
+notify() {
+    # 2>/dev/null: outside a session there is no D-Bus and notify-send is noisy.
+    command -v notify-send >/dev/null 2>&1 && notify-send -t 2000 "$1" "$2" 2>/dev/null || true
+    logger -t airplane-toggle "$1: $2"
+}
+
+if ifconfig "$IFACE" 2>/dev/null | grep -qE 'flags=[0-9]+<UP'; then
+    doas ifconfig "$IFACE" down
+    notify "Wi-Fi" "off ($IFACE down)"
+else
+    doas ifconfig "$IFACE" up
+    notify "Wi-Fi" "on ($IFACE up)"
+fi

@@ -1,0 +1,36 @@
+{
+    "label" : "lock",
+    "action" : "hyprlock",
+    "text" : "Lock",
+    "keybind" : "l"
+}
+{
+    "label" : "hibernate",
+    "action" : "doas acpiconf -s 4",
+    "text" : "Hibernate",
+    "keybind" : "h"
+}
+{
+    "label" : "logout",
+    "action" : "niri msg action quit --skip-confirmation",
+    "text" : "Logout",
+    "keybind" : "e"
+}
+{
+    "label" : "reboot",
+    "action" : "doas shutdown -r now",
+    "text" : "Reboot",
+    "keybind" : "r"
+}
+{
+    "label" : "suspend",
+    "action" : "doas acpiconf -s 3",
+    "text" : "Suspend",
+    "keybind" : "u"
+}
+{
+    "label" : "shutdown",
+    "action" : "doas shutdown -p now",
+    "text" : "Shutdown",
+    "keybind" : "s"
+}

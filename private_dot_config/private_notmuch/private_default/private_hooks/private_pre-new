@@ -1,0 +1,6 @@
+#!/bin/sh
+export NOTMUCH_CONFIG="$HOME/.config/notmuch/default/config"
+export NMBGIT="$HOME/.local/share/notmuch/nmbug"
+
+: 
+

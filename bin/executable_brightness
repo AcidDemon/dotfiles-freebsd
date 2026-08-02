@@ -1,0 +1,31 @@
+#!/bin/sh
+# Backlight up/down for the niri brightness keys.
+#
+# backlight(8) is FreeBSD base and drives amdgpu_bl0 directly (brightnessctl is
+# Linux-only). It clamps correctly at the top, but `decr` will happily walk the
+# panel down to 0, which looks like the machine has died rather than dimmed.
+# This keeps a floor so the screen is always readable.
+#
+# Usage: brightness up|down [step]   (step defaults to 5)
+set -eu
+
+FLOOR=5
+step="${2:-5}"
+
+cur=$(backlight | awk '{print $2}')
+
+case "${1:-}" in
+    up)
+        backlight incr "$step"
+        ;;
+    down)
+        # Compute the target ourselves rather than letting decr clamp to 0.
+        target=$((cur - step))
+        [ "$target" -lt "$FLOOR" ] && target="$FLOOR"
+        backlight "$target"
+        ;;
+    *)
+        echo "usage: ${0##*/} up|down [step]" >&2
+        exit 2
+        ;;
+esac

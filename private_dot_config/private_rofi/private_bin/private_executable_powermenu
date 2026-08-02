@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# Rofi powermenu for FreeBSD: lock, logout, suspend, hibernate, reboot, shutdown
+# Flags:
+#   -i | --icons    → icons only
+#   -t | --text     → icons + text
+#   -w | --width N  → set rofi window width (e.g. 32em or 520px)
+#   --unicode       → use standard Unicode symbols
+
+set -euo pipefail
+
+DDIR="${HOME}/.config/rofi/config"
+THEME="${DDIR}/powermenu.rasi"
+CONFIRM="${DDIR}/confirm.rasi"
+FONT="IosevkaTerm Nerd Font 16"
+WIDTH=""
+
+ICON_SET="nerd"   # or "unicode" via --unicode
+FORCE_LAYOUT=""   # "icons" | "text"
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -i|--icons)   FORCE_LAYOUT="icons" ;;
+    -t|--text)    FORCE_LAYOUT="text" ;;
+    -w|--width)   shift; WIDTH="${1:-}";;
+    -f|--font)    shift; FONT="${1:-}";;
+    --unicode)    ICON_SET="unicode" ;;
+    --nerd)       ICON_SET="nerd" ;;
+  esac
+  shift || true
+done
+
+detect_layout_from_theme() {
+  awk '
+    $0 !~ /^[[:space:]]*\/\// {
+      if (match($0, /BUTTON[[:space:]]*=[[:space:]]*TRUE/i)) { print "icons"; exit }
+      if (match($0, /BUTTON[[:space:]]*=[[:space:]]*FALSE/i)) { print "text"; exit }
+    }
+  ' "$THEME" 2>/dev/null || true
+}
+
+LAYOUT="${FORCE_LAYOUT:-$(detect_layout_from_theme)}"
+[ -z "${LAYOUT}" ] && LAYOUT="text"
+
+# Icon set
+if [ "$ICON_SET" = "unicode" ]; then
+  I_LOCK="🔒"; I_LOGOUT="🚪"; I_SUSPEND="🌙"; I_HIB="❄"; I_REBOOT="↻"; I_OFF="⏻"
+else
+  # Font Awesome / Nerd glyphs
+  I_LOCK=""; I_LOGOUT=""; I_SUSPEND=""; I_HIB=""; I_REBOOT=""; I_OFF=""
+fi
+
+if [ "$LAYOUT" = "icons" ]; then
+  L_LOCK="$I_LOCK"
+  L_LOGOUT="$I_LOGOUT"
+  L_SUSPEND="$I_SUSPEND"
+  L_HIB="$I_HIB"
+  L_REBOOT="$I_REBOOT"
+  L_OFF="$I_OFF"
+else
+  L_LOCK="$I_LOCK  Lock"
+  L_LOGOUT="$I_LOGOUT  Logout"
+  L_SUSPEND="$I_SUSPEND  Suspend"
+  L_HIB="$I_HIB  Hibernate"
+  L_REBOOT="$I_REBOOT  Reboot"
+  L_OFF="$I_OFF  Power Off"
+fi
+
+pause_and_mute() {
+  command -v playerctl >/dev/null 2>&1 && playerctl -a pause || true
+  if command -v pactl >/dev/null 2>&1; then
+    pactl set-sink-mute @DEFAULT_SINK@ 1 || true
+  fi
+}
+
+lock_screen() {
+  if command -v loginctl >/dev/null 2>&1; then
+    loginctl lock-session || true
+  fi
+  if command -v hyprlock >/dev/null 2>&1; then
+    hyprlock
+  elif pgrep -x sway >/dev/null 2>&1 && command -v swaylock >/dev/null 2>&1; then
+    swaylock -f -c 000000
+  elif command -v hyprctl >/dev/null 2>&1; then
+    loginctl lock-session || true
+  elif command -v i3lock >/dev/null 2>&1; then
+    i3lock -c 000000
+  fi
+}
+
+logout_now() {
+  if pgrep -x niri >/dev/null 2>&1; then niri msg action quit --skip-confirmation
+  elif pgrep -x i3 >/dev/null 2>&1; then i3-msg exit >/dev/null
+  elif pgrep -x sway >/dev/null 2>&1; then swaymsg exit >/dev/null
+  elif pgrep -x Hyprland >/dev/null 2>&1; then hyprctl dispatch exit >/dev/null
+  elif pgrep -x openbox >/dev/null 2>&1; then openbox --exit
+  elif command -v loginctl >/dev/null 2>&1; then loginctl terminate-user "$USER"
+  else pkill -KILL -u "$USER"; fi
+}
+
+suspend_now()   { pause_and_mute; lock_screen; doas zzz; }
+hibernate_now() { pause_and_mute; lock_screen; doas acpiconf -s 4; }
+reboot_now()    { doas reboot; }
+shutdown_now()  { doas shutdown -p now; }
+
+confirm() {
+  choice="$(printf '%s\n%s\n' 'Yes' 'No' | rofi -dmenu -i -p 'Are you sure?' \
+    -theme "$CONFIRM" -font "$FONT")" || return 1
+  [ "$choice" = "Yes" ]
+}
+
+# Build and run the menu
+options="$(printf "%s\n%s\n%s\n%s\n%s\n%s" \
+  "$L_LOCK" "$L_LOGOUT" "$L_SUSPEND" "$L_HIB" "$L_REBOOT" "$L_OFF")"
+
+run_rofi() {
+  set -- rofi -dmenu -p "" -selected-row 0 -theme "$THEME"
+  [ -n "$FONT" ]  && set -- "$@" -font "$FONT"
+  [ -n "$WIDTH" ] && set -- "$@" -theme-str "window{width: ${WIDTH};}"
+  printf "%s" "$options" | "$@"
+}
+
+choice="$(run_rofi)" || exit 0
+case "$choice" in
+  "$L_LOCK")      lock_screen ;;
+  "$L_LOGOUT")    confirm && logout_now ;;
+  "$L_SUSPEND")   confirm && suspend_now ;;
+  "$L_HIB")       confirm && hibernate_now ;;
+  "$L_REBOOT")    confirm && reboot_now ;;
+  "$L_OFF")       confirm && shutdown_now ;;
+  *) exit 0 ;;
+esac

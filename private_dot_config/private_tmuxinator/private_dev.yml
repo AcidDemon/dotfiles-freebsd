@@ -1,0 +1,13 @@
+name: dev
+root: .
+
+windows:
+  - code:
+      layout: main-horizontal
+      panes:
+        - nvim .
+        - claude
+  - term:
+      panes:
+        -
+

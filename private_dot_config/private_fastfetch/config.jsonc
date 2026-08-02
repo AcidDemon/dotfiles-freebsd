@@ -1,0 +1,200 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "kitty",
+    "source": "/home/acid/.config/fastfetch/logo.png",
+    "width": 35,
+    "height": 20,
+    "preserveAspectRatio": true,
+    "padding": {
+      "top": 6,
+      "left": 2,
+      "right": 4
+    }
+  },
+  "display": {
+    "separator": " ",
+    "color": {
+      "output": "38;2;205;214;244",
+      "separator": "38;2;108;112;134"
+    },
+    "percent": {
+      "type": 11,
+      "width": 4,
+      "color": {
+        "green": "38;2;166;227;161",
+        "yellow": "38;2;249;226;175",
+        "red": "38;2;243;139;168"
+      }
+    },
+    "bar": {
+      "char": {
+        "elapsed": "━",
+        "total": "━"
+      },
+      "border": {
+        "left": "",
+        "right": ""
+      },
+      "width": 10,
+      "color": {
+        "elapsed": "38;2;203;166;247",
+        "total": "38;2;69;71;90"
+      }
+    }
+  },
+  "modules": [
+    {
+      "type": "title",
+      "format": "\u001b[1;38;2;250;179;135m{user-name}\u001b[38;2;108;112;134m@\u001b[1;38;2;137;180;250m{host-name}\u001b[0m"
+    },
+    {
+      "type": "custom",
+      "format": "\u001b[1;38;2;243;139;168m \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[1;38;2;250;179;135m \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[1;38;2;249;226;175m \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[1;38;2;166;227;161m \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[1;38;2;148;226;213m \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[1;38;2;137;220;235m \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[1;38;2;137;180;250m \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[1;38;2;180;190;254m \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[38;2;108;112;134m· \u001b[1;38;2;203;166;247m \u001b[0m"
+    },
+    "break",
+    {
+      "type": "custom",
+      "format": "\u001b[38;2;203;166;247m╭───────────────────────────  \u001b[1;38;2;203;166;247mSystem\u001b[38;2;203;166;247m  ──────────────────────────╮\u001b[0m"
+    },
+    {
+      "type": "command",
+      "text": "echo \"FreeBSD $(freebsd-version -u) ($(uname -m))\"",
+      "key": "├─   OS      :",
+      "keyColor": "38;2;203;166;247"
+    },
+    {
+      "type": "command",
+      "text": "uname -v | awk '{print $4, $3}' | sed -E 's/-[0-9a-f]{12}$//'",
+      "key": "├─   Kernel  :",
+      "keyColor": "38;2;203;166;247"
+    },
+    {
+      "type": "command",
+      "text": "pkg stats -l | awk '/Installed packages/{print $3\" (pkg)\"}'",
+      "key": "├─ 󰏗  Packages:",
+      "keyColor": "38;2;203;166;247"
+    },
+    {
+      "type": "shell",
+      "format": "{pretty-name} {version}",
+      "key": "├─   Shell   :",
+      "keyColor": "38;2;203;166;247"
+    },
+    {
+      "type": "uptime",
+      "format": "{formatted}",
+      "key": "╰─ 󱫐  Uptime  :",
+      "keyColor": "38;2;203;166;247"
+    },
+    {
+      "type": "custom",
+      "format": "\u001b[38;2;203;166;247m╰───────────────────────────────────────────────────────────────╯\u001b[0m"
+    },
+    "break",
+    {
+      "type": "custom",
+      "format": "\u001b[38;2;137;180;250m╭──────────────────────────  \u001b[1;38;2;137;180;250mDesktop\u001b[38;2;137;180;250m  ──────────────────────────╮\u001b[0m"
+    },
+    {
+      "type": "wm",
+      "format": "{pretty-name} {version} ({protocol-name})",
+      "key": "├─ 󰗀  WM      :",
+      "keyColor": "38;2;137;180;250"
+    },
+    {
+      "type": "terminal",
+      "format": "{pretty-name} {version}",
+      "key": "├─   Terminal:",
+      "keyColor": "38;2;137;180;250"
+    },
+    {
+      "type": "command",
+      "text": "awk -F= '/^gtk-theme-name/{gsub(/^ +| +$/,\"\",$2); print $2}' \"$HOME/.config/gtk-3.0/settings.ini\"",
+      "key": "├─   Theme   :",
+      "keyColor": "38;2;137;180;250"
+    },
+    {
+      "type": "display",
+      "format": "{width}x{height} @ {refresh-rate} Hz ({inch}\")",
+      "key": "╰─ 󰍹  Display :",
+      "keyColor": "38;2;137;180;250"
+    },
+    {
+      "type": "custom",
+      "format": "\u001b[38;2;137;180;250m╰───────────────────────────────────────────────────────────────╯\u001b[0m"
+    },
+    "break",
+    {
+      "type": "custom",
+      "format": "\u001b[38;2;166;227;161m╭──────────────────────────  \u001b[1;38;2;166;227;161mHardware\u001b[38;2;166;227;161m  ─────────────────────────╮\u001b[0m"
+    },
+    {
+      "type": "cpu",
+      "format": "{name} ({cores-logical})",
+      "key": "├─   CPU     :",
+      "keyColor": "38;2;166;227;161"
+    },
+    {
+      "type": "gpu",
+      "format": "{name}",
+      "key": "├─ 󰢮  GPU     :",
+      "keyColor": "38;2;166;227;161"
+    },
+    {
+      "type": "memory",
+      "format": "{percentage-bar} {percentage}  {used} / {total}",
+      "key": "├─ 󰍛  Memory  :",
+      "keyColor": "38;2;166;227;161"
+    },
+    {
+      "type": "zpool",
+      "format": "{used-percentage-bar} {used-percentage}  {size-used} / {size-total}",
+      "key": "├─ 󰆼  zroot   :",
+      "keyColor": "38;2;166;227;161"
+    },
+    {
+      "type": "command",
+      "text": "sysctl -n kstat.zfs.misc.arcstats.size kstat.zfs.misc.arcstats.c_max | awk 'NR==1{s=$1}NR==2{m=$1; p=s/m*100; n=int(p/10+0.5); printf \"\\033[38;2;%s\", \"203;166;247m\"; for(i=0;i<n;i++) printf \"━\"; printf \"\\033[38;2;%s\", \"69;71;90m\"; for(i=n;i<10;i++) printf \"━\"; c = (p<50 ? \"166;227;161\" : (p<80 ? \"249;226;175\" : \"243;139;168\")); printf \" \\033[38;2;%sm%4d%%\\033[38;2;205;214;244m  %.2f GiB / %.2f GiB\", c, p, s/1073741824, m/1073741824}'",
+      "key": "├─ 󰘚  ARC     :",
+      "keyColor": "38;2;166;227;161"
+    },
+    {
+      "type": "battery",
+      "format": "{capacity-bar} {capacity}  {status}",
+      "key": "╰─ 󰁹  Battery :",
+      "keyColor": "38;2;166;227;161"
+    },
+    {
+      "type": "custom",
+      "format": "\u001b[38;2;166;227;161m╰───────────────────────────────────────────────────────────────╯\u001b[0m"
+    },
+    "break",
+    {
+      "type": "custom",
+      "format": "\u001b[38;2;148;226;213m╭──────────────────────────  \u001b[1;38;2;148;226;213mNetwork\u001b[38;2;148;226;213m  ──────────────────────────╮\u001b[0m"
+    },
+    {
+      "type": "wifi",
+      "format": "{ssid}  {protocol}  {signal-quality}",
+      "key": "├─ 󰤨  Wi-Fi   :",
+      "keyColor": "38;2;148;226;213"
+    },
+    {
+      "type": "localip",
+      "format": "{ipv4} ({ifname})",
+      "key": "╰─ 󰩟  Address :",
+      "keyColor": "38;2;148;226;213"
+    },
+    {
+      "type": "custom",
+      "format": "\u001b[38;2;148;226;213m╰───────────────────────────────────────────────────────────────╯\u001b[0m"
+    },
+    "break",
+    {
+      "type": "colors",
+      "symbol": "circle",
+      "paddingLeft": 25
+    }
+  ]
+}

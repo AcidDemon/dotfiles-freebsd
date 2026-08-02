@@ -1,0 +1,9 @@
+set nm_default_uri="notmuch://{{ .chezmoi.homeDir }}/.mail"
+
+source "neomutt-sidebar-search|"
+
+virtual-mailboxes \
+  "  inbox"       "notmuch://?query=tag:inbox and not tag:trash" \
+  "  unread"      "notmuch://?query=tag:unread and not tag:trash" \
+  "  sent"        "notmuch://?query=tag:sent" \
+  "  newsletters" "notmuch://?query=tag:newsletters"

@@ -1,0 +1,11 @@
+name: music
+root: ~/
+
+windows:
+  - player:
+      layout: main-horizontal
+      main-pane-height: 80%
+      panes:
+        - rmpc
+        - TERM=xterm-kitty cava
+

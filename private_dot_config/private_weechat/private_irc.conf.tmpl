@@ -1,0 +1,49 @@
+{{- $id := . -}}
+[server_default]
+realname = ""
+local_hostname = ""
+tls = on
+tls_verify = on
+msg_kick = "Boooom..."
+msg_part = ""
+msg_quit = ""
+nicks = "{{ $id.chat.nicks }}"
+nicks_alternate = on
+
+[server]
+libera.addresses = "irc.libera.chat/6697"
+libera.autojoin = "#2600,#algorithms,#alpine-linux,#ansible,#bash,#bgpwtf,#debian,#devops,#gnupg,#grapheneos,#lobsters,#monero,#neomutt,#neovim,#nixos,#notmuch,#openbsd,#systemd,#vim,#zsh"
+libera.tls = on
+libera.tls_verify = on
+libera.tls_cert = "%h/certs/acid.pem"
+libera.autoconnect = on
+libera.nicks = "{{ $id.chat.nick }}"
+
+freenode.addresses = "irc.freenode.net/6697"
+freenode.tls = on
+freenode.tls_verify = on
+freenode.tls_cert = "%h/certs/acid.pem"
+freenode.autoconnect = on
+freenode.nicks = "{{ $id.chat.nick }}"
+
+oftc.addresses = "irc.oftc.net/6697"
+oftc.tls = on
+oftc.tls_verify = on
+oftc.tls_cert = "%h/certs/acid.pem"
+oftc.autoconnect = on
+oftc.nicks = "{{ $id.chat.nick }}"
+
+hackint.addresses = "irc.eu.hackint.org/6697"
+hackint.autojoin = "#0dayinitiative,#blueteam,#burnthetwitch,#ccchh,#datahoarders,#krebs,#nixos,#servfail,#stackunderflow,#webroasting"
+hackint.tls = on
+hackint.autoconnect = on
+hackint.nicks = "{{ $id.chat.nick }}"
+hackint.sasl_mechanism = "plain"
+hackint.sasl_username = "{{ $id.chat.saslUser }}"
+hackint.sasl_password = "${sec.data.hackint_password}"
+
+undernet.addresses = "amsterdam.nl.eu.undernet.org/7000"
+undernet.tls = off
+undernet.autoconnect = on
+undernet.nicks = "{{ $id.chat.nick }}"
+undernet.command = "/msg x@channels.undernet.org LOGIN {{ $id.chat.nick }} ${sec.data.undernet_password}"

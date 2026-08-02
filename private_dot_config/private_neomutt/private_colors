@@ -1,0 +1,76 @@
+set color_directcolor=yes
+
+# General
+color normal           #cdd6f4 #1e1e2e
+color error            #f38ba8 #1e1e2e
+color markers          #585b70 #1e1e2e
+color tilde            #585b70 #1e1e2e
+color search           #1e1e2e #f9e2af
+
+# Status / help bar
+color status           #a6adc8 #313244
+color indicator        #cdd6f4 #585b70
+
+# Index - per-field colors (author, date, subject get distinct accents)
+color index            #cdd6f4 #1e1e2e ~A
+color index            #a6e3a1 #1e1e2e ~N
+color index            #f38ba8 #1e1e2e ~F
+color index            #f5c2e7 #1e1e2e ~T
+color index            #f38ba8 #1e1e2e ~D
+color index_author     #89b4fa #1e1e2e ~A
+color index_author     #a6e3a1 #1e1e2e ~N
+color index_author     #f38ba8 #1e1e2e ~D
+color index_date       #cba6f7 #1e1e2e
+color index_date       #f38ba8 #1e1e2e ~D
+color index_subject    #cdd6f4 #1e1e2e ~A
+color index_subject    #a6e3a1 #1e1e2e ~N
+color index_subject    #f38ba8 #1e1e2e ~F
+color index_subject    #f38ba8 #1e1e2e ~D
+color index_flags      #f9e2af #1e1e2e ~A
+color index_flags      #a6e3a1 #1e1e2e ~N
+color index_flags      #f38ba8 #1e1e2e ~D
+color index_size       #7f849c #1e1e2e
+color index_size       #f38ba8 #1e1e2e ~D
+color index_number     #6c7086 #1e1e2e
+color index_number     #f38ba8 #1e1e2e ~D
+color index_collapsed  #cba6f7 #1e1e2e
+color index_label      #94e2d5 #1e1e2e
+color index_tags       #fab387 #1e1e2e
+color tree             #89b4fa #1e1e2e
+
+# Attachment
+color attachment       #cba6f7 #1e1e2e
+color signature        #585b70 #1e1e2e
+
+# Headers (pager view)
+color hdrdefault       #7f849c #1e1e2e
+color header           #89b4fa #1e1e2e "^From:"
+color header           #a6e3a1 #1e1e2e "^Subject:"
+color header           #74c7ec #1e1e2e "^To:"
+color header           #74c7ec #1e1e2e "^Cc:"
+color header           #cba6f7 #1e1e2e "^Date:"
+
+# Quoted text (pager)
+color quoted           #b4befe #1e1e2e
+color quoted1          #cba6f7 #1e1e2e
+color quoted2          #f5c2e7 #1e1e2e
+color quoted3          #9399b2 #1e1e2e
+color quoted4          #7f849c #1e1e2e
+color quoted5          #585b70 #1e1e2e
+
+# Body highlights
+color body             #a6e3a1 #1e1e2e "[\-\.+_a-zA-Z0-9]+@[\-\.a-zA-Z0-9]+"
+color body             #94e2d5 #1e1e2e "(https?|ftp)://[\-\.,/%~_:?&=\#a-zA-Z0-9]+"
+color body             #fab387 #1e1e2e "(^|[[:space:]])\\*[^[:space:]]+\\*([[:space:]]|$)"
+color body             #fab387 #1e1e2e "(^|[[:space:]])_[^[:space:]]+_([[:space:]]|$)"
+color body             #fab387 #1e1e2e "(^|[[:space:]])/[^[:space:]]+/([[:space:]]|$)"
+
+# Sidebar
+color sidebar_flagged   #f38ba8 #1e1e2e
+color sidebar_new       #a6e3a1 #1e1e2e
+color sidebar_ordinary  #cdd6f4 #1e1e2e
+color sidebar_divider   #585b70 #1e1e2e
+color sidebar_highlight #cdd6f4 #585b70
+color sidebar_indicator #1e1e2e #cba6f7
+color sidebar_spoolfile #fab387 #1e1e2e
+color sidebar_unread    #b4befe #1e1e2e

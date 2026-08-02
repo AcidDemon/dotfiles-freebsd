@@ -1,0 +1,36 @@
+# XDG_RUNTIME_DIR for login sessions.
+#
+# NOT /var/run/xdg/$USER: that is pam_xdg's directory, and sddm calls
+# pam_close_session immediately after starting the session instead of at its end,
+# so pam_xdg deletes it while the compositor is still coming up. niri then fails
+# to create its Wayland socket — as ENOENT, which wayland-server reports as
+# "PermissionDenied" because socket.rs:89 does map_err(|_| PermissionDenied).
+# Use a directory PAM does not manage so nothing can pull it out from under us.
+# pam_xdg exports XDG_RUNTIME_DIR itself (the binary contains "XDG_RUNTIME_DIR=%s/%s"),
+# despite pam_xdg(8) claiming it does not — so an "if unset" guard never fires here.
+# Override its value whenever it points into the directory pam_xdg will delete.
+case "$XDG_RUNTIME_DIR" in
+    ""|/var/run/xdg/*) XDG_RUNTIME_DIR="/tmp/xdg-$(id -un)" ;;
+esac
+export XDG_RUNTIME_DIR
+[ -d "$XDG_RUNTIME_DIR" ] || mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null
+
+# gpg-agent is our ssh-agent (YubiKey OpenPGP auth subkey); SSH_AUTH_SOCK is
+# wired to its ssh socket in ~/.zshenv. Ensure it's running with ssh support.
+# GPG_TTY is exported and the agent's tty refreshed in ~/.zshrc.
+gpgconf --launch gpg-agent 2>/dev/null
+
+# login.conf's default path ends with ~/bin but not ~/.local/bin, and .zshrc's
+# PATH handling only runs for interactive shells. Anything niri spawns
+# (awww-daemon, awww-random) is non-interactive, so add it here or those
+# spawn-at-startup entries fail silently.
+case ":$PATH:" in
+    *":$HOME/.local/bin:"*) ;;
+    *) PATH="$HOME/.local/bin:$PATH"; export PATH ;;
+esac
+
+# Note: the git forges authenticate via their IdentityFile
+# keys in ~/.ssh/config directly (no agent needed), so they keep working even
+# without the YubiKey inserted. gpg-agent serves the card-backed identity that
+# gets forwarded to your internal hosts (ForwardAgent yes).

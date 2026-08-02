@@ -1,0 +1,81 @@
+#!/bin/sh
+# Launch niri as an sddm session on FreeBSD.
+#
+# sddm does not provide two things niri needs here, and gets a third wrong:
+#
+# 1. D-Bus session bus. Without one, waybar fails with "Cannot autolaunch D-Bus
+#    without X11 $DISPLAY" and niri's "import environment" step exits 71.
+#    dbus-launch daemonises the bus beside niri. Do NOT use dbus-run-session --
+#    it inserts itself as niri's parent and black-screens the session.
+#
+# 2. A session free of the VT as controlling terminal. When seatd opens niri's
+#    seat it switches the VT to graphics mode, hanging up every process whose
+#    controlling terminal is that VT. TIOCNOTTY drops it for the whole session.
+#    setsid(2) cannot be used: this process is already a session leader, so it
+#    returns EPERM -- and detaching only niri orphans it.
+#
+# 3. seatd sends a real-time signal (observed: 125) to this process when it takes
+#    the VT. Unhandled real-time signals terminate by default, so this wrapper
+#    died silently, sddm saw the SIGCHLD and tore the session down while niri was
+#    still running. Ignoring them here keeps the wrapper alive as niri's parent so
+#    sddm sees the real exit and the greeter gets seat0 back.
+#
+# Note XDG_RUNTIME_DIR must NOT be pam_xdg's /var/run/xdg/$USER: sddm closes the
+# PAM session immediately after starting it, so pam_xdg deletes that directory
+# mid-startup. ~/.zprofile and ~/.profile override it to /tmp/xdg-$USER.
+
+if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
+    eval "$(dbus-launch --sh-syntax)"
+    export DBUS_SESSION_BUS_ADDRESS DBUS_SESSION_BUS_PID
+fi
+
+# sddm captures nothing, so a niri panic leaves no trace anywhere. Guarded: an
+# unwritable log must cost the logging, not the login.
+LOG="$HOME/.local/share/niri.log"
+export RUST_BACKTRACE=1
+
+mkdir -p "$(dirname "$LOG")" 2>/dev/null || LOG="/tmp/niri-$(id -u).log"
+
+if touch "$LOG" 2>/dev/null && [ -w "$LOG" ]; then
+    [ "$(stat -f %z "$LOG")" -gt 10485760 ] && cp /dev/null "$LOG"
+    printf '\n=== %s session start ===\n' "$(date)" >>"$LOG"
+    exec >>"$LOG" 2>&1
+fi
+
+exec python3 -c '
+import fcntl, os, signal, subprocess, sys, termios
+
+try:
+    fd = os.open("/dev/tty", os.O_RDWR)
+    fcntl.ioctl(fd, getattr(termios, "TIOCNOTTY", 0x20007471))
+    os.close(fd)
+except OSError:
+    pass
+
+rt = list(range(65, 127))
+for s in rt:
+    try:
+        signal.signal(s, signal.SIG_IGN)
+    except (OSError, ValueError, RuntimeError):
+        pass
+
+def restore_signals():
+    # SIG_IGN is inherited across fork/exec and niri does handle these, so put
+    # them back to default in the child or its VT handling breaks.
+    for s in rt:
+        try:
+            signal.signal(s, signal.SIG_DFL)
+        except (OSError, ValueError, RuntimeError):
+            pass
+
+rc = subprocess.call(sys.argv[1:], preexec_fn=restore_signals)
+
+pid = os.environ.get("DBUS_SESSION_BUS_PID")
+if pid:
+    try:
+        os.kill(int(pid), signal.SIGTERM)
+    except (OSError, ValueError):
+        pass
+
+sys.exit(128 - rc if rc < 0 else rc)
+' /usr/local/bin/niri "$@"

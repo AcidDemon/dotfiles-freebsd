@@ -1,0 +1,37 @@
+#!/bin/sh
+# Toggle a screen recording. wf-recorder, not ffmpeg: no PipeWire, so no portal.
+set -eu
+
+DIR="${REC_DIR:-$HOME/Videos/Recordings}"
+PIDFILE="${XDG_RUNTIME_DIR:-/tmp}/screenrec.pid"
+
+if [ -f "$PIDFILE" ]; then
+    pid=$(cat "$PIDFILE")
+    rm -f "$PIDFILE"
+    # INT, not TERM: wf-recorder only finalises the container on INT.
+    kill -INT "$pid" 2>/dev/null && notify-send -a screenrec "Recording stopped"
+    exit 0
+fi
+
+case "${1:-area}" in
+    screen) geom= ;;
+    area)   geom=$(slurp) || exit 0 ;;
+    window)
+        # niri reports tile coords output-local; the one output here is at 0,0.
+        geom=$(niri msg -j pick-window | jq -er '
+            .layout
+            | "\(.tile_pos_in_workspace_view[0] + .window_offset_in_tile[0] | floor),\(.tile_pos_in_workspace_view[1] + .window_offset_in_tile[1] | floor) \(.window_size[0])x\(.window_size[1])"
+        ') || exit 0 ;;
+    *) echo "usage: screenrec [area|screen|window]" >&2; exit 1 ;;
+esac
+
+mkdir -p "$DIR"
+f="$DIR/$(date +%Y-%m-%d_%H-%M-%S).mp4"
+
+if [ -n "$geom" ]; then
+    wf-recorder -f "$f" -g "$geom" >/dev/null 2>&1 &
+else
+    wf-recorder -f "$f" >/dev/null 2>&1 &
+fi
+echo $! > "$PIDFILE"
+notify-send -a screenrec "Recording started" "$f"

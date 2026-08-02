@@ -1,0 +1,13 @@
+name: monitoring
+root: ~/
+
+windows:
+  - system:
+      layout: main-vertical
+      panes:
+        - btop
+        - doas bandwhich
+  - logs:
+      panes:
+        - lazyjournal
+

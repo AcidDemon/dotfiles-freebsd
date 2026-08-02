@@ -1,0 +1,54 @@
+{{- $id := . -}}
+set sort=reverse-date
+set editor="nvim"
+
+# Sidebar
+set sidebar_visible=yes
+set sidebar_width=30
+set sidebar_short_path=yes
+set sidebar_delim_chars='/'
+set sidebar_folder_indent=no
+set sidebar_format='%D%?F? [%F]?%* %?N?%N/?%?S?%S?'
+set sidebar_sort_method=unsorted
+set mail_check_stats=yes
+set mail_check=60
+set timeout=10
+
+# Suppress "New mail in ..." status line notification
+set new_mail_command=""
+
+# Wider from field (23 chars instead of default 15)
+set index_format="%4C %Z %{%b %d} %-23.23L (%<l?%4l&%4c>) %s"
+
+# Register mailboxes for all accounts
+unmailboxes *
+{{ range $id.mail.accounts }}
+source "neomutt-sidebar {{ .addr }}|"
+{{- end }}
+
+# SSL/TLS
+set ssl_force_tls=yes
+set certificate_file=/etc/ssl/certs/ca-certificates.crt
+
+# Caching
+set header_cache="{{ .chezmoi.homeDir }}/.cache/neomutt/headers/"
+set message_cachedir="{{ .chezmoi.homeDir }}/.cache/neomutt/messages/"
+
+# Sending
+set sendmail="msmtpq --read-envelope-from --read-recipients"
+set mbox_type=Maildir
+
+# GPG/PGP (common settings; key is set per-account)
+set crypt_use_gpgme=yes
+set crypt_opportunistic_encrypt=yes
+set crypt_reply_encrypt=yes
+set crypt_reply_sign=yes
+set pgp_self_encrypt=yes
+
+# Pager: show index above message content (split view)
+set pager_index_lines=14
+set pager_stop=yes
+
+# General
+set confirmappend=no
+set fast_reply=yes

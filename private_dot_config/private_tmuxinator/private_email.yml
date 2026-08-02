@@ -1,0 +1,13 @@
+name: email
+root: ~/
+
+on_project_start: notmuch new
+
+windows:
+  - mail:
+      panes:
+        - neomutt
+  - compose:
+      panes:
+        - nvim
+

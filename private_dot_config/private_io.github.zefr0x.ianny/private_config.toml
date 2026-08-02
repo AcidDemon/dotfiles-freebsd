@@ -1,0 +1,11 @@
+[timer]
+ignore_idle_inhibitors = true
+idle_timeout = 300            # 5 min
+short_break_timeout = 2700    # 45 min
+long_break_timeout = 5400     # 90 min
+short_break_duration = 60     # 1 min
+long_break_duration = 600     # 10 min
+
+[notification]
+show_progress_bar = true
+minimum_update_delay = 1

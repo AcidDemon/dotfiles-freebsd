@@ -1,0 +1,84 @@
+[calendars]
+[[personal]]
+path = /home/acid/.local/state/calendars/personal/
+color = '#89b4fa'
+priority=10
+type=calendar
+
+
+
+[default]
+default_calendar=personal
+default_dayevent_duration=1d
+default_event_duration=1h
+enable_mouse=true
+highlight_event_days=true
+show_all_days=false
+
+[keybindings]
+delete=d
+down=j,down
+duplicate=p
+export=e
+left=h,left
+new=n
+quit=q,Q
+right=l,right
+search=/
+today=t
+up=k,up
+view=tab
+
+[locale]
+dateformat=%x
+datetimeformat=%c
+default_timezone=
+firstweekday=0
+local_timezone=
+longdateformat=%x
+longdatetimeformat=%c
+timeformat=%X
+unicode_symbols=true
+weeknumbers=off
+
+[palette]
+alert='', '', 'bold', '#f38ba8', '#1e1e2e'
+alt header='', '', '', '#b4befe', '#181825'
+bright='', '', '', '#cdd6f4', '#45475a'
+button='', '', '', '#89b4fa', '#45475a'
+button focused='', '', '', '#1e1e2e', '#89b4fa'
+calendar='', '', '', '#a6e3a1', '#1e1e2e'
+calendar focus='', '', '', '#1e1e2e', '#a6e3a1'
+caption='', '', '', '#bac2de', '#1e1e2e'
+date header='', '', '', '#cba6f7', '#1e1e2e'
+date header focused='', '', '', '#1e1e2e', '#cba6f7'
+date header selected='', '', '', '#1e1e2e', '#89b4fa'
+dayname='', '', '', '#b4befe', '#1e1e2e'
+edit='', '', '', '#cdd6f4', '#313244'
+edit focus='', '', '', '#1e1e2e', '#cba6f7'
+editbx='', '', '', '#cdd6f4', '#45475a'
+editcp='', '', '', '#89b4fa', '#585b70'
+eventcolumn='', '', '', '#cdd6f4', '#313244'
+eventcolumn focus='', '', '', '#1e1e2e', '#94e2d5'
+footer='', '', '', '#cdd6f4', '#313244'
+frame='', '', '', '#7f849c', '#1e1e2e'
+frame focus='', '', '', '#89b4fa', '#1e1e2e'
+frame focus color='', '', '', '#cba6f7', '#313244'
+frame focus top='', '', '', '#89b4fa', '#181825'
+header='', '', '', '#89b4fa', '#1e1e2e'
+line header='', '', '', '#cba6f7', '#1e1e2e'
+list='', '', '', '#cdd6f4', '#1e1e2e'
+list focused='', '', '', '#1e1e2e', '#89b4fa'
+mark='', '', '', '#f9e2af', '#1e1e2e'
+monthname='', '', 'bold', '#cba6f7', '#1e1e2e'
+popupbg='', '', '', '#cdd6f4', '#313244'
+popupper='', '', '', '#f38ba8', '#313244'
+reveal focus='', '', '', '#1e1e2e', '#a6e3a1'
+today='', '', 'bold', '#fab387', '#45475a'
+today focus='', '', '', '#1e1e2e', '#fab387'
+weeknumber_right='', '', '', '#6c7086', '#1e1e2e'
+
+[view]
+bold_for_light_color=true
+dynamic_days=true
+theme=dark

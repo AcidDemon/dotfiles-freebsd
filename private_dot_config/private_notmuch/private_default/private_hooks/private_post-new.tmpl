@@ -1,0 +1,8 @@
+{{- $id := . -}}
+#!/bin/sh
+export NOTMUCH_CONFIG="$HOME/.config/notmuch/default/config"
+export NMBGIT="$HOME/.local/share/notmuch/nmbug"
+
+notmuch tag +newsletters -- tag:inbox and list:"newsletter.*"
+
+notmuch tag +sent -- {{ range $i, $a := $id.mail.accounts }}{{ if $i }} or {{ end }}from:{{ $a.addr }}{{ end }}

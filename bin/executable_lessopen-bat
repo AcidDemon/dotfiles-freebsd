@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+f="$1"
+# Force shell for profile-ish names
+if [[ "$f" =~ (^|/)(profile|bashrc|zshrc|environment)$ ]]; then
+  exec bat -l sh --color=always --style=plain --decorations=never --paging=never "$f"
+else
+  exec bat --color=always --style=plain --decorations=never --paging=never "$f"
+fi

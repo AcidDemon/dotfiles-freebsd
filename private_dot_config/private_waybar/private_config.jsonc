@@ -1,0 +1,416 @@
+// ═══════════════════════════════════════════════════════════════
+// Waybar — niri / FreeBSD — Catppuccin Mocha
+//
+//   power · workspaces · media  |  window  |  system · net · hw ·
+//   status · util · clock
+//
+// COLOUR OWNERSHIP
+//   CSS (styles/pills.css):  surfaces, radii, spacing, dividers,
+//     hover, whole-module state colours.
+//   Pango markup here:  per-module ICON tint only — GTK cannot colour
+//     part of a label. Custom modules do it in their script, see scripts/.
+//
+//   Mocha refs used below:
+//     green #a6e3a1  yellow #f9e2af  sky #89dceb  red #f38ba8
+//     lavender #b4befe  pink #f5c2e7  overlay0 #6c7086
+// ═══════════════════════════════════════════════════════════════
+{
+  "layer": "top",
+  "position": "top",
+  // Driven by the type, not taste. Tallest pill is workspaces: a 38px line
+  // box (16px text + a 130% icon) + 2*4px button margin + 2*4px pill
+  // margin = 46. Too low and pills get clipped. Measure after changing any
+  // font size or margin — don't guess.
+  "height": 46,
+
+  // 0, deliberately: pill gaps are owned by `margin` in styles/pills.css.
+  // Two sources for the same gap is how it drifted out of sync.
+  "spacing": 0,
+
+  // Insetting the window is what lets `window#waybar` show rounded ends.
+  "margin-top": 6,
+  "margin-left": 10,
+  "margin-right": 10,
+
+  "reload_style_on_change": true,
+
+  "modules-left": [
+    "custom/power",
+    "niri/workspaces",
+    "mpris"
+  ],
+
+  "modules-center": [
+    "niri/window"
+  ],
+
+  "modules-right": [
+    "group/system",
+    "group/net",
+    "group/hw",
+    "group/status",
+    "group/util",
+    "group/time"
+  ],
+
+  // ─────────────────────────────────────────────────────────────
+  // Groups — each renders as one pill; children are the segments.
+  // NB: never name a group after a module it contains (`group/tray`
+  // would collide with `#tray` in CSS) — hence `group/util`.
+  // ─────────────────────────────────────────────────────────────
+
+  // Dividers are real modules ("custom/sepN"), not a border-left — see
+  // styles/pills.css section 4 for why.
+  //
+  // Every module either side of a separator must ALWAYS render, or the
+  // separator is left dangling — that is why custom/vpn and custom/mic
+  // emit a state icon instead of empty text, and why "tray" sits last
+  // with no separator of its own (it is empty until something docks).
+
+  "group/system": {
+    "orientation": "horizontal",
+    "modules": ["cpu", "custom/sep1", "memory", "custom/sep2", "custom/temperature"]
+  },
+
+  // The wifi drawer is NESTED inside group/net so that custom/vpn stays
+  // outside it and therefore always visible — a drawer hides everything
+  // but its first child, and VPN state is the one thing that must not
+  // need a hover to read.
+  "group/net": {
+    "orientation": "horizontal",
+    "modules": ["group/wifi", "custom/sep3", "custom/vpn"]
+  },
+
+  // Signal icon always on screen; SSID slides out on hover.
+  "group/wifi": {
+    "orientation": "horizontal",
+    "drawer": {
+      "transition-duration": 300,
+      "children-class": "drawer-wifi",
+      "transition-left-to-right": false
+    },
+    "modules": ["custom/wifi", "custom/wifi-ssid"]
+  },
+
+  // Drawer: only the FIRST child shows at rest, the rest slide out on
+  // hover. pulseaudio is first because volume is the one you glance at;
+  // brightness and mic are things you look at in the moment you change
+  // them, and both are on keybinds anyway (XF86MonBrightness*,
+  // XF86AudioMicMute). Costs ~250px of bar at rest.
+  //
+  // Caveat: custom/backlight's on-scroll only works once the drawer is
+  // open, since you have to hover it to reach it.
+  // transition-left-to-right:false opens leftward — correct for a
+  // right-aligned group; true would make it grow off the screen edge.
+  "group/hw": {
+    "orientation": "horizontal",
+    "drawer": {
+      "transition-duration": 300,
+      "children-class": "drawer-hw",
+      "transition-left-to-right": false
+    },
+    // Separators go AFTER their segment, not before: a drawer packs the
+    // revealer left of the always-visible first child, so a leading
+    // separator dangles at the pill's left edge when open.
+    "modules": ["pulseaudio", "custom/backlight", "custom/sep4", "custom/mic", "custom/sep5"]
+  },
+
+  // "niri/language" is deliberately NOT here: niri is configured with a
+  // single xkb layout ("de", config.kdl:7), so the module renders an
+  // empty label and leaves nothing but a stray divider. Add a second
+  // layout there, then put it back in this list.
+  "group/status": {
+    "orientation": "horizontal",
+    "modules": ["custom/battery"]
+  },
+
+  "group/util": {
+    "orientation": "horizontal",
+    // No separator: the tray docks icons on the right with no divider of
+    // its own, so one between the two fixed icons reads as arbitrary.
+    // Equal gaps come from each segment's own 7px padding.
+    "modules": ["idle_inhibitor", "custom/swaync", "tray"]
+  },
+
+  // Time is always on screen; the date slides out on hover. Saves ~140px
+  // of the 272px the combined clock used to take.
+  "group/time": {
+    "orientation": "horizontal",
+    "drawer": {
+      "transition-duration": 300,
+      "children-class": "drawer-time",
+      "transition-left-to-right": false
+    },
+    "modules": ["clock#time", "clock#date"]
+  },
+
+  // The separators. Static custom modules — no "exec", so waybar just
+  // renders "format". Spacing and divider height are styled entirely from
+  // #custom-sep1..5 in styles/pills.css.
+  "custom/sep1": { "format": "|", "tooltip": false },
+  "custom/sep2": { "format": "|", "tooltip": false },
+  "custom/sep3": { "format": "|", "tooltip": false },
+  "custom/sep4": { "format": "|", "tooltip": false },
+  "custom/sep5": { "format": "|", "tooltip": false },
+
+  // ═════════════════════════════════════════════════════════════
+  // LEFT
+  // ═════════════════════════════════════════════════════════════
+
+  // Icon-only module, so CSS can colour it — no Pango needed.
+  "custom/power": {
+    "format": "󰐥",
+    "on-click": "wlogout -p layer-shell",
+    "tooltip": false
+  },
+
+  // Icon-only buttons, so CSS handles active/inactive colouring.
+  //
+  // Keyed by workspace NAME, not index — niri renumbers indices as
+  // workspaces come and go, but the names in niri/config.kdl are
+  // persistent. Add a workspace: one `workspace "x"` line there plus
+  // one entry here.
+  //
+  // Do NOT add "active"/"focused"/"empty" keys: per
+  // waybar-niri-workspaces(5) those state icons OVERRIDE the name
+  // match, which would flatten every workspace to one glyph. State is
+  // styled in pills.css instead.
+  "niri/workspaces": {
+    "all-outputs": false,
+    // {index}, not {value}: with named workspaces {value} is the name
+    // ("term", "web"), and the mockup shows the number next to the icon.
+    "format": "{icon} {index}",
+    // The icon carries its own size so it can outgrow the digit beside it
+    // without dragging the whole button up with it.
+    "format-icons": {
+      "term":  "<span size='130%'>󰞷</span>",
+      "web":   "<span size='130%'>󰈹</span>",
+      "mail":  "<span size='130%'>󰇮</span>",
+      "files": "<span size='130%'>󰉋</span>",
+      "chat":  "<span size='130%'>󰭹</span>",
+      "pass":  "<span size='130%'>󰌆</span>",
+      "urgent": "<span size='130%'></span>",
+      "default": "<span size='130%'>󰝥</span>"
+    }
+  },
+
+  "mpris": {
+    "format": "{player_icon} {dynamic}",
+    "format-paused": "{status_icon} {dynamic}",
+    // Plain glyphs, no Pango: mpris does not escape the track title, so
+    // any markup here makes an `&` in a title blank the whole label.
+    // Colour lives on #mpris.playing / #mpris.paused in pills.css.
+    "player-icons": {
+      "default": "",
+      "mpv": "󰝚"
+    },
+    "status-icons": {
+      "paused": ""
+    },
+    "dynamic-order": ["artist", "title"],
+    "dynamic-len": 34,
+    "max-length": 42,
+    "interval": 1,
+    "on-scroll-up": "playerctl next",
+    "on-scroll-down": "playerctl previous",
+    "tooltip-format": "{player} · {status}\n{artist} — {title}"
+  },
+
+  // ═════════════════════════════════════════════════════════════
+  // CENTER
+  // ═════════════════════════════════════════════════════════════
+
+  // Icon comes from the GTK icon theme (Colloid-Catppuccin-Dark) by app_id,
+  // so a new app needs no rule here.
+  "niri/window": {
+    "format": "{title}",
+    "icon": true,
+    "icon-size": 16,
+    "separate-outputs": true,
+    "max-length": 60
+  },
+
+  // ═════════════════════════════════════════════════════════════
+  // RIGHT — system
+  // ═════════════════════════════════════════════════════════════
+
+  // 12 cores on this machine (sysctl hw.ncpu). {usageN} is per-core;
+  // adding or removing a core means editing the grid below.
+  "cpu": {
+    "format": "<span size='130%' color='#a6e3a1'>󰻠</span> {usage}%",
+    "interval": 3,
+    "tooltip-format": "CPU {usage}%   ·   load {load}\n\n  0 {usage0:>3}%   1 {usage1:>3}%   2 {usage2:>3}%   3 {usage3:>3}%\n  4 {usage4:>3}%   5 {usage5:>3}%   6 {usage6:>3}%   7 {usage7:>3}%\n  8 {usage8:>3}%   9 {usage9:>3}%  10 {usage10:>3}%  11 {usage11:>3}%"
+  },
+
+  "memory": {
+    "format": "<span size='130%' color='#b4befe'>󰍛</span> {used:0.1f}G",
+    "interval": 5,
+    "tooltip-format": "RAM   {used:0.2f} G used   ·   {percentage}%\n      {avail:0.2f} G available of {total:0.2f} G\n\nSwap  {swapUsed:0.2f} G used   ·   {swapPercentage}%\n      {swapAvail:0.2f} G available of {swapTotal:0.2f} G"
+  },
+
+  "custom/temperature": {
+    "exec": "~/.config/waybar/scripts/temperature.sh",
+    "return-type": "json",
+    "interval": 5,
+    "format": "{}"
+  },
+
+  // ═════════════════════════════════════════════════════════════
+  // RIGHT — network
+  // ═════════════════════════════════════════════════════════════
+
+  // Two halves of one readout so they can live in a drawer — see
+  // scripts/wifi.sh, which takes the half to emit as its second argument.
+  "custom/wifi": {
+    "exec": "~/.config/waybar/scripts/wifi.sh wlan0 icon",
+    "return-type": "json",
+    "interval": 5,
+    "format": "{}",
+    "on-click": "kitty -e sh -c 'ifconfig wlan0 list scan; read -r _'"
+  },
+
+  "custom/wifi-ssid": {
+    "exec": "~/.config/waybar/scripts/wifi.sh wlan0 ssid",
+    "return-type": "json",
+    "interval": 5,
+    "format": "{}"
+  },
+
+  "custom/vpn": {
+    "exec": "~/.config/waybar/scripts/vpn.sh",
+    "return-type": "json",
+    "interval": 10,
+    "format": "{}"
+  },
+
+  // ═════════════════════════════════════════════════════════════
+  // RIGHT — hardware
+  // ═════════════════════════════════════════════════════════════
+
+  "custom/backlight": {
+    "exec": "~/.config/waybar/scripts/backlight.sh",
+    "return-type": "json",
+    "interval": "once",
+    "signal": 4,
+    "format": "{}",
+    "on-scroll-up": "~/.config/waybar/scripts/backlight.sh up",
+    "on-scroll-down": "~/.config/waybar/scripts/backlight.sh down"
+  },
+
+  "pulseaudio": {
+    "format": "<span size='130%' color='#89dceb'>{icon}</span> {volume}%",
+    "format-muted": "<span size='130%' color='#f38ba8'>󰝟</span> {volume}%",
+    "format-icons": {
+      "default": ["󰕿", "󰖀", "󰕾"],
+      "headphone": "󰋋",
+      "headset": "󰋎"
+    },
+    "scroll-step": 5,
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "on-click-middle": "pavucontrol",
+    "tooltip-format": "{desc} · {volume}%"
+  },
+
+  "custom/mic": {
+    "exec": "~/.config/waybar/scripts/mic.sh",
+    "return-type": "json",
+    // Not "once": if wpctl is not ready when the bar starts, a one-shot
+    // module stays dead until the next signal. The poll lets it recover.
+    "interval": 10,
+    "signal": 5,
+    "format": "{}",
+    "on-click": "~/.config/waybar/scripts/mic.sh toggle"
+  },
+
+  // ═════════════════════════════════════════════════════════════
+  // RIGHT — status
+  // ═════════════════════════════════════════════════════════════
+
+  "custom/battery": {
+    "exec": "~/.config/waybar/scripts/battery.sh",
+    "return-type": "json",
+    "interval": 20,
+    "format": "{}"
+  },
+
+  "niri/language": {
+    "format": "<span size='130%' color='#b4befe'>󰌌</span> {short}",
+    "format-de": "<span size='130%' color='#b4befe'>󰌌</span> DE",
+    "format-us": "<span size='130%' color='#b4befe'>󰌌</span> US",
+    "on-click": "niri msg action switch-layout next"
+  },
+
+  // ═════════════════════════════════════════════════════════════
+  // RIGHT — util (icon-only modules, all coloured from CSS)
+  // ═════════════════════════════════════════════════════════════
+
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": { "activated": "󰅶", "deactivated": "󰾪" },
+    "tooltip-format-activated": "Idle inhibited",
+    "tooltip-format-deactivated": "Idle allowed"
+  },
+
+  "tray": {
+    "icon-size": 14,
+    "spacing": 8
+  },
+
+  "custom/swaync": {
+    "exec": "swaync-client -swb",
+    "exec-if": "which swaync-client",
+    "return-type": "json",
+    "format": "{icon}",
+    "format-icons": {
+      "none": "󰅺",
+      "notification": "󰡟",
+      "dnd-none": "󰽤",
+      "dnd-notification": "󰽥",
+      "inhibited-none": "󰆉",
+      "inhibited-notification": "󰡡"
+    },
+    "escape": true,
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw"
+  },
+
+  // ═════════════════════════════════════════════════════════════
+  // RIGHT — clock (the one filled pill; crust-on-blue, so CSS)
+  // ═════════════════════════════════════════════════════════════
+
+  // Two INSTANCES of the same module — "clock#time" and "clock#date".
+  // A drawer needs two children and the clock is one module, so the date
+  // is split off into its own instance. Both keep the CSS id #clock and
+  // pick up the instance name as a style class (#clock.time / #clock.date).
+  "clock#time": {
+    "locale": "de_DE.UTF-8",
+    "format": "<span size='130%'>󰥔</span> {:%H:%M}",
+    "tooltip-format": "<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "mode-mon-col": 3,
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#b4befe'><b>{}</b></span>",
+        "weekdays": "<span color='#f9e2af'><b>{}</b></span>",
+        "weeks": "<span color='#94e2d5'><b>KW{}</b></span>",
+        "days": "<span color='#cdd6f4'>{}</span>",
+        "today": "<span color='#89b4fa'><b><u>{}</u></b></span>"
+      }
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
+  },
+
+  // The drawer child. No tooltip of its own — the calendar hangs off
+  // clock#time, which is the one that is always on screen.
+  "clock#date": {
+    "locale": "de_DE.UTF-8",
+    "format": "{:%a %d.%m}",
+    "tooltip": false
+  }
+}

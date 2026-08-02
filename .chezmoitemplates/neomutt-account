@@ -1,0 +1,12 @@
+set folder="{{ .home }}/.mail/{{ .addr }}"
+set spoolfile="+INBOX"
+set record="+Sent"
+set postponed="+Drafts"
+set trash="+Trash"
+set from="{{ .addr }}"
+set realname="{{ .name }}"
+my_hdr From: {{ .name }} <{{ .addr }}>
+set pgp_sign_as="{{ .key }}"
+set pgp_default_key="{{ .key }}"
+
+set crypt_autosign=yes

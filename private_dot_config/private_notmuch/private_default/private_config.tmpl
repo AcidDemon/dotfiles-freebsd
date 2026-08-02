@@ -1,0 +1,18 @@
+{{- $id := . -}}
+[database]
+path={{ .chezmoi.homeDir }}/.mail
+
+[maildir]
+synchronize_flags=true
+
+[new]
+ignore=.uidvalidity;.mbsyncstate
+tags=inbox;unread
+
+[search]
+exclude_tags=deleted;spam
+
+[user]
+name={{ (index $id.mail.accounts 0).name }}
+other_email={{ range $i, $a := (rest $id.mail.accounts) }}{{ if $i }};{{ end }}{{ $a.addr }}{{ end }}
+primary_email={{ (index $id.mail.accounts 0).addr }}

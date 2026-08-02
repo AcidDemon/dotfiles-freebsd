@@ -1,0 +1,66 @@
+background {
+  monitor=
+  blur_passes=2
+  color=0xff1e1e2e
+  path={{ .chezmoi.homeDir }}/.config/hypr/assets/lock.jpg
+}
+
+general {
+  hide_cursor=true
+  ignore_empty_input=true
+}
+
+image {
+  monitor=
+  size=100
+  border_color=0xffcba6f7
+  halign=center
+  path={{ .chezmoi.homeDir }}/.config/hypr/assets/face.png
+  position=0, 75
+  valign=center
+}
+
+input-field {
+  monitor=
+  size=300, 60
+  capslock_color=0xfff9e2af
+  check_color=0xffcba6f7
+  dots_center=true
+  dots_size=0.200000
+  dots_spacing=0.200000
+  fade_on_empty=false
+  fail_color=0xfff38ba8
+  fail_text="<i>$FAIL <b>($ATTEMPTS)</b></i>"
+  font_color=0xffcdd6f4
+  halign=center
+  hide_input=false
+  inner_color=0xff313244
+  outer_color=0xffcba6f7
+  outline_thickness=3
+  placeholder_text=<i>Input Password...</i>
+  position=0, -35
+  valign=center
+}
+
+label {
+  monitor=
+  color=0xffcdd6f4
+  font_family=Lexend
+  font_size=90
+  halign=right
+  position=-30, 0
+  text=cmd[update:30000] echo "$(date +"%R")"
+  valign=top
+}
+
+label {
+  monitor=
+  color=0xffcdd6f4
+  font_family=Lexend
+  font_size=25
+  halign=right
+  position=-30, -150
+  text=cmd[update:43200000] echo "$(date +"%A, %d %B %Y")"
+  valign=top
+}
+

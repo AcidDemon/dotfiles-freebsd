@@ -1,0 +1,7 @@
+source ~/.config/neomutt/settings
+source ~/.config/neomutt/colors
+source ~/.config/neomutt/mappings
+source ~/.config/neomutt/accounts/hooks
+source ~/.config/neomutt/accounts/notmuch
+# Load primary account last (sets default identity)
+source ~/.config/neomutt/accounts/1

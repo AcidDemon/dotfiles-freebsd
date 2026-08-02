@@ -1,0 +1,85 @@
+# bottom configuration
+
+[flags]
+# Update rate in milliseconds
+rate = 1000
+
+# Default time shown in graphs
+default_time_value = 60000
+
+# Data retention period
+retention = "10m"
+
+# Temperature unit
+temperature_type = "celsius"
+
+# Process settings
+case_sensitive = false
+whole_word = false
+regex = false
+current_usage = false
+unnormalized_cpu = false
+group_processes = true
+process_command = false
+
+# Display settings
+hide_avg_cpu = false
+hide_table_gap = false
+left_legend = false
+mem_as_value = false
+
+# Network settings
+network_use_bytes = false
+network_use_binary_prefix = false
+network_use_log = false
+
+# Other settings
+disable_click = false
+battery = true
+enable_gpu = false
+default_widget_type = "proc"
+
+
+
+
+# Catppuccin Mocha theme for bottom
+# Source: https://github.com/catppuccin/bottom
+
+[styles.cpu]
+all_entry_color = "#f5e0dc"
+avg_entry_color = "#eba0ac"
+cpu_core_colors = ["#f38ba8", "#fab387", "#f9e2af", "#a6e3a1", "#74c7ec", "#cba6f7"]
+
+[styles.memory]
+ram_color = "#a6e3a1"
+cache_color = "#f38ba8"
+swap_color = "#fab387"
+gpu_colors = ["#74c7ec", "#cba6f7", "#f38ba8", "#fab387", "#f9e2af", "#a6e3a1"]
+arc_color = "#89dceb"
+
+[styles.network]
+rx_color = "#a6e3a1"
+tx_color = "#f38ba8"
+rx_total_color = "#89dceb"
+tx_total_color = "#a6e3a1"
+
+[styles.battery]
+high_battery_color = "#a6e3a1"
+medium_battery_color = "#f9e2af"
+low_battery_color = "#f38ba8"
+
+[styles.tables]
+headers = { color = "#f5e0dc" }
+
+[styles.graphs]
+graph_color = "#a6adc8"
+legend_text = { color = "#a6adc8" }
+
+[styles.widgets]
+border_color = "#585b70"
+selected_border_color = "#f5c2e7"
+widget_title = { color = "#f2cdcd" }
+text = { color = "#cdd6f4" }
+selected_text = { color = "#11111b", bg_color = "#cba6f7" }
+disabled_text = { color = "#1e1e2e" }
+

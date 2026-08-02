@@ -1,0 +1,74 @@
+#!/bin/sh
+# Rotate wallpapers with awww at a configurable interval.
+#
+# Config, in order of precedence: environment, then
+# ${XDG_CONFIG_HOME:-~/.config}/awww/rotate.conf (plain sh, sourced).
+#
+#   WALLPAPER_DIR  directory to pick from   (default $XDG_DATA_HOME/wallpapers)
+#   INTERVAL       seconds between changes  (default 900 = 15 min)
+#
+# The transition effect is configured through awww's own environment variables,
+# which it reads itself -- no need for this script to pass flags:
+#
+#   AWWW_TRANSITION           none simple fade left right top bottom wipe wave
+#                             grow center any outer random   (default: random)
+#   AWWW_TRANSITION_DURATION  seconds        (default 2)
+#   AWWW_TRANSITION_FPS       frames/sec     (default 60)
+#   AWWW_TRANSITION_STEP, _ANGLE, _POS, _BEZIER, _WAVE  also honoured by awww.
+
+set -u
+
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}/awww/rotate.conf"
+# shellcheck source=/dev/null
+[ -r "$CONF" ] && . "$CONF"
+
+WALLPAPER_DIR="${WALLPAPER_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/wallpapers}"
+INTERVAL="${INTERVAL:-900}"
+
+AWWW_TRANSITION="${AWWW_TRANSITION:-random}"
+AWWW_TRANSITION_DURATION="${AWWW_TRANSITION_DURATION:-2}"
+AWWW_TRANSITION_FPS="${AWWW_TRANSITION_FPS:-60}"
+export AWWW_TRANSITION AWWW_TRANSITION_DURATION AWWW_TRANSITION_FPS
+
+if [ ! -d "$WALLPAPER_DIR" ]; then
+    echo "awww-random: $WALLPAPER_DIR does not exist" >&2
+    exit 1
+fi
+
+# niri spawns this and awww-daemon at the same time, so wait for the daemon
+# rather than racing it and failing on the first image.
+tries=0
+while ! awww query >/dev/null 2>&1; do
+    tries=$((tries + 1))
+    if [ "$tries" -gt 30 ]; then
+        echo "awww-random: awww-daemon did not come up within 30s" >&2
+        exit 1
+    fi
+    sleep 1
+done
+
+find_images() {
+    find "$WALLPAPER_DIR" -type f \
+        \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \
+           -o -iname '*.webp' -o -iname '*.gif' -o -iname '*.bmp' \)
+}
+
+if [ -z "$(find_images)" ]; then
+    echo "awww-random: no images in $WALLPAPER_DIR" >&2
+    exit 1
+fi
+
+last=""
+while :; do
+    # Exclude the current image so the same one is never picked twice in a row.
+    # With one image in the directory the filter empties the list, so fall back.
+    next=$(find_images | grep -vxF "$last" | sort -R | head -n 1)
+    [ -n "$next" ] || next="$last"
+
+    if [ -n "$next" ]; then
+        awww img "$next" || echo "awww-random: failed to set $next" >&2
+        last="$next"
+    fi
+
+    sleep "$INTERVAL"
+done

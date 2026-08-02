@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+sep_dir="$HOME/.cache/neomutt/separators/search"
+mkdir -p "$sep_dir"/{cur,new,tmp}
+echo 'named-mailboxes "··· search ···················" "'"$sep_dir"'"'

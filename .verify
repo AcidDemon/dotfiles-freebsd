@@ -1,0 +1,73 @@
+#!/bin/sh
+# Verification pass. Run `chezmoi init` first: that is the only step that touches
+# the card. Everything here reads the decrypted values out of the chezmoi config.
+cd "$(dirname "$0")"
+
+grep -q '^\[data\]\|^\[\[data\.' ~/.config/chezmoi/chezmoi.toml 2>/dev/null || {
+    echo "no identity in ~/.config/chezmoi/chezmoi.toml -- run 'chezmoi init' first" >&2
+    exit 1
+}
+
+echo "=== 1. chezmoi state (must not say 'inconsistent state') ==="
+chezmoi status
+
+echo
+echo "=== 2. no identity left in the source tree (expect nothing) ==="
+grep -rniE 'acid@acidnetworks|c\.schlueter|claasschlueter|schlü|aciddemon|inviziblenet|10\.0\.10\.|MQCP4NG' . \
+    --exclude-dir=.git --exclude='.identity.toml.*' --exclude='.verify' || echo "  clean"
+
+echo
+echo "=== 3. no address-derived filenames (expect nothing) ==="
+find . -name '*@*.*' -not -path './.git/*' -not -path './private_dot_local/*' \
+    | grep -vE '@2\.svg$' || echo "  clean"
+
+echo
+echo "=== 4. nothing secret is managed (expect only .ssh/config) ==="
+chezmoi managed --path-style absolute | grep -iE 'ssh|gnupg/private|credentials|remmina|keyring' || echo "  none"
+
+echo
+echo "=== 5. both blobs decrypt to the same bytes ==="
+a=$(chezmoi decrypt .identity.toml.asc | sha256 -q)
+b=$(age -d .identity.toml.age | sha256 -q)
+[ "$a" = "$b" ] && echo "  match $a" || echo "  MISMATCH: asc=$a age=$b"
+
+echo
+echo "=== 6. rendered neomutt identity ==="
+chezmoi cat ~/.config/neomutt/accounts/1
+echo "--- hooks ---"
+chezmoi cat ~/.config/neomutt/accounts/hooks
+echo "--- sidebar sources ---"
+chezmoi cat ~/.config/neomutt/settings | grep 'neomutt-sidebar'
+echo "--- F-key macros ---"
+chezmoi cat ~/.config/neomutt/mappings | tail -3
+
+echo
+echo "=== 7. rendered notmuch / git / jj / iamb / weechat ==="
+chezmoi cat ~/.config/notmuch/default/config | tail -3
+chezmoi cat ~/.config/notmuch/default/hooks/post-new | tail -1
+chezmoi cat ~/.config/git/config | sed -n '/^\[sendemail/,/sendmailCmd/p;/^\[user\]/,/signingKey/p'
+chezmoi cat ~/.config/jj/config.toml | grep -E '^(key|email|name)'
+chezmoi cat ~/.config/iamb/config.toml | grep user_id
+chezmoi cat ~/.config/weechat/irc.conf | grep -E '^(nicks|hackint\.sasl_username)'
+
+echo
+echo "=== 8. ssh config renders and matches the live file ==="
+chezmoi cat ~/.ssh/config | diff ~/.ssh/config - && echo "  identical"
+
+echo
+echo "=== 9. rendered output still parses ==="
+chezmoi cat ~/.config/nvim/lua/plugins/alpha.lua > /tmp/_a.lua \
+    && luac54 -p /tmp/_a.lua && echo "  alpha.lua ok" && grep github.com /tmp/_a.lua
+rm -f /tmp/_a.lua
+python3 -m py_compile ~/.config/qutebrowser/config.py && echo "  qutebrowser config.py ok"
+python3 -c "import json;json.load(open('$HOME/.config/swaync/config.json'))" && echo "  swaync config.json ok"
+for f in gitsigns nvimtree; do luac54 -p ~/.config/nvim/lua/plugins/$f.lua && echo "  $f.lua ok"; done
+luac54 -p ~/.config/nvim/lua/options/keymaps.lua && echo "  keymaps.lua ok"
+niri validate -c ~/.config/niri/config.kdl && echo "  niri config ok"
+
+echo
+echo "=== 10. pending changes: what 'chezmoi apply' WILL write to ~ ==="
+echo "    NOT errors. Source is ahead of the live files on purpose."
+echo "    Fix with 'chezmoi apply'. Never 'chezmoi add' -- that copies the"
+echo "    live file back over the source and undoes the change."
+chezmoi diff --no-pager | head -60

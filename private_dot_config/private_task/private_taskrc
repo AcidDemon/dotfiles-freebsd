@@ -1,0 +1,6 @@
+data.location=/home/acid/.local/share/task
+
+confirmation=false
+search.case.sensitive=false
+verbose=affected,blank,context,edit,header,footnote,label,new-id,project,special,sync,override,recur
+weekstart=Monday

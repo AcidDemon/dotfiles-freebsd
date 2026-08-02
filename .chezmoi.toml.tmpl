@@ -1,0 +1,11 @@
+{{- /* Decrypted once here at `chezmoi init`. apply/diff/cat never touch the card. */ -}}
+{{- $src := .chezmoi.sourceDir -}}
+{{- $id := "" -}}
+{{- if eq "0" (output "sh" "-c" "gpg --card-status >/dev/null 2>&1; printf %s $?") -}}
+{{-   $id = output "gpg" "--quiet" "--decrypt" (joinPath $src ".identity.toml.asc") -}}
+{{- else -}}
+{{-   $id = output "age" "--decrypt" (joinPath $src ".identity.toml.age") -}}
+{{- end -}}
+sourceDir = {{ $src | quote }}
+
+{{ $id }}

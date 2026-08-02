@@ -1,0 +1,5 @@
+style: "auto"   # default "auto"
+mouse: false    # TUI-mode only
+pager: false
+width: 80
+all: false

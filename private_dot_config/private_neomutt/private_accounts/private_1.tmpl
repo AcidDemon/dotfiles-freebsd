@@ -1,0 +1,2 @@
+{{- $id := . -}}
+{{- includeTemplate "neomutt-account" (merge (dict "home" .chezmoi.homeDir) (index $id.mail.accounts 0)) -}}

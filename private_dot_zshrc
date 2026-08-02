@@ -1,0 +1,142 @@
+# --- 1. INSTANT PROMPT ---
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# --- 2. ENVIRONMENT & CORE OPTIONS ---
+HISTFILE="$HOME/.local/share/zsh/.zsh_history"
+mkdir -p "$(dirname $HISTFILE)"
+HISTSIZE=25000
+SAVEHIST=25000
+
+setopt autocd extendedglob nomatch notify
+unsetopt beep
+set_opts=(
+  HIST_FCNTL_LOCK EXTENDED_HISTORY HIST_EXPIRE_DUPS_FIRST HIST_IGNORE_ALL_DUPS
+  HIST_IGNORE_DUPS HIST_IGNORE_SPACE SHARE_HISTORY autocd NO_APPEND_HISTORY
+  NO_HIST_FIND_NO_DUPS NO_HIST_SAVE_NO_DUPS
+)
+for opt in "${set_opts[@]}"; do
+  setopt "$opt"
+done
+unset opt set_opts
+
+umask 0077
+
+# --- 3. KEY BINDINGS & ZLE ---
+bindkey -v
+export KEYTIMEOUT=1
+
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^X^E' edit-command-line
+bindkey ' ' magic-space
+
+# --- 4. ALIASES & SHELL CONFIGS ---
+[ -f "$HOME/.config/zsh/suffix-aliases.zsh" ] && source "$HOME/.config/zsh/suffix-aliases.zsh"
+[ -f "$HOME/.config/zsh/global-aliases.zsh" ] && source "$HOME/.config/zsh/global-aliases.zsh"
+
+if [ -f "$HOME/.config/shell/exports.sh" ]; then
+  source "$HOME/.config/shell/exports.sh"
+fi
+if [ -f "$HOME/.config/shell/aliases.sh" ]; then
+  source "$HOME/.config/shell/aliases.sh"
+fi
+if [ -f "$HOME/.config/shell/aliases-zsh.sh" ]; then
+  source "$HOME/.config/shell/aliases-zsh.sh"
+fi
+if [ -f "$HOME/.config/shell/functions.sh" ]; then
+  source "$HOME/.config/shell/functions.sh"
+fi
+
+[ "$TERM" = "xterm-kitty" ] && alias ssh='kitty +kitten ssh'
+
+# --- 5. COMPLETIONS & FZF ---
+zstyle ':completion:*' menu no
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle :compinstall filename "$HOME/.zshrc"
+
+# Completions for tools installed outside the package manager (awww, etc.).
+# Must come before compinit or they are not picked up.
+fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
+
+autoload -Uz compinit
+compinit
+
+if (( $+commands[fzf] )); then
+  source <(fzf --zsh)
+fi
+
+export FZF_PREVIEW_IMAGE_HANDLER="kitty"
+export FZF_CTRL_T_OPTS="--preview 'fzf-preview-wrapper {} 2>/dev/null' --preview-window=right:50% --bind=tab:down,shift-tab:up"
+export FZF_ALT_C_OPTS="--preview 'eza -1 --color=always --tree --level=2 --icons {}' --preview-window=right:50% --bind=tab:down,shift-tab:up"
+
+FZF_TAB_PLUGIN="$HOME/.local/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+if [[ -r "$FZF_TAB_PLUGIN" ]]; then
+  source "$FZF_TAB_PLUGIN"
+else
+  print -u2 "fzf-tab plugin not found: $FZF_TAB_PLUGIN"
+fi
+unset FZF_TAB_PLUGIN
+
+[ -f "$HOME/.config/zsh/fzf-tab-config.zsh" ] && source "$HOME/.config/zsh/fzf-tab-config.zsh"
+
+# --- 6. INTEGRATIONS & EXTERNAL TOOLS ---
+# Gpg-agent
+if (( $+commands[gpg-connect-agent] )); then
+  [[ -d "$HOME/.gnupg" ]] || mkdir -p -m 700 "$HOME/.gnupg"
+  export GPG_TTY=$TTY
+  # agent tracks one tty; agent shells must not steal it
+  [[ -z "$CLAUDECODE" ]] && gpg-connect-agent --quiet updatestartuptty /bye >/dev/null
+fi
+
+# Direnv, Atuin, Zoxide
+eval "$(direnv hook zsh)"
+if [[ $options[zle] = on ]]; then
+  eval "$(atuin init zsh --disable-up-arrow)"
+fi
+eval "$(zoxide init zsh)"
+
+# Autosuggestions & Theme Visuals
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_COMPLETION_IGNORE='(rsync|scp|sftp|ssh) *'
+if [[ -r /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+  source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh 
+fi
+
+export LS_COLORS="$(vivid generate catppuccin-mocha)"
+
+# --- 7. HELPER FUNCTIONS ---
+# Atuin shortcuts
+hs()  { atuin search "$@" | grep --color=auto "$@"; }
+hsg() {
+  if atuin search --help 2>/dev/null | grep -q -- '--filter-mode'; then
+    atuin search --filter-mode global "$@" | grep --color=auto "$@"
+  else
+    ATUIN_FILTER_MODE=global atuin search "$@"
+  fi
+}
+hsl() { atuin history list   "$@"; }
+hsp() { atuin history prune  "$@"; }
+hss() { atuin stats          "$@"; }
+bindkey -s '^g' 'hsg\n'
+
+# Yazi cwd tracker
+function y() {
+  local tmp cwd
+  tmp="$(mktemp -t yazi-cwd)" || return 1
+  command yazi "$@" --cwd-file="$tmp"
+  if cwd="$(<"$tmp")" && [[ -n "$cwd" && "$cwd" != "$PWD" ]]; then
+    builtin cd -- "$cwd"
+  fi
+  rm -f -- "$tmp"
+}
+
+# --- 8. THEME & HIGHLIGHTING (MUST BE LAST) ---
+if [[ -r /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+  source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 
+fi
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main cursor main brackets pattern regexp root line)
+
+source "$HOME/.p10k/powerlevel10k.zsh-theme"
+[[ ! -f "$HOME/.p10k.zsh" ]] || source "$HOME/.p10k.zsh"

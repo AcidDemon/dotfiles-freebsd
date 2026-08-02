@@ -1,0 +1,42 @@
+#!/bin/sh
+# Edit the identity blob and re-encrypt it to both backends from one plaintext,
+# so .asc and .age can never drift apart.
+#
+#   ./.identity-edit                 decrypt, $EDITOR, re-encrypt
+#   ./.identity-edit seed.toml       take seed.toml verbatim, re-encrypt
+set -eu
+
+cd "$(dirname "$0")"
+
+RECIPIENTS="98248F0251641CB0! BA6FDFBF89054F12!"
+seed=${1:-}
+
+tmp=$(mktemp) || exit 1
+trap 'rm -f "$tmp"' EXIT INT TERM
+
+if [ -n "$seed" ]; then
+    cat "$seed" > "$tmp"
+elif [ -f .identity.toml.asc ]; then
+    gpg --quiet --decrypt .identity.toml.asc > "$tmp"
+elif [ -f .identity.toml.age ]; then
+    age -d .identity.toml.age > "$tmp"
+else
+    echo "no blob yet: $0 <seed.toml>" >&2
+    exit 1
+fi
+
+[ -n "$seed" ] || "${EDITOR:-vi}" "$tmp"
+
+set --
+for r in $RECIPIENTS; do
+    set -- "$@" -r "$r"
+done
+
+gpg --batch --yes --armor --trust-model always "$@" -o .identity.toml.asc --encrypt "$tmp"
+age -p -a -o .identity.toml.age "$tmp"
+
+gpg --batch --list-packets < .identity.toml.asc | grep -c 'pubkey enc packet' \
+    | grep -qx 2 || { echo "WARNING: .asc has != 2 recipients" >&2; exit 1; }
+
+echo "wrote .identity.toml.asc and .identity.toml.age"
+echo "run 'chezmoi init' to load the new values into ~/.config/chezmoi/chezmoi.toml"

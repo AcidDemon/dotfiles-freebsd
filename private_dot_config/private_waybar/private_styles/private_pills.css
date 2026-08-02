@@ -1,0 +1,392 @@
+/* ═══════════════════════════════════════════════════════════════
+   Grouped pills — Catppuccin Mocha
+   Every colour here comes from the semantic layer in palette.css.
+   Edit palette.css to retheme; edit this file to reshape.
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url("../palette.css");
+
+/* ───────────────────────────────────────────────────────────────
+   1. The rail
+   The window is inset via margin-* in config.jsonc, which is what
+   makes these rounded ends visible instead of being clipped.
+   ─────────────────────────────────────────────────────────────── */
+
+window#waybar {
+    background: @bar-bg;
+    border: 1px solid @bar-border;
+    border-radius: 17px;
+    color: @fg;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+    margin: 0 4px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   2. The pill
+   One rule for every top-level container. Group boxes are listed
+   under both possible ids because Waybar has used `#name` and
+   `#group-name` at different versions.
+   ─────────────────────────────────────────────────────────────── */
+
+#custom-power,
+#workspaces,
+#mpris,
+#window,
+#system,
+#group-system,
+#net,
+#group-net,
+#hw,
+#group-hw,
+#status,
+#group-status,
+#util,
+#group-util,
+#time,
+#group-time {
+    background-color: @pill-bg;
+    color: @fg;
+    border: none;
+    /* Deliberately larger than any pill can ever be tall: GTK clamps the
+       radius to half the box, so this always yields fully round ends.
+       A fixed value like 16px on a 41px-tall pill is a rounded RECTANGLE,
+       which is what made hover look wrong. */
+    border-radius: 100px;
+    padding: 0 13px;
+    margin: 4px 4px;
+    min-height: 0;
+}
+
+/* Group pills carry almost no padding of their own — their children each
+   bring 13px, so stacking both would double the inner gap. */
+#system, #group-system,
+#net,    #group-net,
+#hw,     #group-hw,
+#status, #group-status,
+#util,   #group-util,
+#time,   #group-time,
+#wifi,   #group-wifi {
+    padding: 0 4px;
+}
+
+/* Nested inside group/net, so it must not paint a second pill on top of
+   its parent's. Padding above keeps it from double-indenting too. */
+#wifi, #group-wifi {
+    background-color: transparent;
+    margin: 0;
+}
+
+/* Icon-only pills want to stay circular, not stretch into lozenges */
+#custom-power {
+    padding: 0 9px;
+    /* Adds to the workspaces pill's own 4px — the power button is a
+       destructive action, so it gets more elbow room than the 8px every
+       other pair of neighbouring pills has. */
+    margin-right: 14px;
+    color: @acc-power;
+}
+
+/* Modules that are ONLY a glyph get a size bump — an MDI glyph is drawn
+   well inside its em box, so at the body size it reads smaller than the
+   digits beside it. Anything with text stays at the base size so the
+   numbers don't tower over the bar.
+   This only works because base.css keeps font-size off the `*` rule. */
+#custom-power,
+#idle_inhibitor,
+#custom-swaync {
+    font-size: 19px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   3. Group interiors
+   Children of a group must not draw their own pill — they are
+   segments inside the parent's.
+   ─────────────────────────────────────────────────────────────── */
+
+/* Listed by module id, NOT as `#group-x > *`. A drawer group wraps every
+   child except the first in a GtkRevealer, so a child combinator silently
+   skips them — which is how the drawer'd clock and mic ended up unstyled.
+   Adding a module to a group means adding its id here. */
+#cpu,
+#memory,
+#custom-temperature,
+#custom-wifi,
+#custom-wifi-ssid,
+#custom-vpn,
+#custom-backlight,
+#pulseaudio,
+#custom-mic,
+#custom-battery,
+#idle_inhibitor,
+#tray,
+#custom-swaync,
+#clock {
+    background-color: transparent;
+    margin: 0;
+
+    /* Each segment is its own pill so :hover reads as a pill, not a
+       rectangle. 100px, not 13px — see the note in section 2. The radius
+       only shows on hover; the background is transparent otherwise. */
+    border: none;
+    border-radius: 100px;
+    /* 7px. There are ~10 of these across the right-hand groups, so every
+       pixel here costs ~20px of bar — at 13px the right block reached the
+       centre of the screen. The 2px cut from 9px pays for most of the
+       16px font + 130% icons above. */
+    padding: 3px 7px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   4. Dividers
+   Real widgets (custom/sep1..5 in config.jsonc), NOT a border-left: a
+   border forced a rectangular hover highlight and locked the divider
+   height to the text line box.
+   ─────────────────────────────────────────────────────────────── */
+
+#custom-sep1, #custom-sep2, #custom-sep3,
+#custom-sep4, #custom-sep5 {
+    color: @divider;
+    background-color: transparent;
+    border-radius: 0;
+    margin: 0;
+
+    /* font-size sets the divider's HEIGHT, padding sets the gap either
+       side of it. Tune these two independently. The segments either side
+       already contribute 9px each, so 1px here is plenty — at 3px the five
+       separators cost 30px of bar for no visible benefit. */
+    font-size: 15px;
+    padding: 0 1px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   5. Workspaces
+   niri/workspaces renders buttons inside the #workspaces box, so
+   the box is the pill and the buttons are the segments.
+   ─────────────────────────────────────────────────────────────── */
+
+#workspaces {
+    padding: 0 5px;
+}
+
+#workspaces button {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0 14px;
+    /* Waybar generates these buttons, so a separator module cannot be put
+       between them — this is the one place still using a border-left, and
+       the vertical margin is what keeps that border from spanning the
+       full pill height. */
+    margin: 4px 0;
+    min-width: 0;
+    color: @fg-dim;
+    border-radius: 100px;
+}
+
+#workspaces button + button {
+    border-left: 1px solid @divider;
+}
+
+/* Order matters: these all have equal specificity, so the last match
+   wins. Weakest state first, strongest last.
+
+   Named workspaces are declared in niri/config.kdl and so are always
+   present — dim the ones with nothing in them. */
+#workspaces button.empty {
+    color: @st-inactive;
+}
+
+/* State is colour ONLY — never weight. A weight change alters the
+   glyph advance width, so the active button would resize on every
+   workspace switch. */
+#workspaces button.active,
+#workspaces button.focused {
+    color: @acc-workspace;
+}
+
+#workspaces button.urgent {
+    color: @st-critical;
+}
+
+#workspaces button:hover {
+    background: transparent;
+    color: @fg;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   6. Individual modules
+   Icons are tinted from the config (Pango); these rules set the
+   TEXT colour and anything state-dependent.
+   ─────────────────────────────────────────────────────────────── */
+
+/* Whole-module colour, not a Pango span on the icon — mpris does not
+   escape the track title, so an `&` in it would blank the label. */
+#mpris {
+    color: @subtext1;
+}
+
+#mpris.playing {
+    color: @acc-media;
+}
+
+#mpris.paused {
+    color: @fg-dim;
+}
+
+#window {
+    color: @subtext1;
+}
+
+/* Hide the window pill entirely when the workspace is empty rather
+   than leaving an orphaned container floating mid-bar. */
+window#waybar.empty #window {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+#cpu,
+#memory,
+#custom-temperature,
+#custom-wifi,
+#custom-wifi-ssid,
+#custom-vpn,
+#custom-backlight,
+#pulseaudio,
+#custom-mic,
+#custom-battery {
+    color: @fg;
+}
+
+/* Icon-only utilities take their accent straight from CSS */
+#idle_inhibitor {
+    color: @fg-dim;
+}
+
+#idle_inhibitor.activated {
+    color: @acc-idle;
+}
+
+#custom-swaync {
+    color: @fg-dim;
+}
+
+#custom-swaync.notification,
+#custom-swaync.dnd-notification,
+#custom-swaync.inhibited-notification {
+    color: @acc-window;
+}
+
+#tray menu {
+    background-color: alpha(@base00, 0.96);
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}
+
+/* The one filled pill — the visual anchor of the bar.
+   The fill is on the GROUP, not on #clock: there are two clock instances
+   inside it (time + the drawer's date), and filling each of them would
+   draw two blue pills side by side. */
+#time,
+#group-time {
+    background-color: @acc-clock;
+    font-weight: 600;
+}
+
+/* Plain id, no descendant combinator — the drawer's revealer sits between
+   the group and the date instance, so anything structural misses it. */
+#clock {
+    color: @crust;
+    font-weight: 600;
+    /* No padding override — it is a group child now, so it takes the
+       3px 13px from the segment rule like every other module. Setting
+       0 13px here (left over from when the clock was a top-level pill)
+       made it 6px shorter than every other group. */
+}
+
+/* ───────────────────────────────────────────────────────────────
+   7. State colours
+   Shared vocabulary: whatever reports a state uses the same four
+   colours, so "yellow" always means the same thing across the bar.
+   Scripts emit these class names in their JSON.
+   ─────────────────────────────────────────────────────────────── */
+
+#custom-battery.warning,
+#custom-temperature.warning,
+#custom-wifi.warning {
+    color: @st-warning;
+}
+
+#custom-battery.degraded,
+#custom-temperature.degraded,
+#custom-wifi.degraded {
+    color: @st-degraded;
+}
+
+#custom-battery.critical,
+#custom-temperature.critical,
+#custom-wifi.critical,
+#custom-mic.muted {
+    color: @st-critical;
+}
+
+#custom-wifi.disconnected,
+#custom-vpn.down {
+    color: @st-inactive;
+}
+
+#custom-battery.charging {
+    color: @st-charging;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   8. Hover
+   Subtle, and only on things that actually do something on click.
+   ─────────────────────────────────────────────────────────────── */
+
+/* Every hoverable module is listed here and nowhere else. They all
+   inherit border-radius: 100px from section 2 or 3, so the highlight is
+   a pill. Separators are deliberately absent — they are not clickable. */
+#custom-power:hover,
+#mpris:hover,
+#cpu:hover,
+#memory:hover,
+#custom-temperature:hover,
+#custom-wifi:hover,
+#custom-vpn:hover,
+#custom-backlight:hover,
+#pulseaudio:hover,
+#custom-mic:hover,
+#custom-battery:hover,
+#idle_inhibitor:hover,
+#custom-swaync:hover,
+#language:hover,
+#niri-language:hover {
+    background-color: @pill-hover;
+}
+
+#custom-power:hover {
+    background-color: alpha(@acc-power, 0.22);
+}
+
+/* Hovering the clock opens the date drawer, so highlight the whole group
+   rather than the segment under the cursor. Lavender, as before. */
+#time:hover,
+#group-time:hover {
+    background-color: @base07; /* lavender */
+}

@@ -1,0 +1,41 @@
+#
+# .profile - POSIX Shell startup script for login shells
+#
+# see also sh(1), environ(7).
+#
+
+# These are normally set through /etc/login.conf.  You may override them here
+# if wanted.
+# PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:$HOME/bin; export PATH
+
+# Setting TERM is normally done through /etc/ttys.  Do only override
+# if you're sure that you'll never log in via telnet or xterm or a
+# serial line.
+# TERM=xterm; 	export TERM
+
+EDITOR=vi;   	export EDITOR
+PAGER=less;  	export PAGER
+
+# set ENV to a file invoked each time sh is started for interactive use.
+ENV=$HOME/.shrc; export ENV
+
+# Let sh(1) know it's at home, despite /home being a symlink.
+if [ "$PWD" != "$HOME" ] && [ "$PWD" -ef "$HOME" ] ; then cd ; fi
+
+# Query terminal size; useful for serial lines.
+if [ -x /usr/bin/resizewin ] ; then /usr/bin/resizewin -z ; fi
+
+# Display a random cookie on each login.
+if [ -x /usr/bin/fortune ] ; then /usr/bin/fortune freebsd-tips ; fi
+
+# XDG_RUNTIME_DIR. Not pam_xdg's /var/run/xdg/$USER — sddm closes the PAM session
+# right after starting it, so pam_xdg deletes that directory mid-startup. See the
+# matching comment in ~/.zprofile.
+# pam_xdg exports XDG_RUNTIME_DIR itself despite its man page saying otherwise, so
+# override its value rather than only filling in when unset.
+case "$XDG_RUNTIME_DIR" in
+    ""|/var/run/xdg/*) XDG_RUNTIME_DIR="/tmp/xdg-$(id -un)" ;;
+esac
+export XDG_RUNTIME_DIR
+[ -d "$XDG_RUNTIME_DIR" ] || mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null

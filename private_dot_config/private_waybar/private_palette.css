@@ -1,0 +1,77 @@
+/* ───────────────────────────────────────────────────────────────
+   Catppuccin Mocha — base16 mapping (kept from the old palette so
+   anything else importing this file keeps working)
+   ─────────────────────────────────────────────────────────────── */
+
+@define-color base00 #1e1e2e; /* base      */
+@define-color base01 #181825; /* mantle    */
+@define-color base02 #313244; /* surface0  */
+@define-color base03 #45475a; /* surface1  */
+@define-color base04 #585b70; /* surface2  */
+@define-color base05 #cdd6f4; /* text      */
+@define-color base06 #f5e0dc; /* rosewater */
+@define-color base07 #b4befe; /* lavender  */
+@define-color base08 #f38ba8; /* red       */
+@define-color base09 #fab387; /* peach     */
+@define-color base0A #f9e2af; /* yellow    */
+@define-color base0B #a6e3a1; /* green     */
+@define-color base0C #94e2d5; /* teal      */
+@define-color base0D #89b4fa; /* blue      */
+@define-color base0E #cba6f7; /* mauve     */
+@define-color base0F #f2cdcd; /* flamingo  */
+
+/* Mocha colours base16 has no slot for */
+@define-color crust    #11111b;
+@define-color overlay0 #6c7086;
+@define-color overlay1 #7f849c;
+@define-color overlay2 #9399b2;
+@define-color subtext0 #a6adc8;
+@define-color subtext1 #bac2de;
+@define-color sky      #89dceb;
+@define-color sapphire #74c7ec;
+@define-color pink     #f5c2e7;
+@define-color maroon   #eba0ac;
+
+/* ───────────────────────────────────────────────────────────────
+   Semantic layer — retheme by editing only this block.
+   Every rule in styles/pills.css refers to these, never to a hex.
+   ─────────────────────────────────────────────────────────────── */
+
+/* surfaces */
+@define-color bar-bg      alpha(@crust, 0.55);
+@define-color bar-border  alpha(@base02, 0.90);
+@define-color pill-bg     @base02;
+@define-color pill-hover  @base03;
+@define-color divider     @base04;
+@define-color fg          @base05;
+@define-color fg-dim      @overlay1;
+
+/* Per-module accents — one hue per module. These are the RESTING colours;
+   the state colours below repeat across modules on purpose.
+   NB: icon tints are duplicated as literal hex in the Pango spans in
+   config.jsonc and scripts/ — GTK cannot colour part of a label from CSS,
+   so a change here must be mirrored there. */
+@define-color acc-power       @base0E;   /* mauve     */
+@define-color acc-workspace   @base0D;   /* blue      */
+@define-color acc-media       @base0B;   /* green     */
+@define-color acc-window      @pink;
+@define-color acc-cpu         @base0B;   /* green     */
+@define-color acc-memory      @base07;   /* lavender  — yellow clashed with backlight */
+@define-color acc-temp        @base09;   /* peach     */
+@define-color acc-wifi        @sapphire;
+@define-color acc-vpn         @base06;   /* rosewater — teal is battery's */
+@define-color acc-backlight   @base0A;   /* yellow    */
+@define-color acc-volume      @sky;
+@define-color acc-mic         @pink;
+@define-color acc-battery     @base0C;   /* teal      — green clashed with cpu */
+@define-color acc-language    @base07;   /* lavender  */
+@define-color acc-idle        @base0E;   /* mauve     */
+@define-color acc-clock       @base0D;   /* blue      */
+
+/* state colours — shared by every module that reports a state */
+@define-color st-good     @base0C;  /* teal, matching acc-battery */
+@define-color st-warning  @base0A;
+@define-color st-degraded @base09;
+@define-color st-critical @base08;
+@define-color st-inactive @overlay0;
+@define-color st-charging @base0F;  /* flamingo — distinct from every accent */

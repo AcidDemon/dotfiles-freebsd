@@ -1,0 +1,17 @@
+{{- $id := . -}}
+[git]
+auto-local-bookmark = true
+
+[signing]
+backend = "gpg"
+key = "{{ $id.vcs.key }}"
+sign-all = true
+
+[ui]
+default-command = "log"
+diff-editor = ":builtin"
+pager = "less"
+
+[user]
+email = "{{ $id.vcs.email }}"
+name = "{{ $id.vcs.name }}"

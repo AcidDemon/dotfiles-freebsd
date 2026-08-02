@@ -1,0 +1,67 @@
+{
+  "$schema": "/usr/local/etc/xdg/swaync/configSchema.json",
+  "control-center-height": 1019,
+  "control-center-margin-bottom": 10,
+  "control-center-margin-left": 10,
+  "control-center-margin-right": 10,
+  "control-center-margin-top": 10,
+  "control-center-width": 500,
+  "fit-to-screen": false,
+  "hide-on-action": true,
+  "hide-on-clear": false,
+  "image-visibility": "when-available",
+  "keyboard-shortcuts": true,
+  "notification-body-image-height": 100,
+  "notification-body-image-width": 200,
+  "notification-icon-size": 64,
+  "notification-window-width": 450,
+  "positionX": "right",
+  "positionY": "top",
+  "script-fail-notify": true,
+  "timeout": 4,
+  "timeout-critical": 0,
+  "timeout-low": 2,
+  "transition-time": 200,
+  "widget-config": {
+    "backlight": {
+      "label": "󰃟 "
+    },
+    "buttons-grid": {
+      "actions": [
+        { "label": "󰐥", "command": "doas shutdown -p now" },
+        { "label": "󰜉", "command": "doas shutdown -r now" },
+        { "label": "󰌾", "command": "hyprlock" },
+        { "label": "󰏥", "command": "hyprlock & doas acpiconf -s 3" },
+        { "label": "󰕾", "command": "pactl set-sink-mute @DEFAULT_SINK@ toggle" },
+        { "label": "󰍬", "command": "~/.config/waybar/scripts/mic.sh toggle" },
+        { "label": "󰖩", "command": "swaync-client -t -sw & kitty -e sh -c 'ifconfig wlan0 list scan; read -r _'" },
+        { "label": "󰑊", "command": "swaync-client -t -sw & ~/bin/screenrec area" },
+        { "label": "", "command": "swaync-client -t -sw & obs" },
+        { "label": "󰹑", "command": "swaync-client -t -sw & ~/bin/shot area" },
+        { "label": "󰅶", "command": "~/bin/daemon-toggle hypridle" },
+        { "label": "󰌵", "command": "~/bin/daemon-toggle gammastep" }
+      ]
+    },
+    "dnd": {
+      "text": "Do Not Disturb"
+    },
+    "label": {
+      "max-lines": 1,
+      "text": "Notification Center"
+    },
+    "mpris": {
+      "image-radius": 12,
+      "image-size": 96
+    },
+    "title": {
+      "button-text": "Clear All",
+      "clear-all-button": true,
+      "text": "Notifications"
+    },
+    "volume": {
+      "label": "󰕾 ",
+      "show-per-app": true
+    }
+  },
+  "widgets": ["buttons-grid", "mpris", "volume", "backlight", "title", "dnd", "notifications"]
+}

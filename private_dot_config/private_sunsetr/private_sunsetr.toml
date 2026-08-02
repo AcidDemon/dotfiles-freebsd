@@ -1,0 +1,29 @@
+# Backend
+backend = "hyprland"
+transition_mode = "geo"
+
+# Smoothing
+smoothing = true
+startup_duration = 0.5
+shutdown_duration = 0.5
+adaptive_interval = 1
+
+# Time-based
+night_temp = 3500
+day_temp   = 6500
+night_gamma = 90
+day_gamma = 100
+update_interval = 60
+
+# Static
+static_temp = 6500
+static_gamma = 100
+
+# Manual transitions
+sunset = "20:00:00"
+sunrise = "06:00:00"
+transition_duration = 45
+
+# Geolocation
+latitude = 0.0
+longitude = 0.0

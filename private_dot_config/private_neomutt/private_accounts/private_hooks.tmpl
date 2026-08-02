@@ -1,0 +1,4 @@
+{{ $id := . -}}
+{{ range $i, $a := $id.mail.accounts -}}
+folder-hook '{{ $.chezmoi.homeDir }}/\.mail/{{ $a.addr | regexQuoteMeta }}/' 'source {{ $.chezmoi.homeDir }}/.config/neomutt/accounts/{{ add $i 1 }}'
+{{ end -}}

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Clipboard history picker for SUPER+Y.
+#
+# Plain pipeline: cliphist stores history (fed by the
+# wl-paste watchers started with the session), rofi picks, wl-copy puts the
+# choice back on the clipboard.
+set -eu
+
+cliphist list \
+    | rofi -dmenu -i -p "Clipboard" \
+    | cliphist decode \
+    | wl-copy

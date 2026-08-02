@@ -1,0 +1,75 @@
+#![enable(implicit_some)]
+#![enable(unwrap_newtypes)]
+#![enable(unwrap_variant_newtypes)]
+(
+  address: "127.0.0.1:6600",
+  password: None,
+  theme: "catppuccin_mocha",
+  cache_dir: None,
+  lyrics_dir: "/home/acid/Music/lyrics",
+  volume_step: 5,
+  max_fps: 60,
+  scrolloff: 2,
+  wrap_navigation: false,
+  enable_mouse: true,
+  keep_playing_state: true,
+  previous_track_rewind_threshold: 3,
+  browser_song_sort: [Disc, Track, Artist, Title],
+  album_display: NameAndDate,
+  search: (
+    case_sensitive: false,
+    ignore_diacritics: false,
+    search_button: false,
+    mode: Contains,
+    tags: [
+      (value: "any",         label: "Any Tag"),
+      (value: "artist",      label: "Artist"),
+      (value: "album",       label: "Album"),
+      (value: "albumartist", label: "Album Artist"),
+      (value: "title",       label: "Title"),
+      (value: "genre",       label: "Genre"),
+    ],
+  ),
+  tabs: [
+    (
+      name: "Queue",
+      pane: Split(
+        direction: Horizontal,
+        panes: [
+          (
+            size: "60%",
+            pane: Pane(Queue)
+          ),
+          (
+            size: "40%",
+            pane: Pane(AlbumArt)
+          ),
+        ],
+      ),
+    ),
+    (
+      name: "Directories",
+      pane: Pane(Directories),
+    ),
+    (
+      name: "Artists",
+      pane: Pane(Artists),
+    ),
+    (
+      name: "Album Artists",
+      pane: Pane(AlbumArtists),
+    ),
+    (
+      name: "Albums",
+      pane: Pane(Albums),
+    ),
+    (
+      name: "Playlists",
+      pane: Pane(Playlists),
+    ),
+    (
+      name: "Search",
+      pane: Pane(Search),
+    ),
+  ],
+)

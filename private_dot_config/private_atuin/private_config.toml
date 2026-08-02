@@ -1,0 +1,75 @@
+# --- ATUIN CORE SETTINGS ---
+data_dir = "~/.local/share/atuin"
+db_path = "~/.local/share/atuin/history.db"
+key_path = "~/.local/share/atuin/key"
+session_path = "~/.local/share/atuin/session"
+dialect = "us"
+timezone = "local"
+auto_sync = true
+update_check = true
+sync_address = "https://api.atuin.sh"
+sync_frequency = "5m"
+
+# --- SEARCH & UI SETTINGS ---
+search_mode = "fuzzy"
+filter_mode = "host"
+workspaces = false
+filter_mode_shell_up_key_binding = "global"
+search_mode_shell_up_key_binding = "fuzzy"
+style = "full"
+inline_height = 0
+inline_height_shell_up_key_binding = 0
+invert = false
+show_preview = true
+exit_mode = "return-original"
+word_jump_mode = "emacs"
+word_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+ctrl_n_shortcuts = false
+strip_trailing_whitespace = true
+show_help = false
+secrets_filter = true
+enter_accept = true
+
+# --- KEYMAPS & CURSOR ---
+keymap_mode = "vim-normal"
+keymap_cursor = { emacs = "blink-block", vim_insert = "blink-block", vim_normal = "steady-block" }
+
+# --- TIMEOUTS ---
+network_connect_timeout = 5
+network_timeout = 5
+local_timeout = 5
+
+# --- HISTORY FILTERING ---
+history_filter = [
+   "pass *",
+   "keepassxc-cli *",
+   "gopass *",
+   "warp *token",
+   "aws *secret*",
+   "kubectl *secret*",
+   "ssh-add *",
+   "age-keygen *",
+   "openssl *passwd*"
+]
+
+[stats]
+common_prefix = ["sudo", "doas"]
+common_subcommands = [
+  "apt", "cargo", "composer", "dnf", "docker", "git", "go", "ip", "kubectl",
+  "nix", "nmcli", "npm", "pnpm", "podman", "rctl", "sysctl", "systemctl", "tmux", "yarn"
+]
+ignored_commands = [
+  "cd", "ls", "vi"
+]
+
+[sync]
+records = true
+
+[search]
+filters = [ "global", "host", "session", "session-preload", "workspace", "directory" ]
+
+[tmux]
+enabled = true
+
+[theme]
+name = "catppuccin-mocha-mauve"

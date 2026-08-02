@@ -1,0 +1,4 @@
+/* Entry point. Swap the last import to switch designs. */
+@import url("palette.css");
+@import url("base.css");
+@import url("styles/pills.css");
