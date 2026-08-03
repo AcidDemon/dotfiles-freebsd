@@ -160,7 +160,7 @@
   // Icon-only module, so CSS can colour it — no Pango needed.
   "custom/power": {
     "format": "󰐥",
-    "on-click": "wlogout -p layer-shell",
+    "on-click": "wlogout -p layer-shell -b 6",
     "tooltip": false
   },
 
@@ -188,7 +188,7 @@
       "mail":  "<span size='130%'>󰇮</span>",
       "files": "<span size='130%'>󰉋</span>",
       "chat":  "<span size='130%'>󰭹</span>",
-      "pass":  "<span size='130%'>󰌆</span>",
+      "scratch": "<span size='130%'>󰀻</span>",
       "urgent": "<span size='130%'></span>",
       "default": "<span size='130%'>󰝥</span>"
     }

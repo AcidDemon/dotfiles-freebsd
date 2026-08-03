@@ -89,3 +89,6 @@
 
 # without this chezmoi deploys it to ~
 README.md
+
+# repo-only, like README.md above: without this chezmoi deploys it to ~
+assets

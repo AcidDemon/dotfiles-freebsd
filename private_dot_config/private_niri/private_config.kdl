@@ -168,7 +168,7 @@ window-rule {
 window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     block-out-from "screen-capture"
-    open-on-workspace "pass"
+    open-on-workspace "scratch"
 }
 
 window-rule {
@@ -183,7 +183,9 @@ window-rule {
     open-focused true
     default-column-width { proportion 0.6; }
     default-window-height { proportion 0.5; }
-    default-floating-position x=0 y=0 relative-to="top"
+    // Opens parked at the top edge (niri clamps the -2000), so quake.sh
+    // only has to slide it down -- the first F12 animates like the rest.
+    default-floating-position x=0 y=-2000 relative-to="top"
 }
 
 window-rule {
@@ -199,7 +201,7 @@ workspace "web"
 workspace "mail"
 workspace "files"
 workspace "chat"
-workspace "pass"
+workspace "scratch"
 
 // ----- Keybinds ----------------------------------------------------------
 binds {
@@ -219,7 +221,7 @@ binds {
     Mod+N      hotkey-overlay-title="Notification Panel" { spawn-sh "swaync-client -t -sw"; }
     Mod+W      hotkey-overlay-title="Dismiss Notifications" { spawn-sh "swaync-client -d -sw"; }
     F12        hotkey-overlay-title="Drop-down Terminal" { spawn-sh "~/.config/niri/scripts/quake.sh"; }
-    Mod+P      hotkey-overlay-title="Passwords: KeePassXC" { focus-workspace "pass"; }
+    Mod+P      hotkey-overlay-title="Scratch: KeePassXC + drop-down term" { focus-workspace "scratch"; }
 
     // --- Navigation ------------------------------------------------------
     Alt+Tab  hotkey-overlay-title="Window Overview" { toggle-overview; }
@@ -285,7 +287,7 @@ binds {
     Mod+3 { focus-workspace "mail"; }
     Mod+4 { focus-workspace "files"; }
     Mod+5 { focus-workspace "chat"; }
-    Mod+6 { focus-workspace "pass"; }
+    Mod+6 { focus-workspace "scratch"; }
     Mod+7 { focus-workspace 7; }
     Mod+8 { focus-workspace 8; }
     Mod+9 { focus-workspace 9; }
@@ -296,7 +298,7 @@ binds {
     Mod+Shift+3 { move-column-to-workspace "mail"; }
     Mod+Shift+4 { move-column-to-workspace "files"; }
     Mod+Shift+5 { move-column-to-workspace "chat"; }
-    Mod+Shift+6 { move-column-to-workspace "pass"; }
+    Mod+Shift+6 { move-column-to-workspace "scratch"; }
     Mod+Shift+7 { move-column-to-workspace 7; }
     Mod+Shift+8 { move-column-to-workspace 8; }
     Mod+Shift+9 { move-column-to-workspace 9; }
@@ -340,4 +342,13 @@ binds {
     Ctrl+Alt+F4 allow-when-locked=true { spawn "doas" "/usr/local/sbin/vtswitch" "4"; }
     Ctrl+Alt+F5 allow-when-locked=true { spawn "doas" "/usr/local/sbin/vtswitch" "5"; }
     Ctrl+Alt+F6 allow-when-locked=true { spawn "doas" "/usr/local/sbin/vtswitch" "6"; }
+}
+
+// Frosted-glass backdrop for the wlogout overlay. Its layer-shell
+// namespace is "logout_dialog", not "wlogout".
+layer-rule {
+    match namespace="^logout_dialog$"
+    background-effect {
+        blur true
+    }
 }
