@@ -95,6 +95,13 @@
 # runtime state
 .config/peaclock*/history/
 
+# stock /usr/share/skel, recreated by pw useradd; csh never runs here
+.cshrc
+.login
+.login_conf
+.mailrc
+.mail_aliases
+
 # without this chezmoi deploys it to ~
 README.md
 
