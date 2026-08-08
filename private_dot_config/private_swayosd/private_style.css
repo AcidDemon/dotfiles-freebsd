@@ -1,0 +1,35 @@
+/* SwayOSD user overlay. Loaded at STYLE_PROVIDER_PRIORITY_USER, so these rules
+ * win over /usr/local/etc/xdg/swayosd/style.css without needing !important.
+ * Colors come from the same palette waybar and swaync use. */
+@import url("../waybar/palette.css");
+
+window#osd {
+  background: alpha(@base00, 0.88);
+  border: 1px solid alpha(@base05, 0.15);
+}
+
+window#osd image,
+window#osd label {
+  color: @base05;
+}
+
+window#osd trough,
+window#osd segment {
+  background: alpha(@base05, 0.2);
+}
+
+window#osd progress,
+window#osd segment.active {
+  background: @base0D;
+}
+
+/* Full capsule. The 999px in the system sheet is not reaching the node that
+ * actually paints the background, so set it on the decoration node too. */
+window#osd,
+window#osd decoration {
+  border-radius: 999px;
+}
+
+window#osd #container {
+  margin: 10px 18px;
+}

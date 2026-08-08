@@ -1,0 +1,19 @@
+@import "launcher.rasi"
+
+configuration {
+    show-icons:                     false;
+    display-emoji:                  "";
+}
+
+textbox-prompt-colon {
+    str:                            "😀";
+    font:                           "Twitter Color Emoji 15";
+}
+
+entry {
+    placeholder:                    "Search emoji...";
+}
+
+element-icon {
+    size:                           0px;
+}

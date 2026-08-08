@@ -1,0 +1,71 @@
+#!/bin/sh
+# Record a cropped clip of the niri cursor tilt/shake effects.
+#
+# Cropped rather than full-screen: the effects only happen where the pointer is,
+# and a 960x540 box is a quarter of the pixels of the panel.
+#
+# usage: cursor-demo [-s seconds] [-g "x,y WxH"] [-o out.mp4] [--gif] [--pick]
+
+set -e
+
+SECS=20
+GEOM="480,270 960x540"
+OUT="$HOME/Videos/cursor-demo.mp4"
+GIF=0
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -s) SECS="$2"; shift 2 ;;
+        -g) GEOM="$2"; shift 2 ;;
+        -o) OUT="$2"; shift 2 ;;
+        --gif) GIF=1; shift ;;
+        --pick) GEOM="$(slurp)"; shift ;;
+        -h|--help) sed -n '2,7p' "$0"; exit 0 ;;
+        *) echo "unknown option: $1" >&2; exit 2 ;;
+    esac
+done
+
+# The Bash tool and cron lack these; a login shell already has them.
+: "${XDG_RUNTIME_DIR:=/tmp/xdg-$(id -un)}"
+: "${WAYLAND_DISPLAY:=wayland-1}"
+export XDG_RUNTIME_DIR WAYLAND_DISPLAY
+
+mkdir -p "$(dirname "$OUT")"
+
+cat <<EOF
+Recording ${SECS}s of: $GEOM
+
+Keep the pointer inside the box. Suggested run:
+  1. sweep left, then right, a few times   -> tilt leans into the travel
+  2. stop dead for two seconds             -> tilt eases back upright
+  3. shake hard                            -> cursor magnifies
+  4. stop                                  -> it settles back
+
+EOF
+
+for i in 3 2 1; do printf '\r%s...' "$i"; sleep 1; done
+printf '\rrecording\n'
+
+# -D is not optional here. wf-recorder defaults to capturing only on damage, and
+# the cursor lives on a DRM hardware plane -- moving it repaints nothing, so a
+# cursor-only demo records zero frames and wf-recorder blocks forever waiting.
+# -r 60 because tilt is a per-frame effect and reads as choppy at 30.
+timeout -s INT "$SECS" wf-recorder \
+    -g "$GEOM" -r 60 -D -c libx264 \
+    -p crf=30 -p preset=slow -p tune=animation \
+    -f "$OUT" >/dev/null 2>&1 || true
+
+[ -s "$OUT" ] || { echo "recording produced nothing" >&2; exit 1; }
+printf 'wrote %s (%s)\n' "$OUT" "$(ls -lh "$OUT" | awk '{print $5}')"
+
+if [ "$GIF" -eq 1 ]; then
+    PAL="${TMPDIR:-/tmp}/cursor-demo-pal.png"
+    GIFOUT="${OUT%.*}.gif"
+    # Two-pass: a generated palette keeps the cursor edges from banding.
+    ffmpeg -v error -y -i "$OUT" -vf "fps=25,scale=640:-1:flags=lanczos,palettegen=stats_mode=diff" "$PAL"
+    ffmpeg -v error -y -i "$OUT" -i "$PAL" \
+        -lavfi "fps=25,scale=640:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle" \
+        "$GIFOUT"
+    rm -f "$PAL"
+    printf 'wrote %s (%s)\n' "$GIFOUT" "$(ls -lh "$GIFOUT" | awk '{print $5}')"
+fi

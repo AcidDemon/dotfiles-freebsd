@@ -1,0 +1,73 @@
+# Peaclock — Catppuccin Mocha Binary
+
+# -----------------------------------------------------------------------------
+# Layout
+# -----------------------------------------------------------------------------
+
+mode clock
+view binary
+
+# Used when automatic sizing is disabled.
+block 4 2
+
+# Space between binary cells.
+padding 2 1
+
+# Space around the clock.
+margin 2 1
+
+# Compensate for terminal cells being taller than they are wide
+ratio 2 1
+
+date-padding 1
+
+# Empty fill produces solid color blocks
+fill ''
+
+# Date displayed underneath the clock
+date '%A, %d %B %Y'
+
+# -----------------------------------------------------------------------------
+# Clock behaviour
+# -----------------------------------------------------------------------------
+
+set hour-24 on
+set seconds on
+set date on
+
+# Grow the binary grid while retaining square-looking cells
+set auto-size off
+set auto-ratio on
+
+rate-input 50
+rate-refresh 1000
+rate-status 5000
+
+# Select block dimensions for interactive adjustment
+toggle block
+
+# -----------------------------------------------------------------------------
+# Catppuccin Mocha
+# -----------------------------------------------------------------------------
+
+# Active binary cells — Mauve
+style active-fg #1e1e2e
+style active-bg #cba6f7
+
+# Inactive binary cells — Surface0
+style inactive-fg #1e1e2e
+style inactive-bg #313244
+
+# Separators — Peach
+style colon-fg #1e1e2e
+style colon-bg #fab387
+
+# Surrounding terminal background — Base
+style background #1e1e2e
+
+# Date and command interface
+style date #cdd6f4
+style text #cdd6f4
+style prompt #89b4fa
+style success #a6e3a1
+style error #f38ba8
