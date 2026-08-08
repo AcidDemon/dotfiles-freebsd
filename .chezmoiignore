@@ -88,6 +88,16 @@
 **/*.core
 **/*.log
 
+# editor and pre-change backups
+**/*.bak
+.config/niri/config.kdl.pre-swayosd
+
+# runtime state
+.config/peaclock/history/
+
+# deliberately unmanaged: one-shot provisioner, run by hand as root
+bin/spotify-jail-setup.sh
+
 # without this chezmoi deploys it to ~
 README.md
 
