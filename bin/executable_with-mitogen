@@ -1,0 +1,8 @@
+#!/bin/sh
+# Opt-in mitogen: with-mitogen ansible-playbook site.yml
+set -eu
+
+MP=/usr/local/lib/python3.12/site-packages/ansible_mitogen/plugins/strategy
+[ -d "$MP" ] || { echo "with-mitogen: $MP missing (pkg install py312-mitogen)" >&2; exit 1; }
+
+ANSIBLE_STRATEGY=mitogen_linear ANSIBLE_STRATEGY_PLUGINS="$MP" exec "$@"

@@ -19,6 +19,14 @@ chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null
 # gpg-agent is our ssh-agent (YubiKey OpenPGP auth subkey); SSH_AUTH_SOCK is
 # wired to its ssh socket in ~/.zshenv. Ensure it's running with ssh support.
 # GPG_TTY is exported and the agent's tty refreshed in ~/.zshrc.
+#
+# The agent forks here, before niri exists, and keeps this environment for its
+# whole lifetime. niri's environment block therefore never reaches pinentry-qt,
+# and gpg-agent's session-env whitelist has no QT_ entries to carry them in
+# later. Export the theme vars now so the agent has them to pass down.
+export QT_QPA_PLATFORMTHEME=qt6ct
+export QT_STYLE_OVERRIDE=kvantum
+
 gpgconf --launch gpg-agent 2>/dev/null
 
 # login.conf's default path ends with ~/bin but not ~/.local/bin, and .zshrc's

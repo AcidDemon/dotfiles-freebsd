@@ -12,12 +12,12 @@ input {
 
     // Pointing devices
     touchpad {
-        tap                          // tap_to_click = true
-        dwt                          // disable_while_typing = true
-        drag false                   // tap_and_drag = false
-        scroll-factor 1.5            // scroll_factor = 1.5
+        tap                          // tap_to_click
+        dwt                          // disable_while_typing
+        drag false                   // tap_and_drag
+        scroll-factor 1.5            // scroll_factor
         scroll-method "two-finger"
-        click-method "clickfinger"   // clickfinger_behavior = true
+        click-method "clickfinger"   // clickfinger_behavior
         accel-profile "flat"
         accel-speed 0.6
     }
@@ -116,6 +116,8 @@ spawn-at-startup "awww-random"
 
 spawn-at-startup "swaync"
 
+spawn-at-startup "swayosd-server"
+
 spawn-at-startup "sh" "-c" "wl-paste --type text --watch cliphist store"
 spawn-at-startup "sh" "-c" "wl-paste --type image --watch cliphist store"
 
@@ -176,15 +178,24 @@ window-rule {
     opacity 0.9
 }
 
+window-rule {
+    match app-id=r#"^zen$"#
+    opacity 0.95
+
+    background-effect {
+        blur true
+        xray true
+        noise 0.02
+    }
+}
+
 // Drop-down terminal
 window-rule {
     match app-id=r#"^quake$"#
     open-floating true
     open-focused true
-    default-column-width { proportion 0.6; }
+    default-column-width { proportion 0.5; }
     default-window-height { proportion 0.5; }
-    // Opens parked at the top edge (niri clamps the -2000), so quake.sh
-    // only has to slide it down -- the first F12 animates like the rest.
     default-floating-position x=0 y=-2000 relative-to="top"
 }
 
@@ -205,10 +216,10 @@ workspace "scratch"
 
 // ----- Keybinds ----------------------------------------------------------
 binds {
-    Mod+Shift+Slash { show-hotkey-overlay; }
+    Mod+Shift+ssharp { show-hotkey-overlay; }
 
     // --- Session ---------------------------------------------------------
-    Mod+Shift+E hotkey-overlay-title="Exit niri" { quit; }
+    Mod+Shift+E hotkey-overlay-title="Exit niri" { quit skip-confirmation=true; }
     Mod+Q       hotkey-overlay-title="Close Window" { close-window; }
     Mod+Shift+Q hotkey-overlay-title="Close Window" { close-window; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
@@ -218,6 +229,8 @@ binds {
     Mod+E      hotkey-overlay-title="File Manager: thunar" { spawn "thunar"; }
     Mod+D      hotkey-overlay-title="Run an Application: rofi" { spawn-sh "~/.config/rofi/bin/launcher"; }
     Mod+Y      hotkey-overlay-title="Clipboard History" { spawn-sh "~/bin/cliphist-rofi"; }
+    Mod+Period hotkey-overlay-title="Emoji Picker" { spawn-sh "~/.config/rofi/bin/emoji"; }
+    Mod+Comma  hotkey-overlay-title="Calculator" { spawn-sh "~/.config/rofi/bin/calc"; }
     Mod+N      hotkey-overlay-title="Notification Panel" { spawn-sh "swaync-client -t -sw"; }
     Mod+W      hotkey-overlay-title="Dismiss Notifications" { spawn-sh "swaync-client -d -sw"; }
     F12        hotkey-overlay-title="Drop-down Terminal" { spawn-sh "~/.config/niri/scripts/quake.sh"; }
@@ -270,14 +283,13 @@ binds {
     Mod+Shift+Space hotkey-overlay-title="Toggle Floating" { toggle-window-floating; }
     Mod+Ctrl+Space { switch-focus-between-floating-and-tiling; }
 
-    Mod+S { consume-or-expel-window-right; }
-    Mod+BracketLeft  { consume-or-expel-window-left; }
-    Mod+BracketRight { consume-or-expel-window-right; }
+    Mod+odiaeresis { consume-or-expel-window-left; }
+    Mod+adiaeresis { consume-or-expel-window-right; }
 
-    Mod+Minus { set-column-width "-10%"; }
-    Mod+Equal { set-column-width "+10%"; }
-    Mod+Shift+Minus { switch-preset-column-width-back; }
-    Mod+Shift+Equal { switch-preset-column-width; }
+    Mod+udiaeresis { set-column-width "-10%"; }
+    Mod+Plus       { set-column-width "+10%"; }
+    Mod+Shift+udiaeresis { switch-preset-column-width-back; }
+    Mod+Shift+Plus       { switch-preset-column-width; }
     Mod+Ctrl+F { expand-column-to-available-width; }
     Mod+C      { center-column; }
 
@@ -315,10 +327,14 @@ binds {
     Mod+Print   hotkey-overlay-title="Screenshot Area" { spawn-sh "~/bin/shot area"; }
 
     // --- Audio -----------------------------------------------------------
-    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "mixer vol.volume=+5%"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "mixer vol.volume=-5%"; }
-    XF86AudioMute        allow-when-locked=true { spawn-sh "mixer vol.mute=^"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "raise"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "lower"; }
+    XF86AudioMute        allow-when-locked=true { spawn "swayosd-client" "--output-volume" "mute-toggle"; }
+    // The mic mute key never reaches the OS: the EC handles it and raises no
+    // ACPI event (no GVWE 0x04 anywhere in the DSDT). Keep the bind for an
+    // external keyboard, use Mod+Shift+M on this one.
     XF86AudioMicMute     allow-when-locked=true { spawn-sh "~/.config/waybar/scripts/mic.sh toggle"; }
+    Mod+Shift+M          allow-when-locked=true { spawn-sh "~/.config/waybar/scripts/mic.sh toggle"; }
 
     XF86AudioPlay allow-when-locked=true { spawn-sh "playerctl play-pause"; }
     XF86AudioStop allow-when-locked=true { spawn-sh "playerctl stop"; }
@@ -326,8 +342,11 @@ binds {
     XF86AudioNext allow-when-locked=true { spawn-sh "playerctl next"; }
 
     // --- Brightness ------------------------------------------------------
-    XF86MonBrightnessUp   allow-when-locked=true { spawn "brightness" "up"; }
-    XF86MonBrightnessDown allow-when-locked=true { spawn "brightness" "down"; }
+    // The laptop's own Fn+F3/F4 never reach here — acpi_video handles them
+    // in-kernel. These are for an external keyboard. Via the waybar script so
+    // the bar gets signalled and ~/bin/brightness keeps its floor.
+    XF86MonBrightnessUp   allow-when-locked=true { spawn-sh "~/.config/waybar/scripts/backlight.sh up"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn-sh "~/.config/waybar/scripts/backlight.sh down"; }
 
     // --- Overview and misc -----------------------------------------------
     Mod+O repeat=false { toggle-overview; }

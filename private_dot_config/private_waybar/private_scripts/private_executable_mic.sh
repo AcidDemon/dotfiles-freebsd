@@ -15,12 +15,13 @@
 set -u
 
 C_ON="#f5c2e7"; C_OFF="#f38ba8"
-SIG=5   # must match "signal" for custom/mic in config.jsonc
+SIG=5        # must match "signal" for custom/mic in config.jsonc
+RTMIN=65     # FreeBSD SIGRTMIN. pkill here rejects -RTMIN+N, numbers only.
 SRC="@DEFAULT_SOURCE@"
 
 if [ "${1:-}" = "toggle" ]; then
     pactl set-source-mute "$SRC" toggle >/dev/null 2>&1
-    pkill -RTMIN+$SIG waybar
+    pkill -$((RTMIN + SIG)) waybar
     exit 0
 fi
 

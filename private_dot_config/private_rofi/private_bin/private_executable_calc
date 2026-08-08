@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+rofi \
+	-show calc \
+	-modi calc \
+	-no-show-match \
+	-no-sort \
+	-scroll-method 0 \
+	-kb-cancel Escape \
+	-calc-command "echo -n '{result}' | wl-copy" \
+	-theme "$HOME"/.config/rofi/config/calc.rasi

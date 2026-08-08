@@ -1,12 +1,12 @@
 * {
-    BG:    #1E1D2Fcc;
-    BGA:   #89DCEBcc;
-    FG:    #D9E0EEcc;
-    FGA:   #F28FADcc;
-    BDR:   #89B4FAcc;
-    SEL:   #1E1E2Ecc;
-    UGT:   #F28FADcc;
-    IMG:   #FAE3B0cc;
-    OFF:   #575268cc;
-    ON:    #ABE9B3cc;
+    BG:    #1E1E2Ecc;  /* base     */
+    BGA:   #89DCEBcc;  /* sky      */
+    FG:    #CDD6F4cc;  /* text     */
+    FGA:   #F38BA8cc;  /* red      */
+    BDR:   #89B4FAcc;  /* blue     */
+    SEL:   #1E1E2Ecc;  /* base     */
+    UGT:   #F38BA8cc;  /* red      */
+    IMG:   #F9E2AFcc;  /* yellow   */
+    OFF:   #585B70cc;  /* surface2 */
+    ON:    #A6E3A1cc;  /* green    */
 }

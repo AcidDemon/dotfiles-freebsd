@@ -87,7 +87,9 @@ if (( $+commands[gpg-connect-agent] )); then
   [[ -d "$HOME/.gnupg" ]] || mkdir -p -m 700 "$HOME/.gnupg"
   export GPG_TTY=$TTY
   # agent tracks one tty; agent shells must not steal it
-  [[ -z "$CLAUDECODE" ]] && gpg-connect-agent --quiet updatestartuptty /bye >/dev/null
+  # updatestartuptty replaces that env wholesale, so ssh shells would strip the
+  # wayland and dbus vars pinentry-qt needs: only niri shells may claim it
+  [[ -z "$CLAUDECODE" && -n "$WAYLAND_DISPLAY" ]] && gpg-connect-agent --quiet updatestartuptty /bye >/dev/null
 fi
 
 # Direnv, Atuin, Zoxide
@@ -105,6 +107,14 @@ if [[ -r /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
 fi
 
 export LS_COLORS="$(vivid generate catppuccin-mocha)"
+
+# security.bsd.unprivileged_proc_debug=0 blocks KERN_PROC_CWD, so tmux and kitty
+# cannot read a pane's cwd from the kernel. Reporting it over OSC 7 instead is
+# what populates tmux's #{pane_path} and kitty's "new tab here".
+_osc7_cwd() { printf '\033]7;file://%s%s\033\\' "${HOST}" "${PWD}"; }
+autoload -Uz add-zsh-hook
+add-zsh-hook chpwd _osc7_cwd
+_osc7_cwd
 
 # --- 7. HELPER FUNCTIONS ---
 # Atuin shortcuts

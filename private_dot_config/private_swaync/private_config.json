@@ -36,7 +36,7 @@
         { "label": "󰍬", "command": "~/.config/waybar/scripts/mic.sh toggle" },
         { "label": "󰖩", "command": "swaync-client -t -sw & kitty -e sh -c 'ifconfig wlan0 list scan; read -r _'" },
         { "label": "󰑊", "command": "swaync-client -t -sw & ~/bin/screenrec area" },
-        { "label": "", "command": "swaync-client -t -sw & obs" },
+        { "label": "󰕧", "command": "swaync-client -t -sw & obs" },
         { "label": "󰹑", "command": "swaync-client -t -sw & ~/bin/shot area" },
         { "label": "󰅶", "command": "~/bin/daemon-toggle hypridle" },
         { "label": "󰌵", "command": "~/bin/daemon-toggle gammastep" }

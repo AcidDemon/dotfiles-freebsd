@@ -1,0 +1,64 @@
+# Peaclock — Catppuccin Mocha
+
+# -----------------------------------------------------------------------------
+# Layout
+# -----------------------------------------------------------------------------
+
+mode clock
+view digital
+
+block 2 1
+padding 1 0
+margin 2 1
+ratio 2 1
+date-padding 1
+
+# Empty fill means the digital segments are drawn using background colors
+fill ''
+
+# Date displayed beneath the clock
+date '%A, %d %B %Y'
+
+# -----------------------------------------------------------------------------
+# Clock behaviour
+# -----------------------------------------------------------------------------
+
+set hour-24 on
+set seconds on
+set date on
+
+# Fill the terminal while retaining aspect ratio
+set auto-size on
+set auto-ratio on
+
+rate-input 50
+rate-refresh 250
+rate-status 5000
+
+# -----------------------------------------------------------------------------
+# Catppuccin Mocha
+# -----------------------------------------------------------------------------
+
+# Main illuminated segments — Mauve
+style active-bg #cba6f7
+style active-fg #1e1e2e
+
+# Unilluminated segments — Surface0
+style inactive-bg #313244
+style inactive-fg #1e1e2e
+
+# Separators — Peach
+style colon-bg #fab387
+style colon-fg #1e1e2e
+
+# Terminal background — Base
+style background #1e1e2e
+
+# Date — Text
+style date #cdd6f4
+
+# Interactive command prompt
+style text #cdd6f4
+style prompt #89b4fa
+style success #a6e3a1
+style error #f38ba8

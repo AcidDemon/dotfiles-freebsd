@@ -1,0 +1,24 @@
+{{- /* Zen is Firefox-derived, so yt-dlp reads its store as `firefox:`, but it
+       wants an absolute profile path and the prefix is random per machine.
+       Resolve it from profiles.ini at apply time.
+
+       Default= from the [Install...] section, NOT the [ProfileN] carrying
+       Default=1: Zen launches the per-install default and on this machine the
+       two disagree. The argument is quoted because the directory name has
+       spaces in it. */ -}}
+{{- $ini := joinPath .chezmoi.homeDir ".config/zen/profiles.ini" -}}
+{{- $zen := "" -}}
+{{- if stat $ini -}}
+{{-   $zen = output "sh" "-c" (printf "awk -F= '/^\\[Install/{f=1;next} f&&/^Default=/{print $2;exit}' %s 2>/dev/null || true" ($ini | quote)) | trim -}}
+{{- end -}}
+--continue
+{{ if $zen }}--cookies-from-browser "firefox:{{ joinPath .chezmoi.homeDir ".config/zen" $zen }}"
+{{ end -}}
+--embed-metadata
+--embed-subs
+--embed-thumbnail
+--ignore-errors
+--no-mtime
+--restrict-filenames
+--sponsorblock-mark sponsor,intro,outro,selfpromo
+--sub-langs all

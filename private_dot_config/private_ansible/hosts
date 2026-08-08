@@ -1,0 +1,15 @@
+# Ad-hoc only. Project repos bring their own inventory; names resolve via ~/.ssh/config.
+[internal]
+ted
+yevgeny
+kiri
+atlas
+orion
+
+[hetzner]
+allegra
+merle
+darcy
+
+[network]
+opnsense

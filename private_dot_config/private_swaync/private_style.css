@@ -1,8 +1,8 @@
 @import url("../waybar/palette.css");
 
-@define-color cc-bg alpha(@base00, 0.95);
+@define-color cc-bg alpha(@base00, 0.88);
 @define-color noti-border-color alpha(@base06, 0.15);
-@define-color noti-bg @base00;
+@define-color noti-bg alpha(@base00, 0.88);
 @define-color noti-bg-darker @base01;
 @define-color noti-bg-hover @base04;
 @define-color noti-bg-focus alpha(@base03, 0.6);
@@ -12,6 +12,9 @@
 @define-color text-color-disabled @subtext0;
 @define-color bg-selected @base02;
 @define-color accent @base0D;
+
+/* without this GTK paints an opaque window behind everything */
+notificationwindow, blankwindow { background: transparent }
 
 * {
     font-family: FiraCode Nerd Font;
@@ -83,8 +86,8 @@
     border-bottom-right-radius: 0
 }
 .notification-action { border-radius: 0; border-top: none; border-right: none }
-.notification-action:first-child { border-bottom-left-radius: 10px; background: @crust }
-.notification-action:last-child  { border-bottom-right-radius: 10px; background: @crust }
+.notification-action:first-child { border-bottom-left-radius: 10px; background: alpha(@crust, 0.88) }
+.notification-action:last-child  { border-bottom-right-radius: 10px; background: alpha(@crust, 0.88) }
 
 .inline-reply { margin-top: 8px }
 .inline-reply-entry {

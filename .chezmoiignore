@@ -62,6 +62,7 @@
 .local/share/sddm/
 .local/share/wallpapers/
 .local/share/ykman/
+.local/share/yt-dlp/
 .local/share/zoxide/
 .local/share/zsh/.zsh_history
 .local/share/applications/claude-code-url-handler.desktop
@@ -92,3 +93,4 @@ README.md
 
 # repo-only, like README.md above: without this chezmoi deploys it to ~
 assets
+.config/waybar/test_rewrite.py

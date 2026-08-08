@@ -38,7 +38,8 @@ window#waybar.hidden {
 
 #custom-power,
 #workspaces,
-#mpris,
+#media,
+#group-media,
 #window,
 #system,
 #group-system,
@@ -67,6 +68,7 @@ window#waybar.hidden {
 
 /* Group pills carry almost no padding of their own — their children each
    bring 13px, so stacking both would double the inner gap. */
+#media,  #group-media,
 #system, #group-system,
 #net,    #group-net,
 #hw,     #group-hw,
@@ -75,6 +77,11 @@ window#waybar.hidden {
 #time,   #group-time,
 #wifi,   #group-wifi {
     padding: 0 4px;
+}
+
+#media, #group-media {
+    margin-left: 12px;
+    padding: 0;
 }
 
 /* Nested inside group/net, so it must not paint a second pill on top of
@@ -115,6 +122,10 @@ window#waybar.hidden {
    child except the first in a GtkRevealer, so a child combinator silently
    skips them — which is how the drawer'd clock and mic ended up unstyled.
    Adding a module to a group means adding its id here. */
+#custom-mpris-prev,
+#custom-mpris-toggle,
+#custom-mpris-next,
+#mpris,
 #cpu,
 #memory,
 #custom-temperature,
@@ -242,6 +253,22 @@ window#waybar.hidden {
     color: @fg-dim;
 }
 
+#custom-mpris-prev,
+#custom-mpris-toggle,
+#custom-mpris-next {
+    color: @acc-media;
+    font-size: 17px;
+    padding: 3px 5px;
+}
+
+#custom-mpris-prev {
+    padding-left: 12px;
+}
+
+#mpris {
+    padding-right: 12px;
+}
+
 #window {
     color: @subtext1;
 }
@@ -364,6 +391,9 @@ window#waybar.empty #window {
    a pill. Separators are deliberately absent — they are not clickable. */
 #custom-power:hover,
 #mpris:hover,
+#custom-mpris-prev:hover,
+#custom-mpris-toggle:hover,
+#custom-mpris-next:hover,
 #cpu:hover,
 #memory:hover,
 #custom-temperature:hover,

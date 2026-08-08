@@ -37,7 +37,7 @@
   "modules-left": [
     "custom/power",
     "niri/workspaces",
-    "mpris"
+    "group/media"
   ],
 
   "modules-center": [
@@ -66,6 +66,16 @@
   // separator is left dangling — that is why custom/vpn and custom/mic
   // emit a state icon instead of empty text, and why "tray" sits last
   // with no separator of its own (it is empty until something docks).
+
+  "group/media": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/mpris-prev",
+      "custom/mpris-toggle",
+      "custom/mpris-next",
+      "mpris"
+    ]
+  },
 
   "group/system": {
     "orientation": "horizontal",
@@ -194,6 +204,27 @@
     }
   },
 
+  "custom/mpris-prev": {
+    "exec": "~/.config/waybar/scripts/mpris-btn.sh prev",
+    "interval": 2,
+    "on-click": "playerctl previous",
+    "tooltip": false
+  },
+
+  "custom/mpris-toggle": {
+    "exec": "~/.config/waybar/scripts/mpris-btn.sh toggle",
+    "interval": 1,
+    "on-click": "playerctl play-pause",
+    "tooltip": false
+  },
+
+  "custom/mpris-next": {
+    "exec": "~/.config/waybar/scripts/mpris-btn.sh next",
+    "interval": 2,
+    "on-click": "playerctl next",
+    "tooltip": false
+  },
+
   "mpris": {
     "format": "{player_icon} {dynamic}",
     "format-paused": "{status_icon} {dynamic}",
@@ -227,7 +258,7 @@
     "icon": true,
     "icon-size": 16,
     "separate-outputs": true,
-    "max-length": 60
+    "max-length": 30
   },
 
   // ═════════════════════════════════════════════════════════════
@@ -290,7 +321,9 @@
   "custom/backlight": {
     "exec": "~/.config/waybar/scripts/backlight.sh",
     "return-type": "json",
-    "interval": "once",
+    // Not "once": Fn+F3/F4 go through acpi_video in-kernel, so nothing
+    // signals the bar. Scroll still uses signal 4 for an instant update.
+    "interval": 2,
     "signal": 4,
     "format": "{}",
     "on-scroll-up": "~/.config/waybar/scripts/backlight.sh up",

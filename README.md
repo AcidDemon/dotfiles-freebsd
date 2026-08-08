@@ -9,6 +9,62 @@ three fixes that no guide mentions, and each one presents as an identical black
 screen. They are automated here — the table below exists so that if it ever
 breaks again, you recognise the symptom instead of re-debugging it from scratch.
 
+![fastfetch on FreeBSD 15.1 under niri, beside both peaclock views](assets/desktop-fetch.webp)
+
+fastfetch builds the ZFS ARC and zpool bars by hand out of `sysctl
+kstat.zfs.misc.arcstats`; the logo is a kitty graphics image, so it renders in
+kitty and nowhere else. Alongside it, peaclock in both of its configs — digital
+from `~/.config/peaclock`, binary from `~/.config/peaclock-binary`, selected with
+`--config-dir`.
+
+## The desktop
+
+![niri: column widths, tabbed columns, workspaces, overview, rofi, a notification](assets/demo.webp)
+
+Columns scroll horizontally rather than packing into a fixed grid, so opening a
+window never resizes the one you are reading. The clip runs the four column-width
+presets, the tabbed-column display (IPC-only — there is no keybind for it), a
+workspace switch, the overview, rofi, and a notification arriving. The full
+1080p60 recording is attached to the [latest release](../../releases/latest);
+only the loop above is tracked, for the same reason the wallpapers are not.
+
+### Windows
+
+| | |
+|---|---|
+| ![Empty workspace](assets/desktop-empty.webp)<br>Bar at rest. The centre pill is blank on an empty workspace by design — `pills.css` zeroes it. | ![Overview](assets/overview.webp)<br>`Mod+O`. Workspaces stack vertically. Stock niri zoom; there is no `overview` block in the config, which is why roughly two fit on screen. |
+| ![Zen and tmux](assets/desktop-work.webp)<br>Zen — not in ports, built separately — beside tmux. Zen's window rule sets `xray true`, so its blur samples the *wallpaper*, not the windows behind it. | ![neovim and fzf](assets/desktop-dev.webp)<br>neovim on the niri config, and fzf's `Ctrl+T` widget previewing an image inline over the kitty graphics protocol. |
+| ![btop, cava, cmatrix](assets/desktop-monitor.webp)<br>btop at 2/3, cava and cmatrix stacked in the remaining third. | ![Thunar and zathura](assets/desktop-apps.webp)<br>Thunar and zathura. `recolor` is on in `zathurarc`, which is why the page is Mocha and not white; `r` toggles it. |
+
+### Menus, bar and notifications
+
+| | |
+|---|---|
+| ![rofi](assets/rofi.webp)<br>The drun launcher, 700px wide, two columns, filtering as you type. | ![swaync](assets/swaync.webp)<br>Control centre. The backlight widget is absent rather than broken: swaync reads `/sys/class/backlight`, which FreeBSD does not have. |
+| ![Notification](assets/notification.webp)<br>A toast, and the waybar swaync pill flipping to pink in the same frame. | ![SwayOSD](assets/swayosd.webp)<br>The volume overlay, on the `XF86Audio*` keys. Brightness goes through `backlight(8)` instead of brightnessctl, which is Linux-only. |
+| ![Calendar tooltip](assets/waybar-drawers.webp)<br>Hovering the clock slides the date out and opens the calendar, `de_DE` with `KW` week numbers and today underlined. | ![Bar hover states](assets/bar-states.webp)<br>At rest, then the wifi, hardware and clock drawers. Right-aligned groups open *leftward* so the bar never reflows. |
+
+### The drop-down terminal
+
+![The quake terminal, with atuin's history search open](assets/quake.webp)
+
+`F12`. `private_dot_config/private_niri/scripts/quake.sh` never closes the window
+— it slides it to `y=-2000` and parks it on the `scratch` workspace, so the shell
+and everything running in it survive. The slide is niri's own `window-movement`
+animation, which is why the script's `SLIDE` constant is tuned against
+`slowdown 1.8` and desyncs if you change it.
+
+### Login and lock
+
+![The sddm greeter, enfield theme](assets/sddm.webp)
+
+Session picker bottom-left — that is the `niri.desktop` entry the setup script
+keeps repairing after every `pkg upgrade niri`.
+
+| | |
+|---|---|
+| ![hyprlock](assets/hyprlock.png)<br>Static background from `~/.config/hypr/assets/lock.jpg`, blurred, plus the MPRIS line. | ![wlogout](assets/wlogout.png)<br>Six tiles, no confirmation step on any of them. `e` quits niri outright. |
+
 ## Fresh machine
 
 ```sh
@@ -116,6 +172,7 @@ Restoring these by hand is part of setting up a new machine:
 | `~/.local/state/syncthing/` | device identity — a new `key.pem` means a new device ID and re-pairing everywhere |
 | `~/.local/share/atuin/key` | history encryption key. Note `auto_sync` is on but there is no session file, so sync is **not** running — `history.db` is the only copy |
 | `~/.config/gh/hosts.yml`, `~/.config/keepassxc/`, `~/.config/weechat/sec.conf`, `~/.config/syncthingtray.ini` | tokens, keys, passwords |
+| the YouTube login in Zen | `yt-dlp` reads cookies straight out of Zen's profile rather than a `cookies.txt`, so there is no credential to restore — but there is also nothing to download with until you sign in. Deliberate: session cookies are bearer tokens that bypass 2FA *and* they rotate, so tracking them even encrypted would leave a fresh ciphertext in git history every refresh |
 | the YubiKeys | without one, nothing above decrypts and the age passphrase is the only way in |
 
 Syncthing device IDs and folder paths are in the identity blob under `[sync]`, so a

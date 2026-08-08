@@ -12,6 +12,6 @@ if [ -n "$pids" ]; then
     kill $pids
     notify-send -a "$name" "$name stopped"
 else
-    setsid "$name" "$@" >/dev/null 2>&1 &
+    /usr/sbin/daemon -f "$name" "$@"
     notify-send -a "$name" "$name started"
 fi
