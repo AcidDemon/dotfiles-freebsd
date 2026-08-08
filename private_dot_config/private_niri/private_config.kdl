@@ -45,8 +45,24 @@ output "AU Optronics 0x229E Unknown" {
 }
 
 cursor {
-    xcursor-theme "Adwaita"
-    xcursor-size 24
+    xcursor-theme "capitaine-cursors-light"
+    xcursor-size 36
+
+    tilt {
+        on
+        activation "negative-quadratic"
+        limit 5000
+        window-ms 100
+        full-degrees 60
+    }
+
+    shake {
+        on
+        max-multiplier 4.0
+        behavior "hold"
+        post-expand-delay-ms 2000
+        sensitivity 3.5
+    }
 }
 
 layout {
@@ -140,6 +156,8 @@ environment {
     GTK_USE_PORTAL "1"
     DISPLAY ":0"
     MOZ_ENABLE_WAYLAND "1"
+    XCURSOR_THEME "capitaine-cursors-light"
+    XCURSOR_SIZE "36"
 }
 
 // Ask the clients to omit their client-side decorations if possible.
