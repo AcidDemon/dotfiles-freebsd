@@ -25,7 +25,6 @@ alias grepr='grep -R --color=auto --exclude-dir=.direnv --exclude-dir=.git'
 alias bat='bat --paging=never'
 alias cat='bat --style=plain --paging=never'
 alias fzfb='fzf --preview "bat --color always --style numbers, changes {}"'
-alias open='xdg-open'
 alias y='yazi'
 alias icat='kitty +kitten icat'
 

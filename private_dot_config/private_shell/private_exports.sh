@@ -12,6 +12,11 @@ export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 
+# .profile sets EDITOR=vi, but zsh login shells read .zprofile and never see it,
+# so scratch and anything else honouring $EDITOR came up empty.
+export EDITOR="nvim"
+export VISUAL="$EDITOR"
+
 export WORKSPACE="$HOME/Workspace"
 export RECON="$WORKSPACE/recon"
 export REPOS="$WORKSPACE/repos"
@@ -39,6 +44,8 @@ export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/ripgrep/config"
 export WORKON_HOME="$XDG_DATA_HOME/.virtualenvs"
 export LESS="-R --quiet"
 export LESSOPEN="| /home/acid/bin/lessopen-bat %s"
+# col -bx strips mandoc's overstrike so bat can highlight the plain text.
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=${XDG_CONFIG_HOME}/java -Dawt.useSystemAAFontSettings=lcd -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel"
 
 # Ansible perf only. Env layers over a repo's ansible.cfg; inventory and roles stay there.

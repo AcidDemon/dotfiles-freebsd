@@ -4,7 +4,8 @@ sless() { bat --color=always --style=plain --decorations=never --paging=never "$
 
 function clone() {
   local output repo_dir
-  output="$(clone -d "$REPOS" -u "$USER" -r "github.com" "$@" 2>&1 | tee /dev/tty)"
+  # `command` so this resolves to ~/bin/clone rather than recursing into itself
+  output="$(command clone -d "$REPOS" -u "$USER" -r "github.com" "$@" 2>&1 | tee /dev/tty)"
   repo_dir="$(echo "$output" | tail -n 1)"
   [[ -d "$repo_dir" ]] && cd "$repo_dir" || return 1
 }
