@@ -132,9 +132,40 @@ out of escalation entirely. Check with `doas doas -C /usr/local/etc/doas.conf`.
 | `run_once_after_install-themes.sh` | Colloid icons + WhiteSur cursors (583M, built not tracked) |
 | `private_dot_config/private_niri/` | compositor config |
 | `private_dot_zprofile`, `private_dot_profile` | the `XDG_RUNTIME_DIR` fix |
+| `private_dot_local/private_share/private_tools/` | the twelve self-written CLI tools, one directory each |
+| `bin/symlink_*.tmpl` | `~/bin/<tool>` → the script in that directory |
 
 Wallpapers are deliberately **not** tracked (`.chezmoiignore`) — 32M of images do
 not belong in git history. Put your own in `~/.local/share/wallpapers`.
+
+## The tools tree
+
+`cam cheat clone ebook2audio myip open px scratch search urlencode web-noise yank`
+are the same scripts as `nixfiles/pkgs/<name>/`, where they are packaged with
+`writeShellApplication`. Here they are plain files: `~/.local/share/tools/<name>/`
+holds the script, and `bin/symlink_<name>.tmpl` puts a link in `~/bin`, which
+`/etc/login.conf` already has on `PATH`. The single-file scripts in `bin/` stay flat
+— a directory per file buys nothing.
+
+Each directory keeps its `default.nix` alongside the script so the packaging and the
+code travel together. Those, and web-noise's `setup.py`/`LICENSE`/`README.md`/
+`USAGE-NIXOS.md`, are listed in `.chezmoiignore`: repo-only, never deployed. The bare
+`README.md` entry higher up matches only the top level, hence web-noise needs its own
+line.
+
+The two copies are meant to stay byte-identical, so drift is one command:
+
+```sh
+for d in cam cheat clone ebook2audio myip open px scratch search urlencode yank; do
+    diff "$REPOS/github.com/AcidDemon/nixfiles/pkgs/$d/$d.sh" \
+         "private_dot_local/private_share/private_tools/private_$d/executable_$d.sh"
+done
+```
+
+`cam` and `ebook2audio` deploy but are inert here — no `scrcpy`, no v4l2, no
+`calibre`, no `piper`. Both check their dependencies up front and say so. `myip` uses
+base `drill` when `dig` is absent, so it needs no port. `web-noise` wants
+`-c` pointed at a copy of `config.example.json`.
 
 ## Identity
 
