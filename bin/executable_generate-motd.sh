@@ -247,14 +247,33 @@ if [ "$USERS" -gt 0 ]; then
 fi
 
 # Last login
+#
+# lastlog(8) and last(1) both print: user, port, [host], Day Mon DD HH:MM.
+# host is empty for local logins, so fields cannot be indexed positionally.
+format_login() {
+    awk -v u="$1" '
+        $1 != u                                { next }   # header, "utx.log begins", blanks
+        /still logged in/ || /Never logged in/ { next }
+        $3 ~ /^tmux\(/                         { next }   # tmux host is tmux(PID).%pane
+        {
+            for (i = 3; i <= NF; i++)
+                if ($i ~ /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)$/) {
+                    d = $i " " $(i+1) " " $(i+2) " " $(i+3)
+                    print (i > 3 ? d " from " $3 : d)
+                    exit
+                }
+        }'
+}
+
 if [ -n "$USER" ]; then
     if command -v lastlog &> /dev/null; then
-        LAST_LOGIN=$(lastlog -u "$USER" 2>/dev/null | tail -n 1 | awk '{if ($2 != "**") print $4,$5,$6,$7,$9}')
+        # ponytail: pam_lastlog updates at session start, so on Linux this is
+        # the current login, not the previous one. Use last(1) if that matters.
+        LAST_LOGIN=$(lastlog -u "$USER" 2>/dev/null | format_login "$USER")
     else
-        # FreeBSD fallback (second entry is previous login)
-        LAST_LOGIN=$(last -n 2 "$USER" | head -n 2 | tail -n 1 | awk '{print $3, $4, $5, $6, $7}')
+        LAST_LOGIN=$(last "$USER" | format_login "$USER")
     fi
-    if [ -n "$LAST_LOGIN" ] && [[ "$LAST_LOGIN" != *"still logged in"* ]]; then
+    if [ -n "$LAST_LOGIN" ]; then
         echo -e "  $(label "Last login:") $LAST_LOGIN"
         echo ""
     fi
