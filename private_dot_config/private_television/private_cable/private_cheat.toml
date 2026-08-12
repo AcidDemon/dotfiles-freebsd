@@ -1,0 +1,36 @@
+[metadata]
+name = "cheat"
+description = "Commands: tldr pages plus everything on PATH"
+requirements = ["tldr"]
+
+[source]
+output = "{}"
+
+[[source.command]]
+name = "tldr + PATH"
+run = '''{ tldr --list; echo "$PATH" | tr ':' '\n' | while read -r d; do ls "$d" 2>/dev/null; done; } | sort -u'''
+
+[[source.command]]
+name = "tldr only"
+run = "tldr --list"
+
+# tldr page if there is one, else man, else nothing to show
+[preview]
+command = '''tldr --color always '{}' 2>/dev/null || man '{}' 2>/dev/null || echo 'no tldr page, no man page' '''
+env = { MANWIDTH = "80" }
+
+[ui]
+layout = "portrait"
+
+[ui.preview_panel]
+size = 60
+header = "{}"
+
+[keybindings]
+shortcut = "f2"
+ctrl-e = "actions:open"
+
+[actions.open]
+description = "Open the full page in the pager"
+command = '''tldr '{}' 2>/dev/null || man '{}' '''
+mode = "execute"

@@ -82,6 +82,20 @@ unset FZF_TAB_PLUGIN
 [ -f "$HOME/.config/zsh/fzf-tab-config.zsh" ] && source "$HOME/.config/zsh/fzf-tab-config.zsh"
 
 # --- 6. INTEGRATIONS & EXTERNAL TOOLS ---
+# Television: pick a command name into the line, fzf keeps ^T/^R
+if (( $+commands[tv] )); then
+  _tv_cheat() {
+    emulate -L zsh
+    zle -I
+    local out
+    out=$(tv cheat --inline --no-status-bar) || return
+    [[ -n $out ]] && LBUFFER+=$out
+    zle reset-prompt
+  }
+  zle -N tv-cheat _tv_cheat
+  bindkey '^F' tv-cheat
+fi
+
 # Gpg-agent
 if (( $+commands[gpg-connect-agent] )); then
   [[ -d "$HOME/.gnupg" ]] || mkdir -p -m 700 "$HOME/.gnupg"

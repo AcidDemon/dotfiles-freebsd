@@ -1,0 +1,27 @@
+[metadata]
+name = "man-pages"
+description = "Browse and preview system manual pages"
+requirements = ["apropos", "man"]
+
+# FreeBSD apropos prints "ls(1) - desc", no space before section, so normalize to "ls 1 desc"
+[source]
+command = '''apropos . 2>/dev/null | awk -F' - ' '{n=$1; sub(/\(.*/,"",n); sub(/,.*/,"",n); s=$1; sub(/^[^(]*\(/,"",s); sub(/\).*/,"",s); sub(/,.*/,"",s); print n, s, $2}' '''
+output = "{split: :0}"
+
+[preview]
+command = "man '{split: :1}' '{split: :0}'"
+env = { MANWIDTH = "80" }
+
+[ui]
+layout = "portrait"
+
+[ui.preview_panel]
+header = "{split: :0}({split: :1})"
+
+[keybindings]
+enter = "actions:open"
+
+[actions.open]
+description = "Open the selected man page in the pager"
+command = "man '{split: :1}' '{split: :0}'"
+mode = "execute"
