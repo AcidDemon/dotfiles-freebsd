@@ -108,12 +108,3 @@ README.md
 # repo-only, like README.md above: without this chezmoi deploys it to ~
 assets
 .config/waybar/test_rewrite.py
-
-# the nix build files ride along with the tool sources so both stay in one
-# place, but nothing here is used on FreeBSD. The bare README.md above matches
-# only the top level, hence web-noise's own copy is listed.
-.local/share/tools/*/default.nix
-.local/share/tools/web-noise/setup.py
-.local/share/tools/web-noise/LICENSE
-.local/share/tools/web-noise/README.md
-.local/share/tools/web-noise/USAGE-NIXOS.md
