@@ -59,3 +59,10 @@ export ANSIBLE_SSH_CONTROL_PATH_DIR="$XDG_CACHE_HOME/ansible/cp"
 export ANSIBLE_SSH_ARGS="-C -o ControlMaster=auto -o ControlPersist=600s -o PreferredAuthentications=publickey"
 export ANSIBLE_FORKS=20
 export ANSIBLE_CALLBACKS_ENABLED=ansible.posix.profile_tasks
+
+# The claude jail can write .git/hooks under ~/Workspace. These outrank repo config.
+export GIT_CONFIG_COUNT=2
+export GIT_CONFIG_KEY_0=core.hooksPath
+export GIT_CONFIG_VALUE_0=/var/empty
+export GIT_CONFIG_KEY_1=core.fsmonitor
+export GIT_CONFIG_VALUE_1=false
