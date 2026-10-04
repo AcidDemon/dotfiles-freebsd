@@ -2,15 +2,15 @@
 # Drop-down kitty, quake style.
 #
 # niri clamps floating windows to the output -- a 510px window stops at y=-387 --
-# so it cannot be parked off-screen. Hiding moves it to the "scratch" workspace
+# so it cannot be parked off-screen. Hiding moves it to the "park" workspace
 # instead, which keeps the shell and the window position alive. The slide is
 # niri's own window-movement animation.
 #
-# On the scratch workspace the parked window is partly visible, so "is it
+# On the park workspace the parked window is partly visible, so "is it
 # hidden" cannot be decided by workspace alone there. The y position decides:
 # negative means slid up, i.e. parked.
 CLASS=quake
-PARK_WS=scratch
+PARK_WS=park
 REST_Y=255      # working-area relative; centers a half-height window on 1080p
 PARK_Y=-2000    # niri clamps this to the top edge
 SLIDE=0.25      # park mid-slide: the tail of the ease-out just looks like lag
@@ -49,7 +49,7 @@ if [ "$ws" != "$1" ] || [ "${y%%.*}" -lt 0 ] 2>/dev/null; then
     niri msg action focus-window --id "$id"
     niri msg action move-floating-window --id "$id" -y "$REST_Y"
 else
-    # hide: slide up, then park on the scratch workspace. Already on scratch
+    # hide: slide up, then move it to the park workspace. Already on park
     # means there is nowhere to park it, and sliding up is the whole hide.
     niri msg action move-floating-window --id "$id" -y "$PARK_Y"
     if [ "$3" != "$PARK_WS" ]; then

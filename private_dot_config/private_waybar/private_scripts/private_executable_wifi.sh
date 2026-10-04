@@ -1,5 +1,5 @@
 #!/bin/sh
-# Waybar custom module — WiFi SSID with signal strength in the icon.
+# Waybar custom module — WiFi signal strength, SSID in the tooltip.
 # FreeBSD: parses ifconfig(8); no netlink, no /sys.
 #
 # RSSI CONVENTION
@@ -12,26 +12,18 @@
 set -u
 
 IFACE="${1:-wlan0}"
-# MODE selects which half of the readout to emit, so the two halves can be
-# separate waybar modules and therefore a drawer: the icon is always on
-# screen, the SSID slides out on hover. "full" keeps the old behaviour.
-MODE="${2:-full}"
 NOISE_FLOOR=-96   # dBm
 
 # Mocha
 C_OK="#74c7ec"    # sapphire
-C_WEAK="#fab387"  # peach
 C_DOWN="#6c7086"  # overlay0
 
-I4="󰤨"; I3="󰤥"; I2="󰤢"; I1="󰤟"; IOFF="󰤮"
+I4="󰤨"; I3="󰤥"; I2="󰤢"; I1="󰤟"; IOFF="󰤭"
 
 emit() { printf '{"text":"%s","class":"%s","tooltip":"%s"}\n' "$1" "$2" "$3"; }
 esc()  { sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/&/\&amp;/g' -e 's/</\&lt;/g'; }
 
-# In "ssid" mode a down link has no name to show, so emit empty text and
-# let waybar hide the module — the icon half already says it is down.
 down() {
-    [ "$MODE" = "ssid" ] && { emit "" disconnected "$1"; exit 0; }
     emit "<span size='130%' color='$C_DOWN'>$IOFF</span>" disconnected "$1"
     exit 0
 }
@@ -62,18 +54,20 @@ else
     dbm=$(( NOISE_FLOOR + rssi ))    # dB above noise -> dBm
 fi
 
-if   [ "$dbm" -ge -55 ]; then icon=$I4; cls=good;     col=$C_OK
-elif [ "$dbm" -ge -65 ]; then icon=$I3; cls=good;     col=$C_OK
-elif [ "$dbm" -ge -72 ]; then icon=$I2; cls=warning;  col=$C_WEAK
-else                          icon=$I1; cls=degraded; col=$C_WEAK
+# waybar's network module: 100% at -45 dBm, 0% at 45 dB either side.
+d=$(( dbm + 45 ))
+[ "$d" -lt 0 ] && d=$(( -d ))
+pct=$(( (4500 - d * 100) / 45 ))
+[ "$pct" -lt 0 ] && pct=0
+
+if   [ "$pct" -ge 75 ]; then icon=$I4
+elif [ "$pct" -ge 50 ]; then icon=$I3
+elif [ "$pct" -ge 25 ]; then icon=$I2
+else                         icon=$I1
 fi
 
 ssid_esc=$(printf '%s' "${ssid:-unknown}" | esc)
 tip=$(printf 'SSID  %s\\nBSSID %s\\nSignal %s dBm (raw %s)\\nIP    %s\\nIface %s' \
       "$ssid_esc" "${bssid:-?}" "$dbm" "${raw:-?}" "${addr:-none}" "$IFACE")
 
-case "$MODE" in
-    icon) emit "<span size='130%' color='$col'>$icon</span>" "$cls" "$tip" ;;
-    ssid) emit "$ssid_esc" "$cls" "$tip" ;;
-    *)    emit "<span size='130%' color='$col'>$icon</span> $ssid_esc" "$cls" "$tip" ;;
-esac
+emit "<span size='130%' color='$C_OK'>$icon</span> $pct%" wifi "$tip"

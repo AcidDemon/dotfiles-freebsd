@@ -185,6 +185,12 @@ window-rule {
 }
 
 window-rule {
+    match app-id=r#"^(feishin|spotify|rmpc)$"#
+    open-on-workspace "music"
+    open-focused false
+}
+
+window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     block-out-from "screen-capture"
     open-on-workspace "scratch"
@@ -224,12 +230,29 @@ window-rule {
 }
 
 // Persistent named workspaces
-workspace "term"
-workspace "web"
-workspace "mail"
-workspace "files"
-workspace "chat"
-workspace "scratch"
+workspace "main" {
+    open-on-output "Samsung Electric Company Odyssey G93SD HNTYA01417"
+}
+
+workspace "pim" {
+    open-on-output "Samsung Electric Company Odyssey G93SD HNTYA01417"
+}
+
+workspace "chat" {
+    open-on-output "Samsung Electric Company Odyssey G93SD HNTYA01417"
+}
+
+workspace "scratch" {
+    open-on-output "Samsung Electric Company Odyssey G93SD HNTYA01417"
+}
+
+workspace "music" {
+    open-on-output "eDP-1"
+}
+
+workspace "park" {
+    open-on-output "Samsung Electric Company Odyssey G93SD HNTYA01417"
+}
 
 // ----- Keybinds ----------------------------------------------------------
 binds {
@@ -251,7 +274,7 @@ binds {
     Mod+N      hotkey-overlay-title="Notification Panel" { spawn-sh "swaync-client -t -sw"; }
     Mod+W      hotkey-overlay-title="Dismiss Notifications" { spawn-sh "swaync-client -d -sw"; }
     F12        hotkey-overlay-title="Drop-down Terminal" { spawn-sh "~/.config/niri/scripts/quake.sh"; }
-    Mod+P      hotkey-overlay-title="Scratch: KeePassXC + drop-down term" { focus-workspace "scratch"; }
+    Mod+P      hotkey-overlay-title="Scratch: KeePassXC" { focus-workspace "scratch"; }
 
     // --- Navigation ------------------------------------------------------
     Alt+Tab  hotkey-overlay-title="Window Overview" { toggle-overview; }
@@ -311,23 +334,23 @@ binds {
     Mod+C      { center-column; }
 
     // --- Workspaces ------------------------------------------------------
-    Mod+1 { focus-workspace "term"; }
-    Mod+2 { focus-workspace "web"; }
-    Mod+3 { focus-workspace "mail"; }
-    Mod+4 { focus-workspace "files"; }
-    Mod+5 { focus-workspace "chat"; }
-    Mod+6 { focus-workspace "scratch"; }
+    Mod+1 { focus-workspace "main"; }
+    Mod+2 { focus-workspace "pim"; }
+    Mod+3 { focus-workspace "chat"; }
+    Mod+4 { focus-workspace "scratch"; }
+    Mod+5 { focus-workspace "music"; }
+    Mod+6 { focus-workspace 6; }
     Mod+7 { focus-workspace 7; }
     Mod+8 { focus-workspace 8; }
     Mod+9 { focus-workspace 9; }
     Mod+0 { focus-workspace 10; }
 
-    Mod+Shift+1 { move-column-to-workspace "term"; }
-    Mod+Shift+2 { move-column-to-workspace "web"; }
-    Mod+Shift+3 { move-column-to-workspace "mail"; }
-    Mod+Shift+4 { move-column-to-workspace "files"; }
-    Mod+Shift+5 { move-column-to-workspace "chat"; }
-    Mod+Shift+6 { move-column-to-workspace "scratch"; }
+    Mod+Shift+1 { move-column-to-workspace "main"; }
+    Mod+Shift+2 { move-column-to-workspace "pim"; }
+    Mod+Shift+3 { move-column-to-workspace "chat"; }
+    Mod+Shift+4 { move-column-to-workspace "scratch"; }
+    Mod+Shift+5 { move-column-to-workspace "music" focus=false; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
     Mod+Shift+7 { move-column-to-workspace 7; }
     Mod+Shift+8 { move-column-to-workspace 8; }
     Mod+Shift+9 { move-column-to-workspace 9; }

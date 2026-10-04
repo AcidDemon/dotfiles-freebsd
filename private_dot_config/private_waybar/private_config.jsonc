@@ -82,24 +82,9 @@
     "modules": ["cpu", "custom/sep1", "memory", "custom/sep2", "custom/temperature"]
   },
 
-  // The wifi drawer is NESTED inside group/net so that custom/vpn stays
-  // outside it and therefore always visible — a drawer hides everything
-  // but its first child, and VPN state is the one thing that must not
-  // need a hover to read.
   "group/net": {
     "orientation": "horizontal",
-    "modules": ["group/wifi", "custom/sep3", "custom/vpn"]
-  },
-
-  // Signal icon always on screen; SSID slides out on hover.
-  "group/wifi": {
-    "orientation": "horizontal",
-    "drawer": {
-      "transition-duration": 300,
-      "children-class": "drawer-wifi",
-      "transition-left-to-right": false
-    },
-    "modules": ["custom/wifi", "custom/wifi-ssid"]
+    "modules": ["custom/wifi", "custom/sep3", "custom/vpn"]
   },
 
   // Drawer: only the FIRST child shows at rest, the rest slide out on
@@ -188,18 +173,16 @@
   "niri/workspaces": {
     "all-outputs": false,
     // {index}, not {value}: with named workspaces {value} is the name
-    // ("term", "web"), and the mockup shows the number next to the icon.
+    // ("main", "pim"), and the mockup shows the number next to the icon.
     "format": "{icon} {index}",
     // The icon carries its own size so it can outgrow the digit beside it
     // without dragging the whole button up with it.
     "format-icons": {
-      "term":  "<span size='130%'>󰞷</span>",
-      "web":   "<span size='130%'>󰈹</span>",
-      "mail":  "<span size='130%'>󰇮</span>",
-      "files": "<span size='130%'>󰉋</span>",
-      "chat":  "<span size='130%'>󰭹</span>",
+      "main":    "<span size='130%'>󰞷</span>",
+      "pim":     "<span size='130%'>󰆎</span>",
+      "chat":    "<span size='130%'>󰭹</span>",
       "scratch": "<span size='130%'>󰀻</span>",
-      "urgent": "<span size='130%'></span>",
+      "music":   "<span size='130%'>󰎆</span>",
       "default": "<span size='130%'>󰝥</span>"
     }
   },
@@ -227,16 +210,14 @@
 
   "mpris": {
     "format": "{player_icon} {dynamic}",
-    "format-paused": "{status_icon} {dynamic}",
+    "format-paused": "{player_icon} {dynamic}",
     // Plain glyphs, no Pango: mpris does not escape the track title, so
     // any markup here makes an `&` in a title blank the whole label.
     // Colour lives on #mpris.playing / #mpris.paused in pills.css.
     "player-icons": {
-      "default": "",
-      "mpv": "󰝚"
-    },
-    "status-icons": {
-      "paused": ""
+      "default": "󰝚",
+      "mpv": "󰝚",
+      "spotify": "󰓇"
     },
     "dynamic-order": ["artist", "title"],
     "dynamic-len": 34,
@@ -290,21 +271,12 @@
   // RIGHT — network
   // ═════════════════════════════════════════════════════════════
 
-  // Two halves of one readout so they can live in a drawer — see
-  // scripts/wifi.sh, which takes the half to emit as its second argument.
   "custom/wifi": {
-    "exec": "~/.config/waybar/scripts/wifi.sh wlan0 icon",
+    "exec": "~/.config/waybar/scripts/wifi.sh wlan0",
     "return-type": "json",
     "interval": 5,
     "format": "{}",
     "on-click": "kitty -e sh -c 'ifconfig wlan0 list scan; read -r _'"
-  },
-
-  "custom/wifi-ssid": {
-    "exec": "~/.config/waybar/scripts/wifi.sh wlan0 ssid",
-    "return-type": "json",
-    "interval": 5,
-    "format": "{}"
   },
 
   "custom/vpn": {
@@ -339,7 +311,7 @@
       "headset": "󰋎"
     },
     "scroll-step": 5,
-    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
     "on-click-middle": "pavucontrol",
     "tooltip-format": "{desc} · {volume}%"
   },

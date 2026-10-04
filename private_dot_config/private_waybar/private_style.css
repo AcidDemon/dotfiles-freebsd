@@ -2,3 +2,15 @@
 @import url("palette.css");
 @import url("base.css");
 @import url("styles/pills.css");
+
+/* niri always pins 75px of the quake terminal on screen when parked, so it
+   lives on its own "park" workspace instead of scratch; that workspace must
+   never be visible in the bar. #workspaces button#niri-workspace-park beats
+   pills.css's #workspaces button + button divider rule on id count. */
+#workspaces button#niri-workspace-park {
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  font-size: 0;
+  border: none;
+}

@@ -74,21 +74,13 @@ window#waybar.hidden {
 #hw,     #group-hw,
 #status, #group-status,
 #util,   #group-util,
-#time,   #group-time,
-#wifi,   #group-wifi {
+#time,   #group-time {
     padding: 0 4px;
 }
 
 #media, #group-media {
     margin-left: 12px;
     padding: 0;
-}
-
-/* Nested inside group/net, so it must not paint a second pill on top of
-   its parent's. Padding above keeps it from double-indenting too. */
-#wifi, #group-wifi {
-    background-color: transparent;
-    margin: 0;
 }
 
 /* Icon-only pills want to stay circular, not stretch into lozenges */
@@ -130,7 +122,6 @@ window#waybar.hidden {
 #memory,
 #custom-temperature,
 #custom-wifi,
-#custom-wifi-ssid,
 #custom-vpn,
 #custom-backlight,
 #pulseaudio,
@@ -200,6 +191,7 @@ window#waybar.hidden {
     margin: 4px 0;
     min-width: 0;
     color: @fg-dim;
+    font-size: 18px;
     border-radius: 100px;
 }
 
@@ -266,6 +258,7 @@ window#waybar.hidden {
 }
 
 #mpris {
+    padding-left: 10px;
     padding-right: 12px;
 }
 
@@ -285,13 +278,15 @@ window#waybar.empty #window {
 #memory,
 #custom-temperature,
 #custom-wifi,
-#custom-wifi-ssid,
 #custom-vpn,
 #custom-backlight,
 #pulseaudio,
-#custom-mic,
-#custom-battery {
+#custom-mic {
     color: @fg;
+}
+
+#custom-battery {
+    color: @acc-battery;
 }
 
 /* Icon-only utilities take their accent straight from CSS */
@@ -354,25 +349,21 @@ window#waybar.empty #window {
    ─────────────────────────────────────────────────────────────── */
 
 #custom-battery.warning,
-#custom-temperature.warning,
-#custom-wifi.warning {
+#custom-temperature.warning {
     color: @st-warning;
 }
 
 #custom-battery.degraded,
-#custom-temperature.degraded,
-#custom-wifi.degraded {
+#custom-temperature.degraded {
     color: @st-degraded;
 }
 
 #custom-battery.critical,
 #custom-temperature.critical,
-#custom-wifi.critical,
 #custom-mic.muted {
     color: @st-critical;
 }
 
-#custom-wifi.disconnected,
 #custom-vpn.down {
     color: @st-inactive;
 }

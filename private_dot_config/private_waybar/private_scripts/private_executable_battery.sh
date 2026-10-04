@@ -19,7 +19,7 @@ if [ "$charging" -eq 1 ]; then
     icon="󰂄"; cls=charging; col=$C_CHRG
 else
     set -- "󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"
-    idx=$(( life / 10 + 1 ))
+    idx=$(( life / 9 + 1 ))
     [ "$idx" -gt 11 ] && idx=11
     eval "icon=\${$idx}"
 
