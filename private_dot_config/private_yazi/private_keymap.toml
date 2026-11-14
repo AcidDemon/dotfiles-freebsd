@@ -1,0 +1,29 @@
+[[mgr.prepend_keymap]]
+on = ["g", "m"]
+run = "cd ~/Music"
+desc = "Go to ~/Music"
+
+[[mgr.prepend_keymap]]
+on = ["g", "p"]
+run = "cd ~/Pictures"
+desc = "Go to ~/Pictures"
+
+[[mgr.prepend_keymap]]
+on = ["g", "v"]
+run = "cd ~/Videos"
+desc = "Go to ~/Videos"
+
+[[mgr.prepend_keymap]]
+on = ["g", "w"]
+run = "cd ~/Workspace"
+desc = "Go to ~/Workspace"
+
+[[mgr.prepend_keymap]]
+on = ["t", "c"]
+run = "tab_create --current"
+desc = "New tab at current dir"
+
+[[mgr.prepend_keymap]]
+on = ["<C-o>"]
+run = "open --interactive"
+desc = "Open with..."
