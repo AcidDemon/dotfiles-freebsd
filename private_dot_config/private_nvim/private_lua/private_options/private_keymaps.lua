@@ -1,9 +1,7 @@
-local map = vim.keymap.set
-local opts = { silent = true }
-
-map("", "<Space>", "<Nop>", opts)
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
+-- mapleader is set in init.lua, before lazy.setup creates the `keys` stubs
+local function map(mode, lhs, rhs, desc)
+  vim.keymap.set(mode, lhs, rhs, { silent = true, desc = desc })
+end
 
 -- Handle typos
 vim.cmd([[
@@ -23,36 +21,24 @@ vim.cmd([[
     cnoreabbrev bD bd
 ]])
 
+map("", "<Space>", "<Nop>")
+
 -- Stay in indent mode
-map("v", "<", "<gv", opts)
-map("v", ">", ">gv", opts)
+map("v", "<", "<gv")
+map("v", ">", ">gv")
 
 -- Maintain cursor position and keep it centered during search & joining
-map("n", "n", "nzzzv", opts)
-map("n", "N", "Nzzzv", opts)
-map("n", "J", "mzJ`z", opts)
+map("n", "n", "nzzzv")
+map("n", "N", "Nzzzv")
+map("n", "J", "mzJ`z")
 
--- which-key if present
-local ok, wk = pcall(require, "which-key")
-if ok then
-  wk.add {
-    -- Navigation
-    { "ga", "<cmd>e#<CR>", desc = "Go to last accessed file"},
-    { "gn", "<cmd>bnext<cr>", desc = "Go to next buffer" },
-    { "gp", "<cmd>bprevious<cr>", desc = "Go to previous buffer" },
+-- Navigation
+map("n", "ga", "<cmd>e#<CR>", "Go to last accessed file")
+map("n", "gn", "<cmd>bnext<cr>", "Go to next buffer")
+map("n", "gp", "<cmd>bprevious<cr>", "Go to previous buffer")
 
-    -- Editor
-    { "<CR>", "<cmd>let @/ = ''<CR><CR>", desc = "Toggle visual effects" },
-    { "<leader>ts", "<cmd>setlocal spell!<cr>", desc = "Toggle spell checking" },
-    { "<leader>tn", "<cmd>setlocal nonumber!<CR><cmd>setlocal rnu!<CR>", desc = "Toggle line numbers" },
-    { "<leader>tw", "<cmd>execute('setlocal wrap! breakindent! colorcolumn=' .. (&colorcolumn == '' ? &textwidth : ''))<CR>", desc = "Toggle wrapping" },
-  }
-else
-    map("n", "ga", "<cmd>e#<CR>", { silent = true, desc = "Go to last accessed file" })
-  map("n", "gn", "<cmd>bnext<cr>", { silent = true, desc = "Go to next buffer" })
-  map("n", "gp", "<cmd>bprevious<cr>", { silent = true, desc = "Go to previous buffer" })
-  map("n", "<CR>", "<cmd>let @/ = ''<CR><CR>", { silent = true, desc = "Toggle visual effects" })
-  map("n", "<leader>ts", "<cmd>setlocal spell!<cr>", { silent = true, desc = "Toggle spell checking" })
-  map("n", "<leader>tn", "<cmd>setlocal nonumber!<CR><cmd>setlocal rnu!<CR>", { silent = true, desc = "Toggle line numbers" })
-  map("n", "<leader>tw", "<cmd>execute('setlocal wrap! breakindent! colorcolumn=' .. (&colorcolumn == '' ? &textwidth : ''))<CR>", { silent = true, desc = "Toggle wrapping" })
-end
+-- Editor
+map("n", "<CR>", "<cmd>let @/ = ''<CR><CR>", "Toggle visual effects")
+map("n", "<leader>ts", "<cmd>setlocal spell!<cr>", "Toggle spell checking")
+map("n", "<leader>tn", "<cmd>setlocal nonumber!<CR><cmd>setlocal rnu!<CR>", "Toggle line numbers")
+map("n", "<leader>tw", "<cmd>execute('setlocal wrap! breakindent! colorcolumn='. (&colorcolumn == '' ? &textwidth : ''))<CR>", "Toggle wrapping")

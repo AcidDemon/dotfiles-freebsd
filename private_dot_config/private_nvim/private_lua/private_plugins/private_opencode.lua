@@ -1,7 +1,7 @@
+-- freebsd: no native opencode; the plugin needs the Linux opencode binary on PATH (Linux compat layer, untested)
 return {
   "nickjvandyke/opencode.nvim",
-  config = function()
+  init = function()
     vim.g.opencode_opts = vim.g.opencode_opts or {}
-    vim.o.autoread = true
   end
 }

@@ -1,3 +1,4 @@
+-- dropped (illuminate defaults): the empty allow/deny lists, under_cursor
 return {
   "RRethy/vim-illuminate",
   config = function()
@@ -8,6 +9,8 @@ return {
                   "regex",
               },
               delay = 200,
+              -- replaces the BufWinEnter IlluminatePauseBuf autocmd (>= 5000 lines)
+              max_file_lines = 4999,
               filetypes_denylist = {
                   "DiffviewFiles",
                   "DressingInput",
@@ -33,12 +36,6 @@ return {
                   "spectre_panel",
                   "toggleterm",
               },
-              filetypes_allowlist = {},
-              modes_denylist = {},
-              modes_allowlist = {},
-              providers_regex_syntax_denylist = {},
-              providers_regex_syntax_allowlist = {},
-              under_cursor = true,
           })
   end
 }

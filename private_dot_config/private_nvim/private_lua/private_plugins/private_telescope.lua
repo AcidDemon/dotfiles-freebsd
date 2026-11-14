@@ -1,5 +1,6 @@
 return {
   "nvim-telescope/telescope.nvim",
+  dependencies = { "nvim-lua/plenary.nvim" },
   config = function()
           local wk = require "which-key"
           wk.add {
@@ -15,8 +16,9 @@ return {
             { "<leader>s", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Open document symbol picker" },
             { "<leader>S", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "Open workspace symbol picker" },
             { "gd", "<cmd>Telescope lsp_definitions<cr>", desc = "Go to definition" },
-            { "gi", "<cmd>Telescope lsp_implementations<cr>", desc = "Go to implementation" },
-            { "gr", "<cmd>Telescope lsp_references<cr>", desc = "Open symbol references picker" },
+            -- replace nvim's grr/gri defaults; bare gr waited on them, gi shadowed insert-at-last-insert
+            { "gri", "<cmd>Telescope lsp_implementations<cr>", desc = "Go to implementation" },
+            { "grr", "<cmd>Telescope lsp_references<cr>", desc = "Open symbol references picker" },
           }
 
           local actions = require("telescope.actions")
@@ -77,7 +79,6 @@ return {
                 previewer = false,
                 layout_strategy = "center",
                 layout_config = { height = 0.50 },
-                  prompt_position = "top",
                   theme = "dropdown",
               },
 

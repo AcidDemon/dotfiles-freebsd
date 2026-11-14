@@ -1,106 +1,91 @@
+local vault = vim.fn.expand("~/Documents/Obsidian")
+
+local function key(lhs, sub, desc)
+  return { lhs, "<cmd>Obsidian " .. sub .. "<cr>", silent = true, desc = desc }
+end
+
 return {
-  "epwalsh/obsidian.nvim",
-  dependencies = { "nvim-lua/plenary.nvim" },
-  ft = "markdown",
-  config = function()
-    require("obsidian").setup({
-      workspaces = {
-        {
-          name = "personal",
-          path = vim.fn.expand("~/Documents/Obsidian"),
-        },
+  "obsidian-nvim/obsidian.nvim",
+  version = "*",
+  -- lazy: the :Obsidian stub (all <leader>o maps go through it) or opening a vault note.
+  -- setup() mkdirs the vault folders, so it must not run at startup.
+  cmd = "Obsidian",
+  event = "BufReadPre " .. vault .. "/*.md",
+  keys = {
+    key("<leader>on", "new", "New note"),
+    -- freebsd: no Obsidian app package, kept for parity
+    key("<leader>oo", "open", "Open in Obsidian app"),
+    key("<leader>oq", "quick_switch", "Quick switch notes"),
+    key("<leader>os", "search", "Search notes"),
+    key("<leader>ot", "tags", "Search tags"),
+    key("<leader>ob", "backlinks", "Show backlinks"),
+    key("<leader>od", "today", "Today's daily note"),
+    key("<leader>oy", "yesterday", "Yesterday's daily note"),
+    key("<leader>of", "follow_link", "Follow link"),
+    key("<leader>oc", "toggle_checkbox", "Toggle checkbox"),
+  },
+  opts = {
+    workspaces = {
+      {
+        name = "personal",
+        path = vault,
       },
+    },
 
-      notes_subdir = "notes",
-      daily_notes = {
-        folder = "daily",
-        date_format = "%Y-%m-%d",
-        template = nil,
-      },
+    notes_subdir = "notes",
+    daily_notes = {
+      folder = "daily",
+      date_format = "%Y-%m-%d",
+    },
 
-      completion = {
-        nvim_cmp = true,
-        min_chars = 2,
-      },
+    -- completion comes from obsidian's built-in LSP via blink's lsp source
+    completion = {
+      min_chars = 2,
+    },
 
-      note_id_func = function(title)
-        local suffix = ""
-        if title ~= nil then
-          suffix = title:gsub(" ", "-"):gsub("[^A-Za-z0-9-]", ""):lower()
-        else
-          for _ = 1, 4 do
-            suffix = suffix .. string.char(math.random(65, 90))
+    note_id_func = function(title)
+      local suffix = ""
+      if title ~= nil then
+        suffix = title:gsub(" ", "-"):gsub("[^A-Za-z0-9-]", ""):lower()
+      else
+        for _ = 1, 4 do
+          suffix = suffix .. string.char(math.random(65, 90))
+        end
+      end
+      return tostring(os.time()) .. "-" .. suffix
+    end,
+
+    frontmatter = {
+      func = function(note)
+        local out = { id = note.id, aliases = note.aliases, tags = note.tags }
+        if note.metadata ~= nil and not vim.tbl_isempty(note.metadata) then
+          for k, v in pairs(note.metadata) do
+            out[k] = v
           end
         end
-        return tostring(os.time()) .. "-" .. suffix
+        return out
       end,
+    },
 
-      frontmatter = {
-        func = function(note)
-          local out = { id = note.id, aliases = note.aliases, tags = note.tags }
-          if note.metadata ~= nil and not vim.tbl_isempty(note.metadata) then
-            for k, v in pairs(note.metadata) do
-              out[k] = v
-            end
-          end
-          return out
-        end,
-      },
+    templates = {
+      folder = "templates",
+      date_format = "%Y-%m-%d",
+      time_format = "%H:%M",
+    },
 
-      templates = {
-        subdir = "templates",
-        date_format = "%Y-%m-%d",
-        time_format = "%H:%M",
-      },
+    -- render-markdown does the rendering
+    ui = {
+      enable = false,
+    },
 
-      ui = {
-        enable = true,
-      },
+    checkbox = {
+      order = { " ", "x", ">", "~" },
+    },
 
-      checkbox = {
-        order = {" ", "x", ">", "~"},
-        chars = {
-          [" "] = { char = "󰄱", hl_group = "ObsidianTodo" },
-          ["x"] = { char = "", hl_group = "ObsidianDone" },
-          [">"] = { char = "", hl_group = "ObsidianRightArrow" },
-          ["~"] = { char = "󰰱", hl_group = "ObsidianTilde" },
-        },
-      },
+    attachments = {
+      folder = "attachments",
+    },
 
-      attachments = {
-        folder = "attachments",
-      },
-
-      follow_url_func = false,
-      legacy_commands = false,
-    })
-
-    -- Set up buffer-local keymaps
-    vim.keymap.set("n", "gf", function()
-      if require("obsidian").util.cursor_on_markdown_link() then
-        return "<cmd>ObsidianFollowLink<cr>"
-      else
-        return "gf"
-      end
-    end, { noremap = false, expr = true, buffer = true })
-
-    vim.keymap.set("n", "<leader>ch", function()
-      return require("obsidian").util.toggle_checkbox()
-    end, { buffer = true })
-
-    local wk = require "which-key"
-    wk.add {
-      { "<leader>o", group = "Obsidian" },
-      { "<leader>on", "<cmd>ObsidianNew<cr>", desc = "New note" },
-      { "<leader>oo", "<cmd>ObsidianOpen<cr>", desc = "Open in Obsidian app" },
-      { "<leader>oq", "<cmd>ObsidianQuickSwitch<cr>", desc = "Quick switch notes" },
-      { "<leader>os", "<cmd>ObsidianSearch<cr>", desc = "Search notes" },
-      { "<leader>ot", "<cmd>ObsidianTags<cr>", desc = "Search tags" },
-      { "<leader>ob", "<cmd>ObsidianBacklinks<cr>", desc = "Show backlinks" },
-      { "<leader>od", "<cmd>ObsidianToday<cr>", desc = "Today's daily note" },
-      { "<leader>oy", "<cmd>ObsidianYesterday<cr>", desc = "Yesterday's daily note" },
-      { "<leader>of", "<cmd>ObsidianFollowLink<cr>", desc = "Follow link" },
-      { "<leader>oc", "<cmd>ObsidianToggleCheckbox<cr>", desc = "Toggle checkbox" },
-    }
-  end
+    legacy_commands = false,
+  },
 }

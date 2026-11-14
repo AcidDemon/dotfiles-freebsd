@@ -1,11 +1,12 @@
 return {
   "MeanderingProgrammer/render-markdown.nvim",
+  -- lazy, as in nixvim: a markdown buffer (its file_types default) or the first :RenderMarkdown
+  ft = "markdown",
+  cmd = "RenderMarkdown",
+  keys = {
+    { "<leader>mr", "<cmd>RenderMarkdown toggle<cr>", silent = true, desc = "Toggle Markdown rendering" },
+  },
   config = function()
-          local wk = require "which-key"
-          wk.add {
-            { "<leader>mr", "<cmd>RenderMarkdown toggle<cr>", desc = "Toggle Markdown rendering" },
-          }
-
           require('render-markdown').setup({
             enabled = true,
             max_file_size = 1.5,
@@ -116,7 +117,6 @@ return {
               alignment_indicator = '━',
               head = 'RenderMarkdownTableHead',
               row = 'RenderMarkdownTableRow',
-              filler = 'RenderMarkdownTableFill',
             },
 
             callout = {

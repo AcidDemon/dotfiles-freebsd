@@ -43,27 +43,12 @@ return {
               )
           end
 
+          -- values equal to the nvim-tree defaults dropped, as in nixvim
           require("nvim-tree").setup({
               on_attach = my_on_attach,
               sync_root_with_cwd = true,
               renderer = {
-                  add_trailing = false,
-                  group_empty = false,
-                  highlight_git = false,
-                  full_name = false,
-                  highlight_opened_files = "none",
                   root_folder_label = ":t",
-                  indent_width = 2,
-                  indent_markers = {
-                      enable = false,
-                      inline_arrows = true,
-                      icons = {
-                          corner = "└",
-                          edge = "│",
-                          item = "│",
-                          none = " ",
-                      },
-                  },
                   special_files = {
                       "Cargo.toml",
                       "Makefile",
@@ -71,29 +56,19 @@ return {
                       "Readme.md",
                       "readme.md",
                   },
-                  symlink_destination = true,
               },
+              -- freebsd: nixvim's exclude skips /nix/store, which this host does not have
               update_focused_file = {
                   enable = true,
-                  debounce_delay = 15,
-                  update_cwd = false,
-                  update_root = true,
-                  ignore_list = {},
+                  update_root = { enable = true },
               },
-
               diagnostics = {
                   enable = true,
-                  show_on_dirs = false,
-                  show_on_open_dirs = true,
                   debounce_delay = 50,
-                  severity = {
-                      min = vim.diagnostic.severity.HINT,
-                      max = vim.diagnostic.severity.ERROR,
-                  },
               },
               view = {
                   width = 32,
-                  side = "right",
+                  side = "left",
               },
           })
   end

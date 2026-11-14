@@ -34,3 +34,6 @@ alias po='poweroff'
 
 alias compress='ouch compress'
 alias extract='ouch decompress'
+
+# nvim does not enter diff mode from argv[0], so no symlink
+alias vimdiff='nvim -d'

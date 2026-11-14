@@ -1,62 +1,32 @@
+-- nixvim ships every grammar (allGrammars). freebsd: no prebuilt grammars, so a missing
+-- parser is compiled on first use (tree-sitter-cli + cc). full set once, from a shell:
+--   nvim --headless -c 'lua require("nvim-treesitter").install("all"):wait(3600000)' -c qa
 return {
   "nvim-treesitter/nvim-treesitter",
   build = ":TSUpdate",
   config = function()
-    local ts = require("nvim-treesitter")
+    -- global, as nixvim: filetypes whose indent script sets indentexpr keep theirs
+    vim.o.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 
-    local parsers = {
-      "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline",
-      "rust", "python", "javascript", "typescript", "tsx", "json", "yaml", "toml", "bash"
-    }
-
-    -- neorg parsers are not in the registry
-    local parser_config = require("nvim-treesitter.parsers")
-    parser_config.norg = {
-      install_info = {
-        url = "https://github.com/nvim-neorg/tree-sitter-norg",
-        files = { "src/parser.c", "src/scanner.c" },
-        branch = "main",
-      },
-    }
-    parser_config.norg_meta = {
-      install_info = {
-        url = "https://github.com/nvim-neorg/tree-sitter-norg-meta",
-        files = { "src/parser.c" },
-        branch = "main",
-      },
-    }
-
-    local installed = ts.get_installed()
-    local to_install = vim.tbl_filter(function(lang)
-      return not vim.tbl_contains(installed, lang)
-    end, parsers)
-
-    if #to_install > 0 then
-      ts.install(to_install)
-    end
-
-    -- parser -> filetype
-    local filetypes = {}
-    for _, lang in ipairs(parsers) do
-      local fts = vim.treesitter.language.get_filetypes(lang)
-      for _, ft in ipairs(fts) do
-        table.insert(filetypes, ft)
-      end
-    end
-    -- Ensure norg filetype is explicitly registered
-    table.insert(filetypes, "norg")
-
+    local tried = {}
     vim.api.nvim_create_autocmd("FileType", {
       group = vim.api.nvim_create_augroup("TreesitterSetup", { clear = true }),
-      pattern = filetypes,
       callback = function(args)
-        pcall(vim.treesitter.start, args.buf)
-        vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        if pcall(vim.treesitter.start, args.buf) then
+          return
+        end
+        -- freebsd: on-demand install, once per language and session
+        local lang = vim.treesitter.language.get_lang(args.match)
+        if not lang or tried[lang] or not require("nvim-treesitter.parsers")[lang] then
+          return
+        end
+        tried[lang] = true
+        require("nvim-treesitter").install(lang):await(vim.schedule_wrap(function()
+          if vim.api.nvim_buf_is_valid(args.buf) then
+            pcall(vim.treesitter.start, args.buf)
+          end
+        end))
       end,
     })
-
-    vim.opt.foldmethod = "expr"
-    vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-    vim.opt.foldlevel = 99 -- Start with all folds open
   end,
 }

@@ -1,10 +1,17 @@
+vim.loader.enable(true)
+
+-- before lazy.setup: its `keys` stubs are made with the leader set at that time
+vim.g.mapleader = " "
+-- differs from nixvim (" "): with localleader == leader, Conjure and vim-sexp shadow leader maps in clojure buffers
+vim.g.maplocalleader = ","
+
 require("options.options")
 require("options.autocmds")
 require("options.filetype")
 
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.fn.system({
     "env",
     "HOME=/var/empty",
@@ -25,5 +32,5 @@ require("lazy").setup("plugins", {
   }
 })
 
--- after lazy: plugins must be on the runtime path first
+-- after the plugins, as in nixvim
 require("options.keymaps")

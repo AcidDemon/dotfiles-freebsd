@@ -1,6 +1,10 @@
+-- dropped: watch_gitdir (interval is read nowhere in gitsigns 2.x, follow_files is the
+-- default), max_file_length (default), preview_config style/relative/row/col (defaults,
+-- deep-extended)
 return {
   "lewis6991/gitsigns.nvim",
   config = function()
+          -- chezmoi-only: nixvim has no gitsigns maps
           local wk = require "which-key"
           wk.add {
             { "<leader>g", group = "git" },
@@ -18,20 +22,11 @@ return {
                   topdelete = { text = " " },
                   changedelete = { text = "▎ " },
               },
-              watch_gitdir = {
-                  interval = 1000,
-                  follow_files = true,
-              },
               attach_to_untracked = true,
               current_line_blame_formatter = "<author>, <author_time:%Y-%m-%d> - <summary>",
               update_debounce = 200,
-              max_file_length = 40000,
               preview_config = {
-                  border = "rounded", -- single
-                  style = "minimal",
-                  relative = "cursor",
-                  row = 0,
-                  col = 1,
+                  border = "rounded",
               },
           })
   end

@@ -1,7 +1,16 @@
 return {
   "zbirenbaum/copilot.lua",
+  -- lazy: the server starts on the first insert
+  event = "InsertEnter",
+  cmd = "Copilot",
   config = function()
           require("copilot").setup({
+            -- freebsd: the bundled server ships no freebsd watcher.node and exits at start;
+            -- pkg github-copilot-language-server builds its native modules for freebsd
+            server = {
+              type = "nodejs",
+              custom_server_filepath = "/usr/local/lib/node_modules/@github/copilot-language-server/dist/language-server.js",
+            },
             suggestion = {
               enabled = true,
               auto_trigger = false,
