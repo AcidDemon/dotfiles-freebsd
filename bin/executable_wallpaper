@@ -1,0 +1,184 @@
+#!/bin/sh
+# port of nixfiles modules/desktop/wallpaper "wallpaper": per-theme pools, remembered picks, shuffle
+# freebsd: no systemd, so "daemon" (spawned by niri) replaces the awww-wallpaper and awww-rotate units
+# config: ~/.config/awww/rotate.conf (sh, sourced; the environment wins over it)
+
+state="${XDG_STATE_HOME:-$HOME/.local/state}"
+set -a
+# shellcheck source=/dev/null
+[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/awww/rotate.conf" ] && . "${XDG_CONFIG_HOME:-$HOME/.config}/awww/rotate.conf"
+set +a
+# reread on every apply: the daemon outlives theme switches (nixos runs a fresh apply per timer tick)
+cur_theme() {
+    theme="${WALLPAPER_THEME:-}"
+    [ -n "$theme" ] || { read -r theme <"$state/theming/current"; } 2>/dev/null
+    theme="${theme:-catppuccin-mocha}"
+}
+cur_theme
+choices="$state/wallpaper/choices"
+shuffle_flag="$state/wallpaper/shuffle"
+interval_file="$state/wallpaper/interval"
+
+usage() {
+    echo "usage: wallpaper apply | pick <image> [output|focused] | shuffle [on|off|status] | interval [seconds] | list <output|focused> <theme>... | daemon" >&2
+    exit 2
+}
+
+# ponytail: one pool for every output (WALLPAPER_DIRS per-output map dropped), bring it back for a second monitor
+# ponytail: only the first {theme} is replaced
+dir_for() {
+    case $WALLPAPER_DIR in
+        *'{theme}'*) printf '%s\n' "${WALLPAPER_DIR%%\{theme\}*}$theme${WALLPAPER_DIR#*\{theme\}}" ;;
+        *) printf '%s\n' "$WALLPAPER_DIR" ;;
+    esac
+}
+
+choice_file() {
+    printf '%s/%s\n' "$choices" "$(printf %s "$1" | tr / %)"
+}
+
+# freebsd: one realpath for the whole pool instead of one per file; a missing pool is empty
+list_pool() {
+    [ -d "$1" ] || return 0
+    find -L "$1" -maxdepth 1 -type f \
+        \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) -exec realpath {} + | sort
+}
+
+choose() {
+    saved="$(choice_file "$1")"
+    pick=""
+    if [ ! -e "$shuffle_flag" ] && { read -r pick <"$saved"; } 2>/dev/null && [ -f "$pick" ]; then
+        printf '%s\n' "$pick"
+        return
+    fi
+    pool="$(list_pool "$1")"
+    [ -n "$pool" ] || return 1
+    pick="$(printf '%s\n' "$pool" | grep -vxF -e "$2" | sort -R | head -n 1)"
+    # only the current one is left
+    pick="${pick:-$pool}"
+    if [ ! -e "$shuffle_flag" ]; then
+        mkdir -p "$choices"
+        printf '%s\n' "$pick" >"$saved"
+    fi
+    printf '%s\n' "$pick"
+}
+
+# nixos session defaults; rotation (apply from the daemon or theme-switch) uses rotate.conf's AWWW_TRANSITION*
+grow() {
+    export AWWW_TRANSITION=grow AWWW_TRANSITION_POS=0.5,0.5 AWWW_TRANSITION_FPS=60 AWWW_TRANSITION_DURATION=0.6
+}
+
+focused() {
+    if [ "$1" = focused ]; then
+        niri msg -j focused-output 2>/dev/null | jq -r '.name // empty'
+    else
+        printf '%s\n' "$1"
+    fi
+}
+
+apply() {
+    cur_theme
+    q="$(awww query)" || return 1
+    outputs=0
+    while IFS= read -r line; do
+        out="${line#: }"
+        out="${out%%:*}"
+        [ -n "$out" ] || continue
+        outputs=$((outputs + 1))
+        current="${line##*image: }"
+        dir="$(dir_for)"
+        # freebsd: an empty pool is normal (themes without wallpapers yet), so keep the current one and succeed
+        if ! img="$(choose "$dir" "$current")"; then
+            echo "wallpaper: no images in $dir for $out, skipping" >&2
+            continue
+        fi
+        [ "$img" = "$current" ] && continue
+        awww img -o "$out" "$img"
+    done <<EOF
+$q
+EOF
+    [ "$outputs" -gt 0 ] || { echo "wallpaper: awww-daemon reports no outputs" >&2; return 1; }
+}
+
+interval() {
+    secs=""
+    { read -r secs <"$interval_file"; } 2>/dev/null
+    case $secs in '' | 0* | *[!0-9]*) secs="${INTERVAL:-900}" ;; esac
+    printf '%s\n' "$secs"
+}
+
+case "${1:-}" in
+apply) apply ;;
+pick)
+    [ "$#" -ge 2 ] || usage
+    img="$(realpath "$2")" || exit 1
+    out="$(focused "${3:-focused}")"
+    [ -n "$out" ] || { echo "wallpaper: no output given" >&2; exit 2; }
+    mkdir -p "$choices"
+    printf '%s\n' "$img" >"$(choice_file "$(dir_for)")"
+    grow
+    awww img -o "$out" "$img"
+    ;;
+list)
+    # theme, 1 if it is the remembered pick, path
+    # freebsd: the output only chose a per-output pool, so it is not resolved
+    [ "$#" -ge 2 ] || usage
+    shift 2
+    for theme in "$@"; do
+        dir="$(dir_for)"
+        saved=""
+        { read -r saved <"$(choice_file "$dir")"; } 2>/dev/null
+        list_pool "$dir" | while IFS= read -r f; do
+            if [ "$f" = "$saved" ]; then m=1; else m=0; fi
+            printf '%s\t%s\t%s\n' "$theme" "$m" "$f"
+        done
+    done
+    ;;
+shuffle)
+    case "${2:-on}" in
+    on) mkdir -p "${shuffle_flag%/*}" && touch "$shuffle_flag" && grow && apply ;;
+    status) if [ -e "$shuffle_flag" ]; then echo on; else echo off; fi ;;
+    off) rm -f "$shuffle_flag" ;;
+    *) usage ;;
+    esac
+    ;;
+interval)
+    # freebsd: a state file the daemon rereads every tick, instead of a timer drop-in
+    if [ "$#" -lt 2 ]; then
+        interval
+        exit
+    fi
+    # leading zeros would read as octal in $(( ))
+    case "$2" in '' | 0* | *[!0-9]*) usage ;; esac
+    mkdir -p "${interval_file%/*}"
+    printf '%s\n' "$2" >"$interval_file"
+    ;;
+daemon)
+    # freebsd: stands in for awww-wallpaper.service (login) and awww-rotate.timer; single instance via a lock on fd 9
+    mkdir -p "$state/wallpaper"
+    exec 9>"$state/wallpaper/daemon.lock"
+    # an old session's daemon notices its awww-daemon is gone within one tick
+    lockf -s -t 60 9 || exit 0
+    tries=0
+    until awww query >/dev/null 2>&1; do
+        tries=$((tries + 1))
+        [ "$tries" -le 30 ] || { echo "wallpaper: awww-daemon did not come up within 30s" >&2; exit 1; }
+        sleep 1
+    done
+    apply
+    # retry for late monitors
+    sleep 3
+    apply
+    last="$(date +%s)"
+    # ponytail: 30 s tick, so intervals below 30 s round up to it
+    while sleep 30; do
+        # awww-daemon is gone: the session ended (restarting it by hand also ends rotation; respawn with "wallpaper daemon")
+        awww query >/dev/null 2>&1 || exit 0
+        now="$(date +%s)"
+        [ $((now - last)) -ge "$(interval)" ] || continue
+        apply
+        last="$now"
+    done
+    ;;
+*) usage ;;
+esac

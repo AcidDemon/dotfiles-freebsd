@@ -1,0 +1,21 @@
+{{- /* shell colours of the active theme, like modules/cli/lscolors and modules/cli/fzf; sourced by ~/.zshrc, new shells only */ -}}
+{{- $t := includeTemplate "theme" . | fromJson -}}
+{{- $c := $t.colors -}}
+{{- $shipped := dict
+  "catppuccin-frappe" "catppuccin-frappe"
+  "catppuccin-latte" "catppuccin-latte"
+  "catppuccin-macchiato" "catppuccin-macchiato"
+  "catppuccin-mocha" "catppuccin-mocha"
+  "dracula" "dracula"
+  "gruvbox-dark" "gruvbox-dark"
+  "nord" "nord"
+  "one-dark" "one-dark"
+  "rose-pine" "rose-pine"
+  "solarized-dark" "solarized-dark"
+  "tokyo-night" "tokyonight-night" -}}
+{{- /* env -C /: vivid tries a bare theme name as a path in $PWD first, and the wallpaper pools are dirs named after themes; not cd, which fires zoxide's chpwd hook */ -}}
+export LS_COLORS="$(env -C / vivid generate {{ get $shipped $t.id | default "\"$HOME/.config/vivid/themes/nixfiles.yml\"" }})"
+__di=":$LS_COLORS"; __di="${__di#*:di=}"
+export EZA_COLORS="mp=${__di%%:*};4"
+unset __di
+export FZF_DEFAULT_OPTS="--color bg:-1,bg+:-1,fg:{{ $c.base05 }},fg+:{{ $c.base0D }},pointer:{{ $c.base0D }},prompt:{{ $c.base03 }}"

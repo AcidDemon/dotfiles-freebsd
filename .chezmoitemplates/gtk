@@ -1,0 +1,53 @@
+{{- /* gtk widget and icon theme for a theme, like modules/theming/gtk: {"theme","icons"} as json. dot = dict "t" (the "theme" partial's object) "home" .chezmoi.homeDir */ -}}
+{{- /* freebsd: each theme lists nixfiles' name, then the freebsd pkg's (nordic-theme, ant-dracula-theme, catppuccin-gtk-theme, papirus-icon-theme). the first one installed wins, else the tracked catppuccin mocha / adwaita and colloid-catppuccin by polarity */ -}}
+{{- /* ponytail: adw-gtk3 is not packaged, so nixfiles' palette gtk.css for its four themes is not ported; add it beside the theme here once adw-gtk3 is installed */ -}}
+{{- $gtk := dict
+  "catppuccin-frappe" (list "catppuccin-frappe-blue-compact+rimless,normal" "Catppuccin-Frappe-Blue-Dark-Compact")
+  "catppuccin-latte" (list "catppuccin-latte-blue-compact+rimless,normal" "Catppuccin-Blue-Light-Compact")
+  "catppuccin-macchiato" (list "catppuccin-macchiato-blue-compact+rimless,normal" "Catppuccin-Macchiato-Blue-Dark-Compact")
+  "catppuccin-mocha" (list "catppuccin-mocha-blue-compact+rimless,normal")
+  "dracula" (list "Dracula" "Ant-Dracula")
+  "everforest-dark" (list "Everforest-Dark")
+  "gruvbox-dark" (list "Gruvbox-Dark")
+  "kanagawa" (list "adw-gtk3-dark")
+  "nord" (list "Nordic")
+  "one-dark" (list "adw-gtk3-dark")
+  "rose-pine" (list "adw-gtk3-dark")
+  "solarized-dark" (list "adw-gtk3-dark")
+  "tokyo-night" (list "Tokyonight-Dark")
+  "work-dark" (list "WhiteSur-Dark")
+  "work-light" (list "WhiteSur-Light") -}}
+{{- $icons := dict
+  "catppuccin-frappe" (list "Colloid-Catppuccin-Dark")
+  "catppuccin-latte" (list "Colloid-Catppuccin-Light")
+  "catppuccin-macchiato" (list "Colloid-Catppuccin-Dark")
+  "catppuccin-mocha" (list "Colloid-Catppuccin-Dark")
+  "dracula" (list "Dracula")
+  "everforest-dark" (list "Colloid-Everforest-Dark")
+  "gruvbox-dark" (list "Colloid-Gruvbox-Dark")
+  "kanagawa" (list "Dracula")
+  "nord" (list "Papirus-Dark")
+  "one-dark" (list "Fluent-dark")
+  "rose-pine" (list "Papirus-Dark")
+  "solarized-dark" (list "Colloid-Dark")
+  "tokyo-night" (list "Colloid-Dark")
+  "work-dark" (list "WhiteSur-dark")
+  "work-light" (list "WhiteSur-light") -}}
+{{- $light := eq .t.polarity "light" -}}
+{{- $theme := ternary "Adwaita" "catppuccin-mocha-blue-compact+rimless,normal" $light -}}
+{{- $icon := ternary "Colloid-Catppuccin-Light" "Colloid-Catppuccin-Dark" $light -}}
+{{- $found := false -}}
+{{- range get $gtk .t.id -}}
+{{-   $n := . -}}
+{{-   range list (joinPath $.home ".local/share/themes") (joinPath $.home ".themes") "/usr/local/share/themes" -}}
+{{-     if and (not $found) (stat (joinPath . $n)) }}{{ $theme = $n }}{{ $found = true }}{{ end -}}
+{{-   end -}}
+{{- end -}}
+{{- $found = false -}}
+{{- range get $icons .t.id -}}
+{{-   $n := . -}}
+{{-   range list (joinPath $.home ".local/share/icons") (joinPath $.home ".icons") "/usr/local/share/icons" -}}
+{{-     if and (not $found) (stat (joinPath . $n)) }}{{ $icon = $n }}{{ $found = true }}{{ end -}}
+{{-   end -}}
+{{- end -}}
+{{- dict "theme" $theme "icons" $icon | toJson -}}

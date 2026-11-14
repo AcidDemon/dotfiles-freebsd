@@ -1,0 +1,48 @@
+{{- /* colours from the active theme, like modules/apps/zathura; read on zathura start */ -}}
+{{- $c := (includeTemplate "theme" . | fromJson).colors -}}
+map D set "first-page-column 1:1"
+map [fullscreen] a adjust_window best-fit
+
+set completion-bg	"{{ $c.base02 }}"
+set completion-fg	"{{ $c.base05 }}"
+set completion-group-bg	"{{ $c.base02 }}"
+set completion-group-fg	"{{ $c.base05 }}"
+set completion-highlight-bg	"{{ $c.base02 }}"
+set completion-highlight-fg	"{{ $c.base05 }}"
+set default-bg	"{{ $c.base00 }}"
+set default-fg	"{{ $c.base05 }}"
+set font	"Lexend 14"
+set highlight-active-color	"{{ $c.base0F }}"
+set highlight-color	"{{ $c.base02 }}"
+set highlight-fg	"{{ $c.base0F }}"
+set index-active-bg	"{{ $c.base02 }}"
+set index-active-fg	"{{ $c.base05 }}"
+set index-bg	"{{ $c.base00 }}"
+set index-fg	"{{ $c.base05 }}"
+set inputbar-bg	"{{ $c.base02 }}"
+set inputbar-fg	"{{ $c.base05 }}"
+set notification-bg	"{{ $c.base02 }}"
+set notification-error-bg	"{{ $c.base02 }}"
+set notification-error-fg	"{{ $c.base08 }}"
+set notification-fg	"{{ $c.base05 }}"
+set notification-warning-bg	"{{ $c.base02 }}"
+set notification-warning-fg	"{{ $c.base0A }}"
+set recolor	"true"
+set recolor-darkcolor	"{{ $c.base05 }}"
+set recolor-lightcolor	"{{ $c.base00 }}"
+set render-loading-bg	"{{ $c.base00 }}"
+set render-loading-fg	"{{ $c.base05 }}"
+set selection-clipboard	"clipboard"
+set statusbar-bg	"{{ $c.base01 }}"
+set statusbar-fg	"{{ $c.base05 }}"
+map <Tab>   toggle_index
+map [fullscreen] f   toggle_fullscreen
+map [fullscreen] h   navigate previous
+map [fullscreen] j   scroll down
+map [fullscreen] k   scroll up
+map [fullscreen] l   navigate next
+map [fullscreen] s   adjust_window width
+map b   toggle_statusbar
+map f   toggle_fullscreen
+map r   recolor
+

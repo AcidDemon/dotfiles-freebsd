@@ -1,0 +1,42 @@
+{{- /* colours from the active theme, like modules/cli/cava; read on cava start */ -}}
+{{- $p := includeTemplate "theme" . | fromJson | includeTemplate "palette" | fromJson -}}
+[color]
+background='{{ $p.base }}'
+foreground='{{ $p.blue }}'
+gradient=1
+gradient_color_1='{{ $p.teal }}'
+gradient_color_2='{{ $p.sky }}'
+gradient_color_3='{{ $p.sapphire }}'
+gradient_color_4='{{ $p.blue }}'
+gradient_color_5='{{ $p.mauve }}'
+gradient_color_6='{{ $p.pink }}'
+gradient_color_7='{{ $p.flamingo }}'
+gradient_color_8='{{ $p.red }}'
+gradient_count=8
+
+[general]
+bar_spacing=1
+bar_width=2
+bars=0
+framerate=60
+higher_cutoff_freq=10000
+lower_cutoff_freq=50
+mode=normal
+sleep_timer=0
+
+[input]
+method=sndio
+source=default
+
+[output]
+alacritty_sync=0
+channels=stereo
+method=ncurses
+
+[smoothing]
+gravity=100
+integral=77
+monstercat=1
+noise_reduction=0.770000
+waves=0
+

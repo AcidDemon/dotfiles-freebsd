@@ -1,0 +1,30 @@
+{{- /* colours from the active theme, like modules/cli/lazygit; read on lazygit start */ -}}
+{{- $c := (includeTemplate "theme" . | fromJson).colors -}}
+authorColors:
+  '*': '{{ $c.base07 }}'
+gui:
+  theme:
+    activeBorderColor:
+    - '{{ $c.base0D }}'
+    - bold
+    cherryPickedCommitBgColor:
+    - '{{ $c.base03 }}'
+    cherryPickedCommitFgColor:
+    - '{{ $c.base0D }}'
+    defaultFgColor:
+    - '{{ $c.base05 }}'
+    inactiveBorderColor:
+    - '{{ $c.base05 }}'
+    inactiveViewSelectedLineBgColor:
+    - '{{ $c.base02 }}'
+    lightTheme: false
+    optionsTextColor:
+    - '{{ $c.base0D }}'
+    searchingActiveBorderColor:
+    - '{{ $c.base0A }}'
+    selectedLineBgColor:
+    - '{{ $c.base02 }}'
+    selectedRangeBgColor:
+    - '{{ $c.base02 }}'
+    unstagedChangesColor:
+    - '{{ $c.base08 }}'

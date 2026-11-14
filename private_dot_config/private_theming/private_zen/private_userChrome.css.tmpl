@@ -1,0 +1,5 @@
+{{- /* .userChrome.css (nixfiles modules/apps/zen-browser/assets, verbatim) with @role@ swapped for the active theme, like replaceVars there. freebsd: zen's profile sits in a root-owned jail, so theme-switch hands these to zen-theme-sync */ -}}
+{{- $p := includeTemplate "theme" . | fromJson | includeTemplate "palette" | fromJson -}}
+{{- $s := include "private_dot_config/private_theming/private_zen/.userChrome.css" -}}
+{{- range $k, $v := $p }}{{ $s = $s | replace (printf "@%s@" $k) $v }}{{ end -}}
+{{- $s -}}

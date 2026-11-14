@@ -1,0 +1,4 @@
+{{- /* zen prefs that follow the theme, from modules/apps/zen-browser; the stylesheet pref makes zen load userChrome/userContent */ -}}
+{{- $t := includeTemplate "theme" . | fromJson -}}
+user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+user_pref("zen.view.window.scheme", {{ ternary 1 0 (eq $t.polarity "light") }});

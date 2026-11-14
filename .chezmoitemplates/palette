@@ -1,0 +1,32 @@
+{{- /* catppuccin role names of a theme, like modules/theming/palette. dot = the "theme" partial's object: includeTemplate "theme" . | fromJson | includeTemplate "palette" | fromJson */ -}}
+{{- $c := .colors -}}
+{{- dict
+  "rosewater" $c.rosewater
+  "flamingo" $c.flamingo
+  "pink" $c.pink
+  "mauve" $c.base0E
+  "red" $c.base08
+  "maroon" $c.maroon
+  "peach" $c.base09
+  "yellow" $c.base0A
+  "green" $c.base0B
+  "teal" $c.base0C
+  "sky" $c.sky
+  "sapphire" $c.sapphire
+  "blue" $c.base0D
+  "lavender" $c.base07
+  "text" $c.base05
+  "subtext1" $c.subtext1
+  "subtext0" $c.subtext0
+  "overlay2" $c.overlay2
+  "overlay1" $c.overlay1
+  "overlay0" $c.overlay0
+  "surface2" $c.base04
+  "surface1" $c.base03
+  "surface0" $c.base02
+  "base" $c.base00
+  "mantle" $c.mantle
+  "crust" $c.crust
+  "borderFrom" (index .border 0)
+  "borderTo" (index .border 1)
+  | toJson -}}

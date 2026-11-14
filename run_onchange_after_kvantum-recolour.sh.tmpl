@@ -1,0 +1,52 @@
+#!/bin/sh
+# Build a Kvantum theme nixfiles-<id> for every theme, as modules/theming/qt does
+# on NixOS: catppuccin's Kvantum theme (Latte for light themes, Mocha for dark)
+# recoloured role by role by recolour.py. kvantum.kvconfig picks the active one.
+# Mocha itself uses the tracked catppuccin-mocha-blue, which is what recolouring
+# it would give. Both sources are catppuccin/Kvantum@71105d22.
+#
+# run_onchange_: the hashes below change only when an input does.
+#
+# On a fresh machine python3 only arrives with run_after_setup-niri-session.sh,
+# which sorts after this script, so a missing python3 skips instead of stopping
+# chezmoi before that install. The python3 line changes once it exists, which
+# reruns this.
+#
+# python3      {{ lookPath "python3" | default "missing" }}
+# recolour.py  {{ include "private_dot_config/private_Kvantum/.recolour.py" | sha256sum }}
+# themes.json  {{ include "private_dot_config/private_theming/private_themes.json" | sha256sum }}
+# mocha svg    {{ include "private_dot_config/private_Kvantum/private_catppuccin-mocha-blue/readonly_catppuccin-mocha-blue.svg" | sha256sum }}
+# mocha conf   {{ include "private_dot_config/private_Kvantum/private_catppuccin-mocha-blue/readonly_catppuccin-mocha-blue.kvconfig" | sha256sum }}
+# latte svg    {{ include "private_dot_config/private_Kvantum/private_catppuccin-latte-blue/readonly_catppuccin-latte-blue.svg" | sha256sum }}
+# latte conf   {{ include "private_dot_config/private_Kvantum/private_catppuccin-latte-blue/readonly_catppuccin-latte-blue.kvconfig" | sha256sum }}
+
+set -e
+
+command -v python3 >/dev/null || {
+    echo "kvantum-recolour: python3 missing, skipped; the next apply after pkg install python3 builds the themes" >&2
+    exit 0
+}
+
+KV="$HOME/.config/Kvantum"
+PY="{{ .chezmoi.sourceDir }}/private_dot_config/private_Kvantum/.recolour.py"
+SPEC=$(mktemp -t kvantum-recolour)
+trap 'rm -f "$SPEC"' EXIT
+
+# $1 name, $2 source theme dir, $3 recolour spec (json)
+recolour() {
+    rm -rf "${KV:?}/$1"
+    printf '%s' "$3" > "$SPEC"
+    python3 -I "$PY" "$KV/$2" "$SPEC" "$KV" "$1"
+}
+{{/* catppuccin role -> themes.json colour, modules/theming/colorscheme/catppuccin-roles.nix */}}
+{{- $roles := dict "rosewater" "rosewater" "flamingo" "flamingo" "pink" "pink" "mauve" "base0E" "red" "base08" "maroon" "maroon" "peach" "base09" "yellow" "base0A" "green" "base0B" "teal" "base0C" "sky" "sky" "sapphire" "sapphire" "blue" "base0D" "lavender" "base07" "text" "base05" "subtext1" "subtext1" "subtext0" "subtext0" "overlay2" "overlay2" "overlay1" "overlay1" "overlay0" "overlay0" "surface2" "base04" "surface1" "base03" "surface0" "base02" "base" "base00" "mantle" "mantle" "crust" "crust" -}}
+{{- $themes := include "private_dot_config/private_theming/private_themes.json" | fromJson -}}
+{{- range $id, $t := $themes }}{{ if ne $id "catppuccin-mocha" }}
+{{- $flavour := ternary "latte" "mocha" (eq $t.polarity "light") -}}
+{{- $src := index $themes (printf "catppuccin-%s" $flavour) -}}
+{{- $map := dict -}}
+{{- /* source hex -> theme hex; a hex two roles share keeps the first role's, like listToAttrs */ -}}
+{{- range $role, $key := $roles }}{{ $from := index $src.colors $key | trimPrefix "#" }}{{ if not (hasKey $map $from) }}{{ $_ := set $map $from (index $t.colors $key | trimPrefix "#") }}{{ end }}{{ end }}
+recolour nixfiles-{{ $id }} catppuccin-{{ $flavour }}-blue '{{ dict "map" $map "srcBlue" ($src.colors.base0D | trimPrefix "#") "dstBlue" ($t.colors.base0D | trimPrefix "#") | toJson }}'
+{{- end }}{{ end }}
+echo "kvantum-recolour: themes written to $KV"

@@ -1,0 +1,78 @@
+{{- /* colours from the active theme, like modules/mail/neomutt; read on neomutt start */ -}}
+{{- $p := includeTemplate "theme" . | fromJson | includeTemplate "palette" | fromJson -}}
+set color_directcolor=yes
+
+# General
+color normal           {{ $p.text }} {{ $p.base }}
+color error            {{ $p.red }} {{ $p.base }}
+color markers          {{ $p.surface2 }} {{ $p.base }}
+color tilde            {{ $p.surface2 }} {{ $p.base }}
+color search           {{ $p.base }} {{ $p.yellow }}
+
+# Status / help bar
+color status           {{ $p.subtext0 }} {{ $p.surface0 }}
+color indicator        {{ $p.text }} {{ $p.surface2 }}
+
+# Index - per-field colors (author, date, subject get distinct accents)
+color index            {{ $p.text }} {{ $p.base }} ~A
+color index            {{ $p.green }} {{ $p.base }} ~N
+color index            {{ $p.red }} {{ $p.base }} ~F
+color index            {{ $p.pink }} {{ $p.base }} ~T
+color index            {{ $p.red }} {{ $p.base }} ~D
+color index_author     {{ $p.blue }} {{ $p.base }} ~A
+color index_author     {{ $p.green }} {{ $p.base }} ~N
+color index_author     {{ $p.red }} {{ $p.base }} ~D
+color index_date       {{ $p.mauve }} {{ $p.base }}
+color index_date       {{ $p.red }} {{ $p.base }} ~D
+color index_subject    {{ $p.text }} {{ $p.base }} ~A
+color index_subject    {{ $p.green }} {{ $p.base }} ~N
+color index_subject    {{ $p.red }} {{ $p.base }} ~F
+color index_subject    {{ $p.red }} {{ $p.base }} ~D
+color index_flags      {{ $p.yellow }} {{ $p.base }} ~A
+color index_flags      {{ $p.green }} {{ $p.base }} ~N
+color index_flags      {{ $p.red }} {{ $p.base }} ~D
+color index_size       {{ $p.overlay1 }} {{ $p.base }}
+color index_size       {{ $p.red }} {{ $p.base }} ~D
+color index_number     {{ $p.overlay0 }} {{ $p.base }}
+color index_number     {{ $p.red }} {{ $p.base }} ~D
+color index_collapsed  {{ $p.mauve }} {{ $p.base }}
+color index_label      {{ $p.teal }} {{ $p.base }}
+color index_tags       {{ $p.peach }} {{ $p.base }}
+color tree             {{ $p.blue }} {{ $p.base }}
+
+# Attachment
+color attachment       {{ $p.mauve }} {{ $p.base }}
+color signature        {{ $p.surface2 }} {{ $p.base }}
+
+# Headers (pager view)
+color hdrdefault       {{ $p.overlay1 }} {{ $p.base }}
+color header           {{ $p.blue }} {{ $p.base }} "^From:"
+color header           {{ $p.green }} {{ $p.base }} "^Subject:"
+color header           {{ $p.sapphire }} {{ $p.base }} "^To:"
+color header           {{ $p.sapphire }} {{ $p.base }} "^Cc:"
+color header           {{ $p.mauve }} {{ $p.base }} "^Date:"
+
+# Quoted text (pager)
+color quoted           {{ $p.lavender }} {{ $p.base }}
+color quoted1          {{ $p.mauve }} {{ $p.base }}
+color quoted2          {{ $p.pink }} {{ $p.base }}
+color quoted3          {{ $p.overlay2 }} {{ $p.base }}
+color quoted4          {{ $p.overlay1 }} {{ $p.base }}
+color quoted5          {{ $p.surface2 }} {{ $p.base }}
+
+# Body highlights
+color body             {{ $p.green }} {{ $p.base }} "[\-\.+_a-zA-Z0-9]+@[\-\.a-zA-Z0-9]+"
+color body             {{ $p.teal }} {{ $p.base }} "(https?|ftp)://[\-\.,/%~_:?&=\#a-zA-Z0-9]+"
+color body             {{ $p.peach }} {{ $p.base }} "(^|[[:space:]])\\*[^[:space:]]+\\*([[:space:]]|$)"
+color body             {{ $p.peach }} {{ $p.base }} "(^|[[:space:]])_[^[:space:]]+_([[:space:]]|$)"
+color body             {{ $p.peach }} {{ $p.base }} "(^|[[:space:]])/[^[:space:]]+/([[:space:]]|$)"
+
+# Sidebar
+color sidebar_flagged   {{ $p.red }} {{ $p.base }}
+color sidebar_new       {{ $p.green }} {{ $p.base }}
+color sidebar_ordinary  {{ $p.text }} {{ $p.base }}
+color sidebar_divider   {{ $p.surface2 }} {{ $p.base }}
+color sidebar_highlight {{ $p.text }} {{ $p.surface2 }}
+color sidebar_indicator {{ $p.base }} {{ $p.mauve }}
+color sidebar_spoolfile {{ $p.peach }} {{ $p.base }}
+color sidebar_unread    {{ $p.lavender }} {{ $p.base }}

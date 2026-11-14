@@ -1,0 +1,23 @@
+#!/bin/sh
+# zen-theme-sync: copy ~acid/.config/theming/zen (userChrome, userContent, user.js
+# rendered by theme-switch) into every zen profile in the zen jail. run as root:
+#   doas zen-theme-sync
+# installed by hand to /usr/local/sbin (root-owned); this repo copy is not deployed.
+# the copy runs inside the jail as acid, so a link planted in the profile cannot
+# reach the host. zen picks it up on its next start.
+set -eu
+SRC=/home/acid/.config/theming/zen
+[ -f "$SRC/userChrome.css" ] || exit 0
+tar -cf - -C "$SRC" userChrome.css userContent.css user.js | jexec -l -u acid zen /bin/sh -c '
+set -eu
+t=$(mktemp -d)
+trap "rm -rf \"$t\"" EXIT
+tar -xf - -C "$t"
+for p in "$HOME"/.zen/*/ "$HOME"/.config/zen/*/; do
+	[ -f "${p}prefs.js" ] || continue
+	mkdir -p "${p}chrome"
+	cp "$t/userChrome.css" "$t/userContent.css" "${p}chrome/"
+	{ grep -v -e "toolkit.legacyUserProfileCustomizations.stylesheets" -e "zen.view.window.scheme" "${p}user.js" 2>/dev/null || :; cat "$t/user.js"; } > "$t/user.js.new"
+	cp "$t/user.js.new" "${p}user.js"
+done
+'

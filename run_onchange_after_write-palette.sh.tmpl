@@ -1,0 +1,35 @@
+#!/bin/sh
+# Write ~/.local/state/theming/palette.json for the active theme, as nixfiles'
+# home.activation.writePalette does on every activation. quickshell reads it.
+# theme-switch writes it too; this covers the first apply (no state yet, so the
+# shell would watch a directory that does not exist) and colour edits in
+# themes.json.
+#
+# run_onchange_: the lines below change when themes.json does, when the file is
+# missing, and once jq exists (it arrives with run_after_setup-niri-session.sh,
+# which sorts before this script).
+#
+# themes.json  {{ include "private_dot_config/private_theming/private_themes.json" | sha256sum }}
+# palette.json {{ if stat (joinPath .chezmoi.homeDir ".local/state/theming/palette.json") }}present{{ else }}missing{{ end }}
+# jq           {{ lookPath "jq" | default "missing" }}
+
+set -eu
+
+themes="{{ .chezmoi.sourceDir }}/private_dot_config/private_theming/private_themes.json"
+state="$HOME/.local/state/theming"
+
+command -v jq >/dev/null || {
+    echo "write-palette: jq missing, skipped; the next apply after pkg install jq writes it" >&2
+    exit 0
+}
+
+# the same id the templates rendered with: current, else catppuccin-mocha
+id=
+{ read -r id <"$state/current"; } 2>/dev/null || true
+jq -e --arg id "$id" 'has($id)' "$themes" >/dev/null || id=catppuccin-mocha
+
+# same jq and tmp+mv as theme-switch: a kqueue directory watch only sees renames
+mkdir -p "$state"
+jq -cS --arg id "$id" '.[$id] | .colors + {scheme, polarity, muted}' "$themes" >"$state/palette.json.tmp"
+mv -f "$state/palette.json.tmp" "$state/palette.json"
+echo "write-palette: $state/palette.json is $id"

@@ -1,0 +1,100 @@
+:root {
+  --zen-colors-primary: @surface0@ !important;
+  --zen-primary-color: @blue@ !important;
+  --zen-colors-secondary: @surface0@ !important;
+  --zen-colors-tertiary: @mantle@ !important;
+  --zen-colors-border: @blue@ !important;
+  --toolbarbutton-icon-fill: @blue@ !important;
+  --lwt-text-color: @text@ !important;
+  --toolbar-field-color: @text@ !important;
+  --tab-selected-textcolor: @text@ !important;
+  --toolbar-field-focus-color: @text@ !important;
+  --toolbar-color: @text@ !important;
+  --newtab-text-primary-color: @text@ !important;
+  --arrowpanel-color: @text@ !important;
+  --arrowpanel-background: @base@ !important;
+  --sidebar-text-color: @text@ !important;
+  --lwt-sidebar-text-color: @text@ !important;
+  --lwt-sidebar-background-color: @base@ !important;
+  --toolbar-bgcolor: @surface0@ !important;
+  --newtab-background-color: @base@ !important;
+  --zen-themed-toolbar-bg: @base@ !important;
+  --zen-main-browser-background: @base@ !important;
+  --toolbox-bgcolor-inactive: @mantle@ !important;
+  --zen-themed-toolbar-bg-transparent: @mantle@ !important;
+}
+
+zen-workspace {
+  --toolbox-textcolor: @text@ !important;
+}
+
+#permissions-granted-icon {
+  color: @text@ !important;
+}
+
+#historySwipeAnimationPreviousArrow,
+#historySwipeAnimationNextArrow {
+  --swipe-nav-icon-primary-color: @blue@ !important;
+  --swipe-nav-icon-accent-color: @base@ !important;
+}
+
+#sidebar-box,
+.sidebar-placesTree,
+#zen-workspaces-button,
+#commonDialog {
+  background-color: @base@ !important;
+}
+
+.urlbar-background {
+  background-color: @surface0@ !important;
+}
+
+.content-shortcuts {
+  background-color: @base@ !important;
+  border-color: @blue@ !important;
+}
+
+.urlbarView-url {
+  color: @blue@ !important;
+}
+
+#urlbar-input::selection {
+  background-color: @blue@ !important;
+  color: @base@ !important;
+}
+
+#zenEditBookmarkPanelFaviconContainer {
+  background-color: @base@ !important;
+}
+
+#zen-media-controls-toolbar #zen-media-progress-bar::-moz-range-track {
+  background-color: @surface0@ !important;
+}
+
+toolbar .toolbarbutton-1:not([disabled]):is([open], [checked])
+  > :is(.toolbarbutton-icon, .toolbarbutton-text, .toolbarbutton-badge-stack) {
+  fill: @base@;
+}
+
+.identity-color-blue { --identity-tab-color: @blue@ !important; --identity-icon-color: @blue@ !important; }
+.identity-color-turquoise { --identity-tab-color: @teal@ !important; --identity-icon-color: @teal@ !important; }
+.identity-color-green { --identity-tab-color: @green@ !important; --identity-icon-color: @green@ !important; }
+.identity-color-yellow { --identity-tab-color: @yellow@ !important; --identity-icon-color: @yellow@ !important; }
+.identity-color-orange { --identity-tab-color: @peach@ !important; --identity-icon-color: @peach@ !important; }
+.identity-color-red { --identity-tab-color: @red@ !important; --identity-icon-color: @red@ !important; }
+.identity-color-pink { --identity-tab-color: @mauve@ !important; --identity-icon-color: @mauve@ !important; }
+.identity-color-purple { --identity-tab-color: @flamingo@ !important; --identity-icon-color: @flamingo@ !important; }
+
+#zen-toolbar-background {
+  --zen-main-browser-background-toolbar: @base@ !important;
+}
+
+#zen-browser-background {
+  --zen-main-browser-background: @base@ !important;
+}
+
+menu,
+menuitem,
+menupopup {
+  color: @text@ !important;
+}

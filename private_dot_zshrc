@@ -120,7 +120,8 @@ if [[ -r /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
   source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh 
 fi
 
-export LS_COLORS="$(vivid generate catppuccin-mocha)"
+# LS_COLORS, EZA_COLORS and fzf colours of the active theme (theme-switch rewrites it)
+[ -f "$HOME/.config/shell/theme.sh" ] && source "$HOME/.config/shell/theme.sh"
 
 # security.bsd.unprivileged_proc_debug=0 blocks KERN_PROC_CWD, so tmux and kitty
 # cannot read a pane's cwd from the kernel. Reporting it over OSC 7 instead is

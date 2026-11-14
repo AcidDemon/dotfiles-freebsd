@@ -1,0 +1,87 @@
+{{- /* colours from the active theme, like modules/cli/khal; read on khal start */ -}}
+{{- $t := includeTemplate "theme" . | fromJson -}}
+{{- $p := includeTemplate "palette" $t | fromJson -}}
+[calendars]
+[[personal]]
+path = /home/acid/.local/state/calendars/personal/
+color = '{{ $p.blue }}'
+priority=10
+type=calendar
+
+
+
+[default]
+default_calendar=personal
+default_dayevent_duration=1d
+default_event_duration=1h
+enable_mouse=true
+highlight_event_days=true
+show_all_days=false
+
+[keybindings]
+delete=d
+down=j,down
+duplicate=p
+export=e
+left=h,left
+new=n
+quit=q,Q
+right=l,right
+search=/
+today=t
+up=k,up
+view=tab
+
+[locale]
+dateformat=%x
+datetimeformat=%c
+default_timezone=
+firstweekday=0
+local_timezone=
+longdateformat=%x
+longdatetimeformat=%c
+timeformat=%X
+unicode_symbols=true
+weeknumbers=off
+
+[palette]
+alert='', '', 'bold', '{{ $p.red }}', '{{ $p.base }}'
+alt header='', '', '', '{{ $p.lavender }}', '{{ $p.mantle }}'
+bright='', '', '', '{{ $p.text }}', '{{ $p.surface1 }}'
+button='', '', '', '{{ $p.blue }}', '{{ $p.surface1 }}'
+button focused='', '', '', '{{ $p.base }}', '{{ $p.blue }}'
+calendar='', '', '', '{{ $p.green }}', '{{ $p.base }}'
+calendar focus='', '', '', '{{ $p.base }}', '{{ $p.green }}'
+caption='', '', '', '{{ $p.subtext1 }}', '{{ $p.base }}'
+date header='', '', '', '{{ $p.mauve }}', '{{ $p.base }}'
+date header focused='', '', '', '{{ $p.base }}', '{{ $p.mauve }}'
+date header selected='', '', '', '{{ $p.base }}', '{{ $p.blue }}'
+dayname='', '', '', '{{ $p.lavender }}', '{{ $p.base }}'
+edit='', '', '', '{{ $p.text }}', '{{ $p.surface0 }}'
+edit focus='', '', '', '{{ $p.base }}', '{{ $p.mauve }}'
+editbx='', '', '', '{{ $p.text }}', '{{ $p.surface1 }}'
+editcp='', '', '', '{{ $p.blue }}', '{{ $p.surface2 }}'
+eventcolumn='', '', '', '{{ $p.text }}', '{{ $p.surface0 }}'
+eventcolumn focus='', '', '', '{{ $p.base }}', '{{ $p.teal }}'
+footer='', '', '', '{{ $p.text }}', '{{ $p.surface0 }}'
+frame='', '', '', '{{ $p.overlay1 }}', '{{ $p.base }}'
+frame focus='', '', '', '{{ $p.blue }}', '{{ $p.base }}'
+frame focus color='', '', '', '{{ $p.mauve }}', '{{ $p.surface0 }}'
+frame focus top='', '', '', '{{ $p.blue }}', '{{ $p.mantle }}'
+header='', '', '', '{{ $p.blue }}', '{{ $p.base }}'
+line header='', '', '', '{{ $p.mauve }}', '{{ $p.base }}'
+list='', '', '', '{{ $p.text }}', '{{ $p.base }}'
+list focused='', '', '', '{{ $p.base }}', '{{ $p.blue }}'
+mark='', '', '', '{{ $p.yellow }}', '{{ $p.base }}'
+monthname='', '', 'bold', '{{ $p.mauve }}', '{{ $p.base }}'
+popupbg='', '', '', '{{ $p.text }}', '{{ $p.surface0 }}'
+popupper='', '', '', '{{ $p.red }}', '{{ $p.surface0 }}'
+reveal focus='', '', '', '{{ $p.base }}', '{{ $p.green }}'
+today='', '', 'bold', '{{ $p.peach }}', '{{ $p.surface1 }}'
+today focus='', '', '', '{{ $p.base }}', '{{ $p.peach }}'
+weeknumber_right='', '', '', '{{ $p.overlay0 }}', '{{ $p.base }}'
+
+[view]
+bold_for_light_color=true
+dynamic_days=true
+theme={{ $t.polarity }}

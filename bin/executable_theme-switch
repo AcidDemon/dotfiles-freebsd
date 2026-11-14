@@ -1,0 +1,79 @@
+#!/bin/sh
+# theme-switch <id>: re-theme the desktop, like nixfiles modules/theming/colorscheme.
+# freebsd: no home-manager specialisations. every chezmoi template that includes
+# the "theme" partial is re-applied with THEME_ID=<id>, then the state files
+# quickshell and nvim watch are written and running apps are told to reload.
+# runs detached from quickshell: no tty, so PATH is set here. ~/.local/bin has
+# awww (run_once_after_build-awww.sh), which the closing "wallpaper apply" needs.
+set -u
+PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
+export PATH
+
+themes="$HOME/.config/theming/themes.json"
+state="$HOME/.local/state/theming"
+
+die() {
+	echo "theme-switch: $*" >&2
+	notify-send -a theme-switch "theme-switch" "$*" 2>/dev/null
+	exit 1
+}
+
+id="${1:?usage: theme-switch <$(jq -r 'keys | join("|")' "$themes")>}"
+jq -e --arg id "$id" 'has($id)' "$themes" >/dev/null || die "no such theme: $id"
+
+src=$(chezmoi source-path) || die "chezmoi source-path failed"
+# dot entries are never deployed (.chezmoitemplates holds the partial itself)
+files=$(find "$src"/* -name '.*' -prune -o -type f -name '*.tmpl' -exec grep -l 'includeTemplate "theme"' {} +)
+[ -n "$files" ] || die "no themed templates under $src"
+# ponytail: word-split lists, so a themed source or target path must not hold whitespace
+# shellcheck disable=SC2086
+targets=$(chezmoi target-path $files) || die "chezmoi target-path failed"
+# shellcheck disable=SC2086
+THEME_ID="$id" chezmoi apply --force --no-tty $targets || die "chezmoi apply failed for $id"
+
+# palette.json before current: nvim and quickshell react to either. rename, not
+# rewrite, because a kqueue directory watch only fires on a new or renamed entry
+mkdir -p "$state"
+jq -cS --arg id "$id" '.[$id] | .colors + {scheme, polarity, muted}' "$themes" > "$state/palette.json.tmp" \
+	&& mv -f "$state/palette.json.tmp" "$state/palette.json" || die "cannot write $state/palette.json"
+printf '%s\n' "$id" > "$state/current.tmp" && mv -f "$state/current.tmp" "$state/current" || die "cannot write $state/current"
+
+if tmux list-sessions >/dev/null 2>&1; then
+	tmux source-file "$HOME/.config/tmux/tmux.conf"
+fi
+pkill -USR1 -U "$(id -u)" -x kitty
+
+# gtk reads its theme from gsettings on wayland (home-manager sets these in dconf)
+gtk3="$HOME/.config/gtk-3.0/settings.ini"
+gt=$(sed -n 's/^gtk-theme-name=//p' "$gtk3")
+gi=$(sed -n 's/^gtk-icon-theme-name=//p' "$gtk3")
+if command -v gsettings >/dev/null; then
+	scheme=prefer-dark
+	[ "$(jq -r --arg id "$id" '.[$id].polarity' "$themes")" = light ] && scheme=default
+	gsettings set org.gnome.desktop.interface color-scheme "$scheme"
+	[ -n "$gt" ] && gsettings set org.gnome.desktop.interface gtk-theme "$gt"
+	[ -n "$gi" ] && gsettings set org.gnome.desktop.interface icon-theme "$gi"
+fi
+
+# gtk4 has no theme setting: link the widget theme's gtk-4.0 css, as home-manager
+# does. a theme without gtk-4.0 (nordic, adwaita) leaves libadwaita's own style
+g4="$HOME/.config/gtk-4.0"
+dir=
+for d in "$HOME/.local/share/themes" "$HOME/.themes" /usr/local/share/themes; do
+	if [ -n "$gt" ] && [ -d "$d/$gt/gtk-4.0" ]; then dir="$d/$gt/gtk-4.0"; break; fi
+done
+for f in assets gtk.css gtk-dark.css thumbnail.png; do
+	if [ -L "$g4/$f" ]; then rm -f "$g4/$f"; fi
+	if [ -n "$dir" ] && [ -e "$dir/$f" ] && [ ! -e "$g4/$f" ]; then ln -s "$dir/$f" "$g4/$f"; fi
+done
+
+# freebsd: zen's profile lives in a root-owned jail; the root side copies
+# ~/.config/theming/zen in. it applies on zen's next start, as on nixos
+if [ -x /usr/local/sbin/zen-theme-sync ]; then
+	doas -n /usr/local/sbin/zen-theme-sync
+fi
+
+if [ -x "$HOME/bin/wallpaper" ]; then
+	WALLPAPER_THEME="$id" "$HOME/bin/wallpaper" apply >/dev/null 2>&1 &
+fi
+exit 0

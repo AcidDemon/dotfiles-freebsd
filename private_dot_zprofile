@@ -31,7 +31,7 @@ gpgconf --launch gpg-agent 2>/dev/null
 
 # login.conf's default path ends with ~/bin but not ~/.local/bin, and .zshrc's
 # PATH handling only runs for interactive shells. Anything niri spawns
-# (awww-daemon, awww-random) is non-interactive, so add it here or those
+# (awww-daemon, wallpaper daemon) is non-interactive, so add it here or those
 # spawn-at-startup entries fail silently.
 case ":$PATH:" in
     *":$HOME/.local/bin:"*) ;;

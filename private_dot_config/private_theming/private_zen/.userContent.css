@@ -1,0 +1,66 @@
+@-moz-document url-prefix("about:") {
+  :root {
+    --in-content-page-color: @text@ !important;
+    --color-accent-primary: @blue@ !important;
+    --color-accent-primary-hover: @blue@ !important;
+    --color-accent-primary-active: @blue@ !important;
+    background-color: @base@ !important;
+    --in-content-page-background: @base@ !important;
+    --background-color-canvas: @base@ !important;
+  }
+
+  input {
+    background-color: @surface0@ !important;
+  }
+}
+
+@-moz-document url("about:newtab"), url("about:home") {
+  :root {
+    --newtab-background-color: @base@ !important;
+    --newtab-background-color-secondary: @surface0@ !important;
+    --newtab-element-hover-color: @surface0@ !important;
+    --newtab-text-primary-color: @text@ !important;
+    --newtab-wordmark-color: @text@ !important;
+    --newtab-primary-action-background: @blue@ !important;
+  }
+
+  .icon {
+    color: @blue@ !important;
+  }
+}
+
+@-moz-document url-prefix("about:preferences") {
+  :root {
+    --zen-colors-tertiary: @mantle@ !important;
+    --in-content-text-color: @text@ !important;
+    --link-color: @blue@ !important;
+    --link-color-hover: @blue@ !important;
+    --zen-colors-primary: @surface0@ !important;
+    --in-content-box-background: @surface0@ !important;
+    --zen-primary-color: @blue@ !important;
+  }
+
+  groupbox,
+  moz-card,
+  .main-content {
+    background-color: @base@ !important;
+  }
+
+  button,
+  groupbox menulist {
+    background-color: @surface0@ !important;
+    color: @text@ !important;
+  }
+}
+
+@-moz-document url-prefix("about:addons") {
+  :root {
+    --zen-dark-color-mix-base: @mantle@ !important;
+    --background-color-box: @base@ !important;
+  }
+}
+
+::selection {
+  background-color: @surface0@ !important;
+  color: @text@ !important;
+}

@@ -1,0 +1,5 @@
+{{- /* nixfiles-<id> is catppuccin's kvantum theme recoloured by run_onchange_after_kvantum-recolour.sh, like modules/theming/qt */ -}}
+{{- $t := includeTemplate "theme" . | fromJson -}}
+[General]
+{{- /* freebsd: mocha recoloured into mocha is the tracked source itself, so it is used as is */}}
+theme={{ if eq $t.id "catppuccin-mocha" }}catppuccin-mocha-blue{{ else }}nixfiles-{{ $t.id }}{{ end }}

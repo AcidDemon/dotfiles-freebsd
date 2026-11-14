@@ -1,0 +1,12 @@
+{{- /* widget theme, icons and prefer-dark from the active theme, like modules/theming/gtk; theme-switch also sets them in gsettings */ -}}
+{{- $t := includeTemplate "theme" . | fromJson -}}
+{{- $g := includeTemplate "gtk" (dict "t" $t "home" .chezmoi.homeDir) | fromJson -}}
+[Settings]
+gtk-application-prefer-dark-theme={{ ternary 0 1 (eq $t.polarity "light") }}
+gtk-button-images=1
+gtk-cursor-theme-name=capitaine-cursors-light
+gtk-cursor-theme-size=36
+gtk-font-name=sans-serif 11
+gtk-icon-theme-name={{ $g.icons }}
+gtk-menu-images=1
+gtk-theme-name={{ $g.theme }}

@@ -1,0 +1,27 @@
+{{- /* .config.jsonc is written in catppuccin mocha; swap each colour for the active theme's, like modules/cli/fastfetch. two passes, so no colour is replaced twice */ -}}
+{{- $p := includeTemplate "theme" . | fromJson | includeTemplate "palette" | fromJson -}}
+{{- $mocha := dict
+  "blue" "137;180;250"
+  "green" "166;227;161"
+  "lavender" "180;190;254"
+  "mauve" "203;166;247"
+  "overlay0" "108;112;134"
+  "peach" "250;179;135"
+  "red" "243;139;168"
+  "sky" "137;220;235"
+  "surface1" "69;71;90"
+  "teal" "148;226;213"
+  "text" "205;214;244"
+  "yellow" "249;226;175" -}}
+{{- $s := include "private_dot_config/private_fastfetch/.config.jsonc" -}}
+{{- range $n, $v := $mocha -}}
+{{-   $s = $s | replace (printf "38;2;%s" $v) (printf "38;2;@%s@" $n) -}}
+{{- /* freebsd: the zfs arc bar printf's its colours as bare "r;g;bm", its percentage as bare "r;g;b" */ -}}
+{{-   $s = $s | replace (printf "\\\"%sm\\\"" $v) (printf "\\\"@%s@m\\\"" $n) -}}
+{{-   $s = $s | replace (printf "\\\"%s\\\"" $v) (printf "\\\"@%s@\\\"" $n) -}}
+{{- end -}}
+{{- range $n, $v := $mocha -}}
+{{-   $h := index $p $n | trimPrefix "#" -}}
+{{-   $s = $s | replace (printf "@%s@" $n) (printf "%d;%d;%d" (int (printf "0x%s" (substr 0 2 $h))) (int (printf "0x%s" (substr 2 4 $h))) (int (printf "0x%s" (substr 4 6 $h)))) -}}
+{{- end -}}
+{{- $s -}}

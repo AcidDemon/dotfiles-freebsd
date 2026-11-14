@@ -1,0 +1,6 @@
+{{- /* icons follow the gtk icon theme, like modules/theming/qt */ -}}
+{{- $t := includeTemplate "theme" . | fromJson -}}
+{{- $g := includeTemplate "gtk" (dict "t" $t "home" .chezmoi.homeDir) | fromJson -}}
+[Appearance]
+style=kvantum
+icon_theme={{ $g.icons }}
