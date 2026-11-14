@@ -130,6 +130,7 @@ out of escalation entirely. Check with `doas doas -C /usr/local/etc/doas.conf`.
 | `run_after_setup-niri-session.sh` | system-side setup, every apply |
 | `run_once_after_build-awww.sh` | builds the awww wallpaper daemon (not in ports) |
 | `run_once_after_install-themes.sh` | Colloid icons + WhiteSur cursors (583M, built not tracked) |
+| `run_onchange_after_install-crontab.sh` | the whole user crontab (qutebrowser adblock refresh); `crontab -e` edits get overwritten |
 | `private_dot_config/private_niri/` | compositor config |
 | `private_dot_zprofile`, `private_dot_profile` | the `XDG_RUNTIME_DIR` fix |
 | `private_dot_local/private_share/private_tools/` | the twelve self-written CLI tools, one directory each |

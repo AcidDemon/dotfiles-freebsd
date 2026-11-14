@@ -1,0 +1,11 @@
+{{- /* active theme as json: the themes.json entry plus its id. THEME_ID, else ~/.local/state/theming/current, else catppuccin-mocha; unknown ids fall back too */ -}}
+{{- $themes := include "private_dot_config/private_theming/private_themes.json" | fromJson -}}
+{{- $id := env "THEME_ID" -}}
+{{- $current := joinPath .chezmoi.homeDir ".local/state/theming/current" -}}
+{{- if and (not $id) (stat $current) -}}
+{{-   $id = include $current | splitList "\n" | first | trim -}}
+{{- end -}}
+{{- if not (hasKey $themes $id) -}}
+{{-   $id = "catppuccin-mocha" -}}
+{{- end -}}
+{{- merge (dict "id" $id) (index $themes $id) | toJson -}}

@@ -2,12 +2,9 @@
 #  1. Core Setup & Theme Initialization
 # =========================================================================================
 
+import os
+
 import catppuccin
-
-## Load settings configured via GUI (False to ignore GUI changes and force config.py settings)
-config.load_autoconfig(False)
-
-catppuccin.setup(c, "mocha", True)
 
 # =========================================================================================
 #  2. Base Behavior & Session Options
@@ -16,7 +13,8 @@ catppuccin.setup(c, "mocha", True)
 config.set("auto_save.interval", 15000)  # ms
 config.set("auto_save.session", True)
 config.set("backend", "webengine")  # webengine/webkit
-config.set("colors.webpage.preferred_color_scheme", "dark")
+{{- $t := includeTemplate "theme" . | fromJson }}
+config.set("colors.webpage.preferred_color_scheme", "{{ if eq $t.polarity "light" }}light{{ else }}dark{{ end }}")
 config.set("session.default_name", "autosave")
 config.set("session.lazy_restore", True)
 config.set("confirm_quit", ["downloads"])
@@ -53,7 +51,6 @@ config.set("content.headers.accept_language", "en-US,en;q=0.9")
 config.set("content.headers.do_not_track", True)
 config.set("content.headers.referer", "same-domain")
 config.set("content.javascript.alert", True)
-config.set("content.javascript.can_close_tabs", False)
 config.set("content.javascript.can_open_tabs_automatically", False)
 config.set("content.javascript.enabled", True)
 config.set("content.javascript.prompt", True)
@@ -68,12 +65,10 @@ config.set("content.persistent_storage", "ask")
 config.set("content.print_element_backgrounds", True)
 config.set("content.private_browsing", False)
 config.set("content.proxy", "none")
-config.set("content.proxy_dns_requests", True)
 config.set("content.register_protocol_handler", "ask")
 config.set("content.site_specific_quirks.enabled", True)
 config.set("content.webgl", True)
 config.set("content.webrtc_ip_handling_policy", "default-public-interface-only")
-config.set("content.xss_auditing", True)
 
 # =========================================================================================
 #  5. Downloads Setup
@@ -90,7 +85,7 @@ config.set("downloads.remove_finished", 3000)  # ms
 #  6. Fonts, Styling, & UI Colors
 # =========================================================================================
 
-config.set("fonts.default_family", ["Iosevka Nerd Font", "Courier", "Liberation Mono", "monospace", "Fixed", "Consolas", "Terminal"])
+config.set("fonts.default_family", ["GeistMono Nerd Font", "Courier", "Liberation Mono", "monospace", "Fixed", "Consolas", "Terminal"])
 config.set("fonts.default_size", "16pt")
 config.set("statusbar.position", "bottom")  # top/bottom
 config.set("statusbar.widgets", ["keypress", "url", "scroll", "history", "tabs", "progress"])
@@ -102,7 +97,6 @@ config.set("window.title_format", "{perc}{current_title}{title_sep}qutebrowser")
 # =========================================================================================
 
 config.set("hints.auto_follow", "always")
-config.set("hints.find_implementation", "python")  # javascript/python
 config.set("hints.hide_unmatched_rapid_hints", True)
 config.set("hints.leave_on_load", True)
 config.set("hints.min_chars", 1)
@@ -175,25 +169,27 @@ config.set("zoom.mouse_divider", 512)
 #  11. Key Bindings (Insert & Normal Modes)
 # =========================================================================================
 
+## userscript defaults to /run/user, which FreeBSD lacks
+kpx = ("spawn --userscript qute-keepassxc --key {{ .vcs.email }} --socket "
+       + os.environ.get("XDG_RUNTIME_DIR", "/tmp") + "/org.keepassxc.KeePassXC.BrowserServer")
+
 config.bind("<Ctrl-+>", "zoom-in", mode="insert")
 config.bind("<Ctrl-->", "zoom-out", mode="insert")
 config.bind("<Ctrl-0>", "zoom", mode="insert")
-config.bind("<Ctrl-Shift-p>", "spawn --userscript qute-lastpass --password-only", mode="insert")
-config.bind("<Ctrl-Shift-u>", "spawn --userscript qute-lastpass --username-only", mode="insert")
+config.bind("<Ctrl-Shift-p>", kpx + " --totp", mode="insert")
 config.bind("<Ctrl-e>", "edit-text", mode="insert")
 config.bind("<Ctrl-i>", "edit-text", mode="insert")
-config.bind("<Ctrl-p>", "hint --first inputs ;; spawn --userscript qute-lastpass", mode="insert")
+config.bind("<Ctrl-p>", "keepassxc", mode="insert")
 config.bind("<Ctrl-s>", "jseval document.querySelectorAll(\"input[type=password]\").forEach(i => { i.type = \"text\" })", mode="insert")
-config.bind("<Ctrl-u>", "spawn --userscript qute-lastpass --username-only", mode="insert")
 config.bind("<Escape>", "mode-leave ;; jseval -q document.activeElement.blur()", mode="insert")
 config.bind("+", "zoom-in", mode="normal")
 config.bind(",<Space>", "search", mode="normal")
 config.bind(",C", "tab-only", mode="normal")
 config.bind(",M", "hint links spawn --detach mpv {hint-url}", mode="normal")
 config.bind(",ad", "spawn --detach yt-dlp -x --audio-format mp3 {url}", mode="normal")
-config.bind(",b", "set-cmd-text -s :buffer", mode="normal")
+config.bind(",b", "cmd-set-text -s :tab-select", mode="normal")
 config.bind(",c", "tab-close", mode="normal")
-config.bind(",e", "set-cmd-text -s :open", mode="normal")
+config.bind(",e", "cmd-set-text -s :open", mode="normal")
 config.bind(",h", "history", mode="normal")
 config.bind(",m", "spawn --detach mpv {url}", mode="normal")
 config.bind(",q", "tab-prev", mode="normal")
@@ -207,12 +203,12 @@ config.bind("<Ctrl-0>", "zoom", mode="normal")
 config.bind("<Ctrl-Shift-Tab>", "tab-prev", mode="normal")
 config.bind("<Ctrl-Tab>", "tab-next", mode="normal")
 config.bind("<Ctrl-a>", "mode-enter passthrough", mode="normal")
-config.bind("<Ctrl-f>", "set-cmd-text /", mode="normal")
+config.bind("<Ctrl-f>", "cmd-set-text /", mode="normal")
 config.bind("<Ctrl-i>", "forward", mode="normal")
 config.bind("<Ctrl-o>", "back", mode="normal")
-config.bind("<Ctrl-p>", "lastpass", mode="normal")
+config.bind("<Ctrl-p>", "keepassxc", mode="normal")
 config.bind("=", "zoom", mode="normal")
-config.bind("?", "set-cmd-text :open -t ?", mode="normal")
+config.bind("?", "cmd-set-text :open -t ?", mode="normal")
 config.bind("AA", "quickmark-add {url} '{title}'", mode="normal")
 config.bind("F", "hint links tab-bg", mode="normal")
 config.bind("J", "tab-prev", mode="normal")
@@ -229,16 +225,16 @@ config.bind("xx", "config-cycle statusbar.show always never;; config-cycle tabs.
 
 c.aliases = {
     "adblock-toggle": "config-cycle -t content.blocking.enabled",
-    "brave": "spawn --detach brave {url}",
-    "librewolf": "spawn --detach librewolf {url}",
     "incognito": "open --private",
-    "keepassxc": "hint --first inputs ;; spawn --userscript qute-keepassxc",
+    "keepassxc": kpx,
     "mpv": "spawn --detach mpv {url}",
     "o": "open",
     "q": "quit",
-    "qrcode": "spawn kitty -1 qrcode-terminal '{url}'",
+    "qrcode": "spawn kitty -1 --hold qrencode -t ansiutf8 '{url}'",
     "wq": "quit --save",
     "x": "quit --save",
+    "zen": "spawn --detach zen {url}",
+    "zenburner": "spawn --detach zenburner-jail {url}",
 }
 
 # =========================================================================================
@@ -250,6 +246,7 @@ c.url.searchengines = {
     "!aur": "https://aur.archlinux.org/packages/?SB=p&SO=d&O=0&K={}",
     "!aw": "https://wiki.archlinux.org/index.php?search={}",
     "!ddg": "https://duckduckgo.com/?q={}",
+    "!fp": "https://www.freshports.org/search.php?query={}",
     "!ebay": "https://www.ebay.de/sch/i.html?_nkw={}",
     "!fs": "https://fakespot.com/analyze?url={}",
     "!g": "https://google.de/search?q={}",
@@ -257,6 +254,7 @@ c.url.searchengines = {
     "!gi": "https://www.google.com/search?tbm=isch&q={}",
     "!gm": "https://www.google.de/maps/search/{}",
     "!id": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q={}",
+    "!man": "https://man.freebsd.org/cgi/man.cgi?query={}",
     "!nix": "https://search.nixos.org/packages?query={}",
     "!r": "https://www.reddit.com/r/{}/",
     "!s": "https://startpage.com/search?q={}",
@@ -268,3 +266,8 @@ c.url.searchengines = {
     "!wiki": "https://en.wikipedia.org/wiki/Special:Search/{}",
     "DEFAULT": "https://startpage.com/search?q={}",
 }
+
+## last, so :set and saved permission answers win, as on NixOS
+config.load_autoconfig()
+
+catppuccin.setup(c, "mocha", True)

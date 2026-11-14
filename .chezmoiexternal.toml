@@ -3,3 +3,21 @@
     url = "https://github.com/Aloxaf/fzf-tab/archive/refs/tags/v1.3.0.tar.gz"
     exact = true
     stripComponents = 1
+
+# FreeBSD's qutebrowser package ships no userscripts and no dictcli.py
+[".config/qutebrowser/userscripts/qute-keepassxc"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/qutebrowser/qutebrowser/v3.7.0/misc/userscripts/qute-keepassxc"
+    executable = true
+
+[".local/share/qutebrowser/qtwebengine_dictionaries/en-US-10-2.bdic"]
+    type = "file"
+    url = "https://chromium.googlesource.com/chromium/deps/hunspell_dictionaries/+/00f6e69c905b30fdf701cdcef6a517582d7e0028/en-US-10-2.bdic?format=TEXT"
+    filter.command = "base64"
+    filter.args = ["-d"]
+
+[".local/share/qutebrowser/qtwebengine_dictionaries/de-DE-3-1.bdic"]
+    type = "file"
+    url = "https://chromium.googlesource.com/chromium/deps/hunspell_dictionaries/+/00f6e69c905b30fdf701cdcef6a517582d7e0028/de-DE-3-1.bdic?format=TEXT"
+    filter.command = "base64"
+    filter.args = ["-d"]
