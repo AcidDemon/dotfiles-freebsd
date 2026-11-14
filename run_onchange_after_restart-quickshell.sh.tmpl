@@ -1,0 +1,14 @@
+#!/bin/sh
+# Restart the quickshell desktop after its config changes, as X-Restart-Triggers does
+# for the NixOS unit.
+#
+# Its own live reload is not enough here: on FreeBSD it misses the first rename-replaced
+# file after it starts (kqueue drops the watch), and chezmoi always writes by rename.
+# Only the desktop instance (shell.qml) is killed; the lock screen runs from lock.qml,
+# a separate instance, and is never touched. niri's daemon -r starts the shell again
+# within 2 s. Without a running shell (fresh machine, SSH-only) this does nothing.
+#
+# config {{ output "sh" "-c" (printf "cd %s && find private_dot_config/private_quickshell/private_desktop -type f | sort | xargs sha256sum | sha256sum" (.chezmoi.sourceDir | quote)) | trim }}
+
+command -v quickshell >/dev/null 2>&1 || exit 0
+quickshell kill -c desktop >/dev/null 2>&1 || true
