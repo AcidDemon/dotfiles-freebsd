@@ -1,0 +1,40 @@
+#!/bin/sh
+# freebsd: wg-quick stands in for NetworkManager. WireGuard first, like nixfiles: an active tunnel goes down,
+# otherwise the last used (or first) config in /usr/local/etc/wireguard comes up. No configs: tailscale.
+# wg-quick needs root: "permit nopass <user> as root cmd /usr/local/bin/wg-quick" in doas.conf.
+# tailscale needs a one-time "doas tailscale set --operator=$USER", otherwise it refuses and the error is shown.
+set -u
+dir=/usr/local/etc/wireguard
+last=${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/vpn-last
+
+wgq() {
+    if out=$(doas -n /usr/local/bin/wg-quick "$1" "$2" 2>&1); then return 0; fi
+    notify-send "VPN" "wg-quick $1 $2 failed: $out"
+    return 1
+}
+
+# wg-quick names the interface after its config, so this is also the config name
+active=$(ifconfig -g wg 2>/dev/null | head -n1)
+if [ -n "$active" ]; then
+    wgq down "$active"
+    exit
+fi
+
+name=$(cat "$last" 2>/dev/null)
+if [ -z "$name" ] || [ ! -f "$dir/$name.conf" ]; then
+    name=$(ls "$dir" 2>/dev/null | sed -n 's/\.conf$//p' | head -n1)
+fi
+if [ -n "$name" ]; then
+    wgq up "$name" && mkdir -p "${last%/*}" && printf '%s\n' "$name" > "$last"
+    exit
+fi
+
+# same test as qs-vpn, so the tile and the toggle never disagree
+if ifconfig tailscale0 2>/dev/null | grep -q '^[[:space:]]*inet '; then set -- down; else set -- up; fi
+# "tailscale up" blocks forever on a node that needs a login, so give up after 15 s
+out=$(timeout 15 tailscale "$1" 2>&1)
+case $? in
+    0) ;;
+    124) notify-send -u critical "VPN" "tailscale $1 timed out, it probably needs a login: run 'tailscale up' in a terminal. $out" ;;
+    *) notify-send "VPN" "tailscale $1 failed: $out" ;;
+esac

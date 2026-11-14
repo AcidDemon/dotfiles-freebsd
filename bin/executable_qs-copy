@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu -o pipefail
+printf %s "$1" | wl-copy
+if [ -n "${2:-}" ]; then
+    notify-send "$2" "$1 copied to clipboard" || true
+fi

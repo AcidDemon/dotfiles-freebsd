@@ -18,7 +18,7 @@ set -eu
 HERE=$(cd "$(dirname "$0")" && pwd)
 PNGDIR="${PNGDIR:-${TMPDIR:-/tmp}/capture-png}"
 STATE="${TMPDIR:-/tmp}/capture-state"
-WP=/home/acid/.local/share/wallpapers
+WP=/home/acid/.local/share/wallpapers/themes/catppuccin-mocha
 MUSIC=/home/acid/Music
 WORK_URL="${WORK_URL:-https://github.com/YaLTeR/niri}"
 
@@ -26,7 +26,7 @@ export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-1}"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/xdg-$(id -un)}"
 NIRI_SOCKET="${NIRI_SOCKET:-$(ls -1t "$XDG_RUNTIME_DIR"/niri.wayland-*.sock 2>/dev/null | head -1)}"
 export NIRI_SOCKET
-# swaync-client and notify-send block forever without this.
+# notify-send blocks forever without this.
 DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=$(ls -1t /tmp/dbus-* 2>/dev/null | head -1)}"
 export DBUS_SESSION_BUS_ADDRESS
 
@@ -46,7 +46,7 @@ term()  { a spawn-sh -- "kitty $*"; sleep "${SETTLE:-3}"; }
 
 # wtype drops characters into kitty at the default rate: it uploads its own
 # keymap and kitty re-reads it mid-string. 200ms/char is the slowest thing
-# that has never lost a character here. rofi is fine at 60.
+# that has never lost a character here.
 kitty_type() { wtype -d 200 "$1"; sleep 0.5; wtype -k Return; }
 
 # grim, not `niri msg action screenshot-*`: the niri actions always copy to the
@@ -107,8 +107,8 @@ EOF
     sleep 3
 }
 
-# Populates the waybar mpris pill, the swaync media widget and hyprlock's now
-# playing line at once. volume=0 so nothing is audible.
+# Populates the bar's media group, the notification centre's media card and the
+# lock screen's player at once. volume=0 so nothing is audible.
 player() {
     pgrep -x mpv >/dev/null 2>&1 && return 0
     # sorted, not raw find order: otherwise the mpris pill shows a different
@@ -127,12 +127,12 @@ prep() {
     # Freeze the rotator BEFORE reading the wallpaper: it fires every 15 min.
     # `awww pause` does not hold -- the flag only gates the draw loop, incoming
     # `awww img` still commits -- and daemon-toggle cannot match it either,
-    # because pgrep -x sees `sh`, not `awww-random`.
-    rot=$(pgrep -f awww-random | head -1) || true
+    # because pgrep -x sees `sh`, not `wallpaper daemon`.
+    rot=$(pgrep -f 'wallpaper daemon' | head -1) || true
     if [ -n "${rot:-}" ]; then echo "$rot" > "$STATE/rot"; kill -STOP "$rot"; sleep 1; fi
     awww query | sed 's/.*currently displaying: image: //' > "$STATE/wallpaper"
 
-    # hypridle arms shutdown-timer and hyprlock at 600s idle, and a scripted
+    # hypridle arms shutdown-timer and qs-lock at 600s idle, and a scripted
     # capture has long stretches with no real input. gammastep tints every
     # frame. ianny pops break reminders on a timer.
     for d in hypridle gammastep; do pkill -x "$d" 2>/dev/null || true; done
@@ -165,41 +165,6 @@ restore() {
 scene_empty() {
     wp serenity.jpg; clean; ws files; park
     shot desktop-empty 2
-}
-
-scene_rofi() {
-    wp serenity.jpg; clean; ws files; park
-    # rofi grabs the keyboard, so the capture is armed before it opens.
-    ( sleep 1.8; wtype -d 60 'ter'; sleep 1.2; grim -o "$OUTPUT" "$PNGDIR/rofi.png"
-      sleep 0.4; wtype -k Escape ) &
-    timeout 12 "$HOME/.config/rofi/bin/launcher" >/dev/null 2>&1 || true
-    pkill -x rofi 2>/dev/null || true
-    echo "  -> rofi.png"
-}
-
-scene_swaync() {
-    wp serenity.jpg; clean; ws files; park; player
-    notify-send -a Syncthing -i folder-sync "Folder 'Documents' up to date" \
-                "Scanned 1,284 files in 3.2s" -t 1500; sleep 0.6
-    notify-send -a "Zen Browser" -i firefox "Download complete" \
-                "niri-26.04.tar.gz  -  18.4 MB" -t 1500; sleep 0.6
-    notify-send -a pkg -i system-software-update "12 packages can be upgraded" \
-                "run: doas pkg upgrade" -t 1500; sleep 2.5
-    swaync-client -op -sw; sleep 1
-    shot swaync 0.5
-    swaync-client -cp -sw; sleep 0.5; swaync-client -C
-}
-
-scene_notification() {
-    wp serenity.jpg; clean; ws files; park; player
-    swaync-client -C; sleep 0.5
-    term; kitty_type 'clear; eza -la --icons --git ~/.dotfiles'; sleep 2
-    # -t 0 never expires: the 4s default in swaync/config.json is not enough
-    # time to compose a frame.
-    notify-send -a "Zen Browser" -i firefox -t 0 "Download complete" \
-                "niri-26.04.tar.gz  -  18.4 MB"
-    shot notification 1.2
-    swaync-client -C
 }
 
 scene_work() {
@@ -307,7 +272,7 @@ scene_dev() {
     for _ in 1 2 3 4; do wtype -k Return; sleep 0.8; done
     wtype -k Escape; sleep 0.5
     term; sleep 2                            # newly spawned window takes focus
-    kitty_type 'cd ~/.local/share/wallpapers'; sleep 1.5
+    kitty_type "cd $WP"; sleep 1.5
     wtype -M ctrl -k t -m ctrl; sleep 3      # fzf file widget, kitty image preview
     park
     shot desktop-dev 1.5
@@ -354,46 +319,6 @@ scene_quake() {
     shot quake 1
     wtype -k Escape; sleep 0.6
     sh "$HOME/.config/niri/scripts/quake.sh"; sleep 1
-}
-
-# Bar geometry shifts with the workspace count, so the pill centres are
-# measured from the frame instead of hardcoded.
-scene_bar() {
-    wp serenity.jpg; clean; ws files; player
-    term btop; width 50%; term peaclock; width 50%
-    park; sleep 1.5
-    grim -o "$OUTPUT" "$PNGDIR/.bar-rest.png"
-    goto 1460 28 1.8; grim -o "$OUTPUT" "$PNGDIR/.bar-wifi.png"
-    goto 1600 28 1.8; grim -o "$OUTPUT" "$PNGDIR/.bar-hw.png"
-    goto 1853 28 2.2; grim -o "$OUTPUT" "$PNGDIR/waybar-drawers.png"
-    cp "$PNGDIR/waybar-drawers.png" "$PNGDIR/.bar-clock.png"
-    for s in rest wifi hw clock; do
-        magick "$PNGDIR/.bar-$s.png" -crop 1920x56+0+0 +repage -resize 1440x \
-               -set label "$s" "$PNGDIR/.bs-$s.miff"
-    done
-    magick montage "$PNGDIR/.bs-rest.miff" "$PNGDIR/.bs-wifi.miff" \
-                   "$PNGDIR/.bs-hw.miff" "$PNGDIR/.bs-clock.miff" \
-        -tile 1x4 -geometry +2+2 -background '#11111b' -fill '#cdd6f4' \
-        -pointsize 15 "$PNGDIR/bar-states.png"
-    rm -f "$PNGDIR"/.bar-*.png "$PNGDIR"/.bs-*.miff
-    park
-    echo "  -> waybar-drawers.png, bar-states.png"
-}
-
-# The OSD lives for about a second, so the capture is armed before the trigger.
-# Volume is read and written back exactly: raise+lower does not round-trip.
-scene_osd() {
-    wp serenity.jpg; clean; ws files; player
-    term btop; width 50%
-    term peaclock; width 50%
-    a focus-column-first; sleep 1.5
-    park
-    vol=$(pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null | grep -o '[0-9]*%' | head -1)
-    ( sleep 0.35; grim -o "$OUTPUT" "$PNGDIR/swayosd.png" ) &
-    swayosd-client --output-volume raise >/dev/null 2>&1
-    wait
-    [ -n "${vol:-}" ] && pactl set-sink-volume @DEFAULT_SINK@ "$vol" 2>/dev/null || true
-    echo "  -> swayosd.png (volume restored to ${vol:-unknown})"
 }
 
 # --test-mode makes login() inert, so this never touches the real session.
@@ -481,14 +406,14 @@ rec1() {
     a open-overview;  b 2.6
     a close-overview; b 1.8
 
-    "$HOME/.config/rofi/bin/launcher" >/dev/null 2>&1 &
+    qs-launcher apps >/dev/null 2>&1
     b 1.8; wtype -d 90 'kit'; b 1.4; wtype -k Return; b 3.0
 
     notify-send -a "Zen Browser" -i firefox "Download complete" \
                 "niri-26.04.tar.gz  -  18.4 MB" -t 4000; b 3.0
-    swaync-client -op -sw; b 2.4
-    swaync-client -cp -sw; b 1.4
-    swaync-client -C;      b 0.6
+    qs-notifications toggle;   b 2.4
+    qs-notifications toggle;   b 1.4
+    qs-notifications clearAll; b 0.6
 
     sh "$HOME/.config/niri/scripts/quake.sh"; b 2.6
     sh "$HOME/.config/niri/scripts/quake.sh"; b 2.0
@@ -497,6 +422,8 @@ rec1() {
     echo "  -> act1.mkv"
 }
 
+# ponytail: the drawer coordinates were measured on waybar; re-measure them on
+# the quickshell bar before recording again.
 rec2() {
     wp serenity.jpg; clean; player
     ws files
@@ -541,7 +468,9 @@ pack() {
     echo "packed $n webp into $HERE"
 }
 
-SCENES='empty rofi swaync notification work monitor fetch apps dev overview quake bar osd sddm'
+# ponytail: no scenes yet for the quickshell launcher, notification centre, OSD,
+# bar drawers, lock screen and power menu; write them against a live session.
+SCENES='empty work monitor fetch apps dev overview quake sddm'
 
 list() {
     i=0

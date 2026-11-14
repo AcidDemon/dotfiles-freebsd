@@ -1,0 +1,14 @@
+# Targets of sources deleted at the quickshell cutover. chezmoi never removes a
+# target whose source vanished, so they are listed here. None of them may be
+# managed again: chezmoi refuses an entry that is both managed and removed.
+.config/waybar
+.config/swaync
+.config/swayosd
+.config/wob
+.config/wlogout
+.config/rofi
+.config/hypr/hyprlock.conf
+.config/hypr/nowplaying.sh
+.config/hypr/assets
+bin/awww-random
+bin/cliphist-rofi

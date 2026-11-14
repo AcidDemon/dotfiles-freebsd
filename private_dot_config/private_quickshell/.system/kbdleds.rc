@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# PROVIDE: kbdleds
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+#
+# kbdleds_enable="YES" publishes the Caps/Num Lock LED state in /var/run/kbdleds
+# for the quickshell OSD (/usr/local/libexec/kbdleds).
+
+. /etc/rc.subr
+
+name=kbdleds
+rcvar=kbdleds_enable
+
+load_rc_config $name
+: ${kbdleds_enable:="NO"}
+
+pidfile="/var/run/${name}.pid"
+procname="/usr/sbin/daemon"
+command="/usr/sbin/daemon"
+command_args="-r -R 5 -P ${pidfile} -t ${name} -S -T ${name} /usr/local/libexec/kbdleds"
+
+run_rc_command "$1"

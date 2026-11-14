@@ -32,7 +32,9 @@ PIDFILE="/tmp/shutdown-timer.$(id -u).pid"
 
 log() { logger -t shutdown-timer "$@"; }
 
-svc_running() { doas service "$1" status >/dev/null 2>&1; }
+# absolute paths and -n: doas matches a rule's cmd against argv[0] as typed, and
+# hypridle starts this with no tty to type a password into
+svc_running() { doas -n /usr/sbin/service "$1" status >/dev/null 2>&1; }
 
 disarm() {
     [ -f "$PIDFILE" ] || { log "disarm: nothing armed"; return 0; }
@@ -83,7 +85,7 @@ run() {
         while [ "$attempt" -lt "$RETRIES" ]; do
             attempt=$((attempt + 1))
             log "stopping $svc (attempt $attempt/$RETRIES)"
-            doas service "$svc" stop >/dev/null 2>&1 || true
+            doas -n /usr/sbin/service "$svc" stop >/dev/null 2>&1 || true
 
             elapsed=0
             while [ "$elapsed" -lt "$GRACE" ]; do
@@ -103,7 +105,9 @@ run() {
 
     rm -f "$PIDFILE"
     log "all services handled, powering off"
-    doas shutdown -p now
+    # direct when in group operator, else the nopass doas rule
+    /sbin/shutdown -p now 2>/dev/null || doas -n /sbin/shutdown -p now \
+        || log "power-off refused: join group operator or add the doas rule (see the end of ~/bin/shutdown-timer)"
 }
 
 case "${1:-}" in
@@ -114,13 +118,16 @@ case "${1:-}" in
     *)      echo "usage: ${0##*/} arm|disarm|status|run" >&2; exit 2 ;;
 esac
 
-# Powering off unattended does NOT need a doas rule: /sbin/shutdown is setuid
-# root with group operator (-r-sr-xr--), so joining that group is enough and is
+# Powering off unattended needs one of two things. /sbin/shutdown is setuid root
+# with group operator (-r-sr-xr--), so joining that group is enough and is
 # narrower than loosening doas:
 #
 #   doas pw groupmod operator -m acid
 #
-# Then drop the `doas` prefix from the shutdown call below if you prefer.
+# Otherwise run() falls back to doas, which needs the same rule the power menu
+# (~/bin/qs-systemctl) uses:
+#
+#   permit nopass acid as root cmd /sbin/shutdown args -p now
 #
 # Stopping services in SERVICES does still need doas, one exact rule per
 # service and action, e.g.

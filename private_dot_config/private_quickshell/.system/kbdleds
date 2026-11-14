@@ -1,0 +1,89 @@
+#!/usr/local/bin/python3
+"""kbdleds: Caps/Num Lock LED state for unprivileged readers (the quickshell OSD).
+
+/dev/input/event* is root-only on FreeBSD, so this runs as root and publishes only the
+two LED bits, the way /sys/class/leds does on Linux: <dir>/caps and <dir>/num hold 0 or 1.
+Installed to /usr/local/libexec/kbdleds, started by /usr/local/etc/rc.d/kbdleds.
+"""
+import fcntl
+import glob
+import os
+import time
+
+OUT = os.environ.get("KBDLEDS_DIR", "/var/run/kbdleds")
+EV_LED, LED_NUML, LED_CAPSL = 0x11, 0x00, 0x01
+
+
+def ioc_out(nr, size):
+    # FreeBSD _IOC(IOC_OUT, 'E', nr, size) from <sys/ioccom.h>; not the Linux encoding
+    return 0x40000000 | ((size & 0x1FFF) << 16) | (ord("E") << 8) | nr
+
+
+EVIOCGBIT_TYPES = ioc_out(0x20, 4)  # EVIOCGBIT(0, 4): event types, EV_MAX is 0x1f
+EVIOCGLED = ioc_out(0x19, 2)  # EVIOCGLED(2): LED_MAX is 0x0f
+
+# LED-capable devices stay open: reopening USB keyboards five times a second restarts their transfers
+fds = {}
+skip = set()
+
+
+def scan():
+    present = set(glob.glob("/dev/input/event*"))
+    skip.intersection_update(present)
+    for path in present - fds.keys() - skip:
+        try:
+            fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
+        except OSError:
+            continue
+        try:
+            types = int.from_bytes(fcntl.ioctl(fd, EVIOCGBIT_TYPES, bytes(4)), "little")
+        except OSError:
+            types = 0
+        if types >> EV_LED & 1:
+            fds[path] = fd
+        else:
+            os.close(fd)
+            skip.add(path)
+
+
+def leds():
+    # the compositor keeps every keyboard's LEDs in step; OR them anyway
+    caps = num = 0
+    for path, fd in list(fds.items()):
+        try:
+            bits = int.from_bytes(fcntl.ioctl(fd, EVIOCGLED, bytes(2)), "little")
+        except OSError:  # unplugged
+            os.close(fd)
+            del fds[path]
+            continue
+        caps |= bits >> LED_CAPSL & 1
+        num |= bits >> LED_NUML & 1
+    return caps, num
+
+
+def put(name, value):
+    tmp = os.path.join(OUT, "." + name)
+    with open(tmp, "w") as f:
+        f.write(value)
+    os.replace(tmp, os.path.join(OUT, name))
+
+
+def main():
+    os.umask(0o022)
+    os.makedirs(OUT, mode=0o755, exist_ok=True)
+    last, tick = None, 0
+    while True:
+        if tick % 10 == 0:  # keyboards come and go; rescan every 2 s
+            scan()
+        state = leds()
+        if state != last:
+            put("caps", f"{state[0]}\n")
+            put("num", f"{state[1]}\n")
+            last = state
+        tick += 1
+        # ponytail: LED changes raise no event a reader can wait on, so poll like the NixOS OSD does
+        time.sleep(0.2)
+
+
+if __name__ == "__main__":
+    main()

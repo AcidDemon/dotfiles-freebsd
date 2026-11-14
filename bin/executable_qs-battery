@@ -1,0 +1,23 @@
+#!/bin/sh
+# freebsd: acpi battery as the power_supply uevent lines Parse.battery reads (no sysfs here)
+set -u
+life=$(sysctl -n hw.acpi.battery.life 2>/dev/null) || exit 0
+# -1 or nothing: no battery, the pill hides
+case $life in '' | *[!0-9]*) exit 0 ;; esac
+state=$(sysctl -n hw.acpi.battery.state 2>/dev/null || echo 0)
+# state bits: 1 discharging, 2 charging
+if [ $((state & 2)) -ne 0 ]; then status=Charging
+elif [ $((state & 1)) -ne 0 ]; then status=Discharging
+elif [ "$life" -ge 100 ]; then status=Full
+elif [ "$(sysctl -n hw.acpi.acline 2>/dev/null)" = 1 ]; then status="Not charging"
+else status=Unknown
+fi
+# mAh and mA, or mWh and mW: Parse.battery only takes ratios
+info=$(acpiconf -i 0 2>/dev/null)
+field() { printf '%s\n' "$info" | awk -F':[[:space:]]*' -v k="$1" '$1 == k { print $2 + 0; exit }'; }
+full=$(field "Last full capacity")
+echo "POWER_SUPPLY_STATUS=$status"
+echo "POWER_SUPPLY_CAPACITY=$life"
+echo "POWER_SUPPLY_CHARGE_FULL=${full:-0}"
+echo "POWER_SUPPLY_CHARGE_NOW=$((life * ${full:-0} / 100))"
+echo "POWER_SUPPLY_CURRENT_NOW=$(field "Present rate")"

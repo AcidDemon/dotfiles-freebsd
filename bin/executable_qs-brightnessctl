@@ -1,0 +1,24 @@
+#!/bin/sh
+# freebsd: the brightnessctl calls Sys.qml makes, over backlight(8) (brightnessctl is linux-only).
+#   -m        brightnessctl's machine line: name,class,current,percent,max
+#   set +N%   up, set N%-  down (~/bin/brightness keeps its 5% floor), set N%  absolute, clamped to 5 like it
+set -u
+num() { case $1 in '' | *[!0-9]*) echo "qs-brightnessctl: not a number: '$1'" >&2; exit 2 ;; esac; }
+case "${1:-}" in
+-m)
+    v=$(backlight -q 2>/dev/null) || exit 0
+    num "$v"
+    name=$(backlight -i 2>/dev/null | sed -n 's/^Backlight name: //p')
+    echo "${name:-backlight},backlight,$v,$v%,100"
+    exit 0
+    ;;
+set)
+    case "${2:-}" in
+    +*%) n=${2#+}; n=${n%\%}; num "$n"; exec "$HOME/bin/brightness" up "$n" ;;
+    *%-) n=${2%\%-}; num "$n"; exec "$HOME/bin/brightness" down "$n" ;;
+    *%) n=${2%\%}; num "$n"; [ "$n" -lt 5 ] && n=5; exec backlight "$n" ;;
+    esac
+    ;;
+esac
+echo "usage: qs-brightnessctl -m | set +N% | set N%- | set N%" >&2
+exit 2

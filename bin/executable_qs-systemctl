@@ -1,0 +1,11 @@
+#!/bin/sh
+# stands in for systemctl behind Tools.systemctl, only the calls the shell makes
+case "$*" in
+    reboot) flag=-r ;;
+    poweroff) flag=-p ;;
+    # the night light here is gammastep (no sunsetr package), started and stopped by qs-nightlight
+    "--user is-active sunsetr.service") pgrep -qx gammastep && echo active || { echo inactive; exit 3; }; exit ;;
+    *) echo "qs-systemctl: unsupported: $*" >&2; exit 1 ;;
+esac
+# no tty under execDetached, so this needs the nopass rules for /sbin/shutdown in doas.conf
+doas -n /sbin/shutdown "$flag" now || notify-send -u critical "Power" "doas refused /sbin/shutdown $flag now"

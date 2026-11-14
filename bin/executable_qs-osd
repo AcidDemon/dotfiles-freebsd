@@ -1,0 +1,18 @@
+#!/bin/sh
+# changes the level itself so the keys keep working when the shell is down, same limits as swayosd
+# freebsd: pactl instead of wpctl (pulseaudio, no pipewire server), ~/bin/brightness instead of brightnessctl
+set -u
+# loudest channel of the default sink, in percent. OSS sinks have no dB column, so
+# every percent but the last carries the channel separator: "100%,"
+vol() { pactl get-sink-volume @DEFAULT_SINK@ | awk 'NR == 1 { for (i = 1; i <= NF; i++) { v = $i; sub(/,$/, "", v); if (v ~ /%$/ && v + 0 > m) m = v + 0 } } END { print m + 0 }'; }
+case "${1:-}" in
+    # wpctl -l 1.0: never past 100%
+    volume-up) if [ $(($(vol) + 5)) -gt 100 ]; then pactl set-sink-volume @DEFAULT_SINK@ 100%; else pactl set-sink-volume @DEFAULT_SINK@ +5%; fi; kind=volume ;;
+    volume-down) pactl set-sink-volume @DEFAULT_SINK@ -5%; kind=volume ;;
+    mute) pactl set-sink-mute @DEFAULT_SINK@ toggle; kind=volume ;;
+    mic-mute) pactl set-source-mute @DEFAULT_SOURCE@ toggle; kind=mic ;;
+    brightness-up) "$HOME/bin/brightness" up 5; kind=brightness ;;
+    brightness-down) "$HOME/bin/brightness" down 5; kind=brightness ;;
+    *) echo "usage: qs-osd volume-up|volume-down|mute|mic-mute|brightness-up|brightness-down" >&2; exit 2 ;;
+esac
+timeout 2 quickshell --config desktop ipc call osd popup "$kind" >/dev/null 2>&1 || true

@@ -1,0 +1,4 @@
+#!/bin/sh
+# niri only here; the pause lets the power menu close first
+sleep 1
+exec niri msg action quit --skip-confirmation

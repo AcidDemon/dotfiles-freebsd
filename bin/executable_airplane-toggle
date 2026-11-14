@@ -6,7 +6,9 @@
 # HP-specific ACPI hotkey, so it can only be driven from a devd rule (if
 # acpi_hp surfaces the notify) or from an ordinary niri keybind.
 #
-# Requires passwordless doas for exactly these two commands:
+# Requires passwordless doas for exactly these two commands. They are called by
+# absolute path because doas matches cmd against argv[0] as typed, and the
+# quickshell Wi-Fi tile runs this without a tty to type a password into:
 #   permit nopass acid as root cmd /sbin/ifconfig args wlan0 up
 #   permit nopass acid as root cmd /sbin/ifconfig args wlan0 down
 set -eu
@@ -20,9 +22,9 @@ notify() {
 }
 
 if ifconfig "$IFACE" 2>/dev/null | grep -qE 'flags=[0-9]+<UP'; then
-    doas ifconfig "$IFACE" down
+    doas /sbin/ifconfig "$IFACE" down
     notify "Wi-Fi" "off ($IFACE down)"
 else
-    doas ifconfig "$IFACE" up
+    doas /sbin/ifconfig "$IFACE" up
     notify "Wi-Fi" "on ($IFACE up)"
 fi

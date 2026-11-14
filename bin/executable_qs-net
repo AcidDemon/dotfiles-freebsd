@@ -1,0 +1,26 @@
+#!/bin/sh
+# freebsd: no NetworkManager, so this stands in for Quickshell.Networking. key=value lines for Parse.net:
+# kind/iface/address for the default-route uplink, wifi/ssid/strength for the first wlan
+set -u
+up=$(route -n get -inet default 2>/dev/null | awk '$1 == "interface:" { print $2 }')
+if [ -n "$up" ]; then
+    case $up in wlan*) echo kind=wifi ;; *) echo kind=wired ;; esac
+    echo "iface=$up"
+    ifconfig -f inet:cidr "$up" inet 2>/dev/null | awk '$1 == "inet" { print "address=" $2; exit }'
+fi
+w=$(ifconfig -g wlan 2>/dev/null | head -n1)
+[ -n "$w" ] || exit 0
+info=$(ifconfig "$w" 2>/dev/null) || exit 0
+case $info in *"<UP"*) echo wifi=up ;; *) echo wifi=down; exit 0 ;; esac
+case $info in *"status: associated"*) ;; *) exit 0 ;; esac
+printf '%s\n' "$info" | sed -n 's/^[[:space:]]*ssid \(.*\) channel .*/ssid=\1/p' | head -n1
+# waybar's wifi.sh: list sta row 2 is the AP, column 5 its rssi in dB over a -96 dBm noise floor
+# (negative means the driver already gives dBm); 100% at -45 dBm, 0% 45 dB either side
+rssi=$(ifconfig "$w" list sta 2>/dev/null | awk 'NR == 2 { print int($5); exit }')
+if [ -z "$rssi" ]; then dbm=-99
+elif [ "$rssi" -lt 0 ]; then dbm=$rssi
+else dbm=$((rssi - 96))
+fi
+d=$((dbm + 45)); [ "$d" -lt 0 ] && d=$((-d))
+pct=$(((4500 - d * 100) / 45)); [ "$pct" -lt 0 ] && pct=0
+echo "strength=$pct"

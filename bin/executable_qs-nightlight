@@ -1,0 +1,8 @@
+#!/bin/sh
+# freebsd: gammastep stands in for the sunsetr user unit; "status" answers like systemctl is-active
+set -u
+if [ "${1:-}" = status ]; then
+    if pgrep -qx gammastep; then echo active; else echo inactive; fi
+    exit 0
+fi
+exec "$HOME/bin/daemon-toggle" gammastep

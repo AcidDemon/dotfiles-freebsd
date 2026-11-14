@@ -90,7 +90,6 @@
 
 # editor and pre-change backups
 **/*.bak
-.config/niri/config.kdl.pre-swayosd
 
 # runtime state
 .config/peaclock*/history/
@@ -107,4 +106,3 @@ README.md
 
 # repo-only, like README.md above: without this chezmoi deploys it to ~
 assets
-.config/waybar/test_rewrite.py

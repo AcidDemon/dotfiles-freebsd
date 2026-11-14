@@ -1,0 +1,13 @@
+#!/bin/sh
+# stands in for systemd-run behind Tools.systemdRun: drops the unit flags, keeps --working-directory, runs the command
+# ponytail: no transient unit, so no cgroup; quickshell's execDetached already detaches the child
+while [ $# -gt 0 ]; do
+    case $1 in
+        --working-directory=*) cd "${1#*=}" || exit 1 ;;
+        --) shift; break ;;
+        -*) ;;
+        *) break ;;
+    esac
+    shift
+done
+exec "$@"

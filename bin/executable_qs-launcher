@@ -1,0 +1,3 @@
+#!/bin/sh
+set -eu
+exec quickshell --config desktop ipc call launcher open "$1"

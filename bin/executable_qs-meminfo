@@ -1,0 +1,8 @@
+#!/bin/sh
+# freebsd: linprocfs meminfo has no MemAvailable and there is no spl kstat,
+# so free + inactive pages plus the zfs arc stand in (waybar counts the arc as available too)
+set -u
+grep -E '^(MemTotal|SwapTotal|SwapFree):' /compat/linux/proc/meminfo 2>/dev/null
+set -- $(sysctl -n vm.stats.vm.v_page_size vm.stats.vm.v_free_count vm.stats.vm.v_inactive_count kstat.zfs.misc.arcstats.size 2>/dev/null)
+[ $# -ge 3 ] || exit 0
+echo "MemAvailable: $((($1 * ($2 + $3) + ${4:-0}) / 1024)) kB"

@@ -29,16 +29,24 @@ DESKTOP="/usr/local/share/wayland-sessions/niri.desktop"
 # niri logs "error spawning xwayland-satellite ... disabling integration".
 # adwaita-icon-theme provides the xcursor theme the niri config points at; niri's
 # built-in default theme name does not exist on FreeBSD.
-# hyprlock/hypridle are standalone -- they pull in hyprutils/hyprlang, not
-# hyprland -- and speak ext-session-lock-v1 / ext-idle-notify-v1, both of which
-# niri implements.
+# quickshell is the desktop shell (~/.config/quickshell/desktop): bar, launcher,
+# notifications, OSD, lock screen, power menu and theme switcher. Its lock screen
+# authenticates through the unix-selfauth PAM stack from unix-selfauth-helper.
+# hypridle is standalone -- it pulls in hyprutils/hyprlang, not hyprland -- and
+# speaks ext-idle-notify-v1, which niri implements.
+# The shell also calls jq, qalc (libqalculate), playerctl, pactl (pulseaudio) and
+# pavucontrol. noto-emoji gives the emoji picker colour glyphs. The QML names its
+# fonts: JetBrainsMono, Symbols and GeistMono Nerd Font, and Archivo / Archivo
+# Black on the lock screen, which only google-fonts ships.
+# ponytail: google-fonts is 1.1 GiB for two Archivo files; drop it and copy those
+# two TTFs to ~/.local/share/fonts if the size matters.
 # grim/slurp are for scripted captures -- the screenshot keybinds run ~/bin/shot,
-# which uses niri's built-in actions and satty. swaync backs the notification binds,
-# cliphist the clipboard history one (via ~/bin/cliphist-rofi, which also needs
-# wl-clipboard).
-PKGS="niri seatd sddm dbus cage waybar python3 xwayland-satellite adwaita-icon-theme
-      hyprlock hypridle grim slurp satty swaync cliphist wl-clipboard rofi kitty thunar
-      wf-recorder"
+# which uses niri's built-in actions and satty. cliphist and wl-clipboard back the
+# clipboard history.
+PKGS="niri seatd sddm dbus cage quickshell python3 xwayland-satellite adwaita-icon-theme
+      unix-selfauth-helper hypridle grim slurp satty cliphist wl-clipboard kitty thunar
+      wf-recorder jq libqalculate playerctl pulseaudio pavucontrol noto-emoji
+      nerd-fonts-jetbrainsmono nerd-fonts-symbols nerd-fonts-geistmono google-fonts"
 
 missing=""
 for p in $PKGS; do
@@ -47,6 +55,16 @@ done
 if [ -n "$missing" ]; then
     echo "niri-session: installing missing packages:$missing"
     doas pkg install -y $missing
+fi
+
+# pkg marks a package automatic when it came in as a dependency, and autoremove
+# deletes it once nothing depends on it. Several of these did (jq had nothing;
+# unix-selfauth-helper, the lock screen's PAM stack, only hyprlock), so mark the
+# listed ones as wanted. Once: afterwards the query is empty.
+auto=$(pkg query -e '%a = 1' '%n' $PKGS 2>/dev/null || true)
+if [ -n "$auto" ]; then
+    echo "niri-session: marking as not automatic, so pkg autoremove keeps them:" $auto
+    doas pkg set -y -A 0 $auto
 fi
 
 for svc in dbus seatd sddm; do
@@ -128,7 +146,11 @@ fi
 
 # Deliberately NOT applied: these grant passwordless root for specific commands,
 # which is a decision for a person, not for a dotfiles apply.
-if ! doas -n ifconfig wlan0 up >/dev/null 2>&1; then
+# The probe uses the rule's absolute path (doas compares cmd with argv[0] as
+# typed) and runs only while wlan0 is up, where "up" changes nothing: probing in
+# airplane mode would bring Wi-Fi back on every apply.
+if ifconfig wlan0 2>/dev/null | grep -qE 'flags=[0-9]+<UP' \
+    && ! doas -n /sbin/ifconfig wlan0 up >/dev/null 2>&1; then
     echo "niri-session: optional -- for the airplane key (~/bin/airplane-toggle), add to"
     echo "niri-session:   /usr/local/etc/doas.conf, AFTER any general permit line:"
     echo "niri-session:     permit nopass $(id -un) as root cmd /sbin/ifconfig args wlan0 up"

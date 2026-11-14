@@ -1,0 +1,30 @@
+#!/bin/sh
+# Compile the quickshell switcher shaders to .qsb, as default.nix does on NixOS.
+#
+# run_onchange_ rather than run_after_: the hashes below change only when a
+# shader source does, so a routine apply compiles nothing.
+#
+# On a fresh machine qsb (qt6-shadertools, a quickshell dependency) only arrives
+# with run_after_setup-niri-session.sh, which sorts after this script. So a
+# missing qsb skips instead of failing, which would stop chezmoi before that
+# install. The qsb line below changes once qsb exists, and that reruns this.
+#
+# qsb        {{ if stat "/usr/local/lib/qt6/bin/qsb" }}present{{ else }}missing{{ end }}
+# ring.vert  {{ include "private_dot_config/private_quickshell/private_desktop/private_switcher/private_shaders/private_ring.vert" | sha256sum }}
+# card.frag  {{ include "private_dot_config/private_quickshell/private_desktop/private_switcher/private_shaders/private_card.frag" | sha256sum }}
+# shape.frag {{ include "private_dot_config/private_quickshell/private_desktop/private_switcher/private_shaders/private_shape.frag" | sha256sum }}
+
+set -e
+
+QSB=/usr/local/lib/qt6/bin/qsb
+DIR="$HOME/.config/quickshell/desktop/switcher/shaders"
+
+[ -x "$QSB" ] || {
+    echo "quickshell-shaders: $QSB missing, skipped; the next apply after pkg install qt6-shadertools compiles them" >&2
+    exit 0
+}
+
+for s in ring.vert card.frag shape.frag; do
+    "$QSB" --qt6 -o "$DIR/$s.qsb" "$DIR/$s"
+done
+echo "quickshell-shaders: compiled into $DIR"

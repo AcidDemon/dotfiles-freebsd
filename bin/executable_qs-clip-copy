@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu -o pipefail
+cliphist decode "$1" | wl-copy
+notify-send "Clipboard" "Copied from history" || true

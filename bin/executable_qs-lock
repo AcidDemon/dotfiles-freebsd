@@ -1,0 +1,3 @@
+#!/bin/sh
+# one locker at most (lockf -t 0 gives up at once), detached into its own session so restarting the shell cannot kill it
+exec daemon lockf -kst 0 "${XDG_RUNTIME_DIR:-$HOME}/qs-lock.lock" quickshell -p "$HOME/.config/quickshell/desktop/lock.qml"

@@ -60,7 +60,7 @@ chezmoi cat ~/.config/nvim/lua/plugins/alpha.lua > /tmp/_a.lua \
     && luac54 -p /tmp/_a.lua && echo "  alpha.lua ok" && grep github.com /tmp/_a.lua
 rm -f /tmp/_a.lua
 python3 -m py_compile ~/.config/qutebrowser/config.py && echo "  qutebrowser config.py ok"
-python3 -c "import json;json.load(open('$HOME/.config/swaync/config.json'))" && echo "  swaync config.json ok"
+node private_dot_config/private_quickshell/.tests/parse-check.js >/dev/null && echo "  quickshell parse-check ok"
 for f in gitsigns nvimtree; do luac54 -p ~/.config/nvim/lua/plugins/$f.lua && echo "  $f.lua ok"; done
 luac54 -p ~/.config/nvim/lua/options/keymaps.lua && echo "  keymaps.lua ok"
 niri validate -c ~/.config/niri/config.kdl && echo "  niri config ok"

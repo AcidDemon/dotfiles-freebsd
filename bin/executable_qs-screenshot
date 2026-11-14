@@ -1,0 +1,5 @@
+#!/bin/sh
+# freebsd: ~/bin/shot area, the flow the niri binds use (niri's screenshot ui, satty, ~/Pictures/Screenshots)
+# let the panel slide away first
+sleep 0.4
+exec "$HOME/bin/shot" area
